@@ -1,0 +1,5 @@
+/data/cleaned
+/data/features
+/data/raw
+/data/splits
+.venv
