@@ -4,7 +4,19 @@ Dokumen ini merinci pembagian tugas dan timeline pengerjaan proyek klasifikasi k
 
 ## Peran & Tanggung Jawab
 - **A — ML & Data Engineer**: Fokus pada pemrosesan data audio, ekstraksi fitur tradisional, dan model Machine Learning klasik.
+
+ML nya : 
+• SVM (Support Vector Machine)
+• Random Forest
+• XGBoost / Gradient Boosting
+• Logistic Regression
+
 - **B — DL & XAI Engineer**: Fokus pada arsitektur Deep Learning dan implementasi metode Explainable AI.
+• 1D-CNN on spectrograms
+• LSTM / BiLSTM
+• wav2vec 2.0 (pre-trained)
+• CNN-LSTM Hybrid
+
 - **C — Web & Integration**: Fokus pada pengembangan antarmuka web, API backend, dan integrasi sistem secara keseluruhan.
 
 ---
