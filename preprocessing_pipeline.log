@@ -1,0 +1,392 @@
+2026-05-22 03:35:12,573 - INFO - Memulai pipeline preprocessing audio DAIC-WOZ...
+2026-05-22 03:35:12,573 - INFO - Path Input (Raw): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ
+2026-05-22 03:35:12,573 - INFO - Path Output (Cleaned): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\cleaned
+2026-05-22 03:35:12,580 - INFO - Ditemukan 189 folder participant di C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ
+2026-05-22 03:35:12,590 - INFO - Memulai preprocessing untuk file: 300_AUDIO.wav
+2026-05-22 03:35:14,847 - INFO - Berhasil memproses 300_AUDIO.wav. Durasi: 648.50s -> 155.33s (Speech ratio: 24.0%)
+2026-05-22 03:35:14,884 - INFO - Memulai preprocessing untuk file: 301_AUDIO.wav
+2026-05-22 03:35:15,528 - INFO - Berhasil memproses 301_AUDIO.wav. Durasi: 823.90s -> 475.33s (Speech ratio: 57.7%)
+2026-05-22 03:35:15,620 - INFO - Memulai preprocessing untuk file: 302_AUDIO.wav
+2026-05-22 03:35:16,015 - INFO - Berhasil memproses 302_AUDIO.wav. Durasi: 758.80s -> 208.93s (Speech ratio: 27.5%)
+2026-05-22 03:35:16,062 - INFO - Memulai preprocessing untuk file: 303_AUDIO.wav
+2026-05-22 03:35:16,916 - INFO - Berhasil memproses 303_AUDIO.wav. Durasi: 985.30s -> 642.75s (Speech ratio: 65.3%)
+2026-05-22 03:35:17,049 - INFO - Memulai preprocessing untuk file: 304_AUDIO.wav
+2026-05-22 03:35:17,587 - INFO - Berhasil memproses 304_AUDIO.wav. Durasi: 792.60s -> 361.86s (Speech ratio: 45.7%)
+2026-05-22 03:35:17,669 - INFO - Memulai preprocessing untuk file: 305_AUDIO.wav
+2026-05-22 03:35:19,308 - INFO - Berhasil memproses 305_AUDIO.wav. Durasi: 1704.00s -> 1117.57s (Speech ratio: 65.6%)
+2026-05-22 03:35:19,515 - INFO - Memulai preprocessing untuk file: 306_AUDIO.wav
+2026-05-22 03:35:20,445 - INFO - Berhasil memproses 306_AUDIO.wav. Durasi: 858.10s -> 509.34s (Speech ratio: 59.4%)
+2026-05-22 03:35:20,551 - INFO - Memulai preprocessing untuk file: 307_AUDIO.wav
+2026-05-22 03:35:21,756 - INFO - Berhasil memproses 307_AUDIO.wav. Durasi: 1238.80s -> 843.14s (Speech ratio: 68.1%)
+2026-05-22 03:35:21,928 - INFO - Memulai preprocessing untuk file: 308_AUDIO.wav
+2026-05-22 03:35:22,492 - INFO - Berhasil memproses 308_AUDIO.wav. Durasi: 867.60s -> 326.71s (Speech ratio: 37.7%)
+2026-05-22 03:35:22,558 - INFO - Memulai preprocessing untuk file: 309_AUDIO.wav
+2026-05-22 03:35:23,171 - INFO - Berhasil memproses 309_AUDIO.wav. Durasi: 705.80s -> 182.02s (Speech ratio: 25.8%)
+2026-05-22 03:35:23,232 - INFO - Memulai preprocessing untuk file: 310_AUDIO.wav
+2026-05-22 03:35:23,950 - INFO - Berhasil memproses 310_AUDIO.wav. Durasi: 844.90s -> 285.18s (Speech ratio: 33.8%)
+2026-05-22 03:35:24,019 - INFO - Memulai preprocessing untuk file: 311_AUDIO.wav
+2026-05-22 03:35:24,537 - INFO - Berhasil memproses 311_AUDIO.wav. Durasi: 785.60s -> 200.48s (Speech ratio: 25.6%)
+2026-05-22 03:35:24,589 - INFO - Memulai preprocessing untuk file: 312_AUDIO.wav
+2026-05-22 03:35:25,235 - INFO - Berhasil memproses 312_AUDIO.wav. Durasi: 790.00s -> 313.63s (Speech ratio: 39.7%)
+2026-05-22 03:35:25,316 - INFO - Memulai preprocessing untuk file: 313_AUDIO.wav
+2026-05-22 03:35:25,872 - INFO - Berhasil memproses 313_AUDIO.wav. Durasi: 753.80s -> 267.58s (Speech ratio: 35.5%)
+2026-05-22 03:35:25,933 - INFO - Memulai preprocessing untuk file: 314_AUDIO.wav
+2026-05-22 03:35:27,706 - INFO - Berhasil memproses 314_AUDIO.wav. Durasi: 1546.70s -> 1017.57s (Speech ratio: 65.8%)
+2026-05-22 03:35:27,940 - INFO - Memulai preprocessing untuk file: 315_AUDIO.wav
+2026-05-22 03:35:28,880 - INFO - Berhasil memproses 315_AUDIO.wav. Durasi: 975.40s -> 472.70s (Speech ratio: 48.5%)
+2026-05-22 03:35:28,964 - INFO - Memulai preprocessing untuk file: 316_AUDIO.wav
+2026-05-22 03:35:29,478 - INFO - Berhasil memproses 316_AUDIO.wav. Durasi: 869.00s -> 204.48s (Speech ratio: 23.7%)
+2026-05-22 03:35:29,525 - INFO - Memulai preprocessing untuk file: 317_AUDIO.wav
+2026-05-22 03:35:30,008 - INFO - Berhasil memproses 317_AUDIO.wav. Durasi: 804.90s -> 242.21s (Speech ratio: 30.1%)
+2026-05-22 03:35:30,053 - INFO - Memulai preprocessing untuk file: 318_AUDIO.wav
+2026-05-22 03:35:30,448 - INFO - Berhasil memproses 318_AUDIO.wav. Durasi: 588.40s -> 216.90s (Speech ratio: 39.0%)
+2026-05-22 03:35:30,495 - INFO - Memulai preprocessing untuk file: 319_AUDIO.wav
+2026-05-22 03:35:30,918 - INFO - Berhasil memproses 319_AUDIO.wav. Durasi: 679.70s -> 224.26s (Speech ratio: 33.0%)
+2026-05-22 03:35:30,966 - INFO - Memulai preprocessing untuk file: 320_AUDIO.wav
+2026-05-22 03:35:31,457 - INFO - Berhasil memproses 320_AUDIO.wav. Durasi: 840.70s -> 247.84s (Speech ratio: 29.6%)
+2026-05-22 03:35:31,513 - INFO - Memulai preprocessing untuk file: 321_AUDIO.wav
+2026-05-22 03:35:32,008 - INFO - Berhasil memproses 321_AUDIO.wav. Durasi: 821.90s -> 286.72s (Speech ratio: 35.3%)
+2026-05-22 03:35:32,069 - INFO - Memulai preprocessing untuk file: 322_AUDIO.wav
+2026-05-22 03:35:32,845 - INFO - Berhasil memproses 322_AUDIO.wav. Durasi: 1047.10s -> 477.12s (Speech ratio: 45.6%)
+2026-05-22 03:35:32,938 - INFO - Memulai preprocessing untuk file: 323_AUDIO.wav
+2026-05-22 03:35:33,527 - INFO - Berhasil memproses 323_AUDIO.wav. Durasi: 837.00s -> 385.06s (Speech ratio: 46.0%)
+2026-05-22 03:35:33,596 - INFO - Memulai preprocessing untuk file: 324_AUDIO.wav
+2026-05-22 03:35:34,057 - INFO - Berhasil memproses 324_AUDIO.wav. Durasi: 721.30s -> 274.78s (Speech ratio: 38.1%)
+2026-05-22 03:35:34,112 - INFO - Memulai preprocessing untuk file: 325_AUDIO.wav
+2026-05-22 03:35:34,837 - INFO - Berhasil memproses 325_AUDIO.wav. Durasi: 875.00s -> 514.59s (Speech ratio: 58.8%)
+2026-05-22 03:35:34,928 - INFO - Memulai preprocessing untuk file: 326_AUDIO.wav
+2026-05-22 03:35:35,328 - INFO - Berhasil memproses 326_AUDIO.wav. Durasi: 699.20s -> 168.51s (Speech ratio: 24.1%)
+2026-05-22 03:35:35,367 - INFO - Memulai preprocessing untuk file: 327_AUDIO.wav
+2026-05-22 03:35:35,818 - INFO - Berhasil memproses 327_AUDIO.wav. Durasi: 680.80s -> 266.56s (Speech ratio: 39.2%)
+2026-05-22 03:35:35,869 - INFO - Memulai preprocessing untuk file: 328_AUDIO.wav
+2026-05-22 03:35:36,857 - INFO - Berhasil memproses 328_AUDIO.wav. Durasi: 1065.20s -> 664.16s (Speech ratio: 62.4%)
+2026-05-22 03:35:36,990 - INFO - Memulai preprocessing untuk file: 329_AUDIO.wav
+2026-05-22 03:35:37,607 - INFO - Berhasil memproses 329_AUDIO.wav. Durasi: 706.30s -> 375.10s (Speech ratio: 53.1%)
+2026-05-22 03:35:37,686 - INFO - Memulai preprocessing untuk file: 330_AUDIO.wav
+2026-05-22 03:35:38,132 - INFO - Berhasil memproses 330_AUDIO.wav. Durasi: 771.50s -> 192.09s (Speech ratio: 24.9%)
+2026-05-22 03:35:38,182 - INFO - Memulai preprocessing untuk file: 331_AUDIO.wav
+2026-05-22 03:35:38,797 - INFO - Berhasil memproses 331_AUDIO.wav. Durasi: 850.70s -> 402.62s (Speech ratio: 47.3%)
+2026-05-22 03:35:38,871 - INFO - Memulai preprocessing untuk file: 332_AUDIO.wav
+2026-05-22 03:35:39,434 - INFO - Berhasil memproses 332_AUDIO.wav. Durasi: 874.10s -> 297.95s (Speech ratio: 34.2%)
+2026-05-22 03:35:39,500 - INFO - Memulai preprocessing untuk file: 333_AUDIO.wav
+2026-05-22 03:35:40,236 - INFO - Berhasil memproses 333_AUDIO.wav. Durasi: 969.30s -> 413.19s (Speech ratio: 42.6%)
+2026-05-22 03:35:40,317 - INFO - Memulai preprocessing untuk file: 334_AUDIO.wav
+2026-05-22 03:35:41,057 - INFO - Berhasil memproses 334_AUDIO.wav. Durasi: 980.00s -> 441.70s (Speech ratio: 45.1%)
+2026-05-22 03:35:41,146 - INFO - Memulai preprocessing untuk file: 335_AUDIO.wav
+2026-05-22 03:35:41,865 - INFO - Berhasil memproses 335_AUDIO.wav. Durasi: 830.10s -> 430.91s (Speech ratio: 51.9%)
+2026-05-22 03:35:41,952 - INFO - Memulai preprocessing untuk file: 336_AUDIO.wav
+2026-05-22 03:35:42,627 - INFO - Berhasil memproses 336_AUDIO.wav. Durasi: 944.50s -> 385.54s (Speech ratio: 40.8%)
+2026-05-22 03:35:42,701 - INFO - Memulai preprocessing untuk file: 337_AUDIO.wav
+2026-05-22 03:35:44,756 - INFO - Berhasil memproses 337_AUDIO.wav. Durasi: 1871.20s -> 1282.78s (Speech ratio: 68.6%)
+2026-05-22 03:35:45,004 - INFO - Memulai preprocessing untuk file: 338_AUDIO.wav
+2026-05-22 03:35:45,478 - INFO - Berhasil memproses 338_AUDIO.wav. Durasi: 596.80s -> 279.62s (Speech ratio: 46.9%)
+2026-05-22 03:35:45,555 - INFO - Memulai preprocessing untuk file: 339_AUDIO.wav
+2026-05-22 03:35:46,277 - INFO - Berhasil memproses 339_AUDIO.wav. Durasi: 862.90s -> 419.02s (Speech ratio: 48.6%)
+2026-05-22 03:35:46,347 - INFO - Memulai preprocessing untuk file: 340_AUDIO.wav
+2026-05-22 03:35:46,679 - INFO - Berhasil memproses 340_AUDIO.wav. Durasi: 599.30s -> 171.33s (Speech ratio: 28.6%)
+2026-05-22 03:35:46,718 - INFO - Memulai preprocessing untuk file: 341_AUDIO.wav
+2026-05-22 03:35:47,354 - INFO - Berhasil memproses 341_AUDIO.wav. Durasi: 867.50s -> 383.01s (Speech ratio: 44.4%)
+2026-05-22 03:35:47,448 - INFO - Memulai preprocessing untuk file: 343_AUDIO.wav
+2026-05-22 03:35:47,945 - INFO - Berhasil memproses 343_AUDIO.wav. Durasi: 927.30s -> 237.02s (Speech ratio: 25.6%)
+2026-05-22 03:35:48,010 - INFO - Memulai preprocessing untuk file: 344_AUDIO.wav
+2026-05-22 03:35:48,920 - INFO - Berhasil memproses 344_AUDIO.wav. Durasi: 1090.50s -> 604.25s (Speech ratio: 55.4%)
+2026-05-22 03:35:49,028 - INFO - Memulai preprocessing untuk file: 345_AUDIO.wav
+2026-05-22 03:35:49,713 - INFO - Berhasil memproses 345_AUDIO.wav. Durasi: 793.90s -> 480.96s (Speech ratio: 60.6%)
+2026-05-22 03:35:49,810 - INFO - Memulai preprocessing untuk file: 346_AUDIO.wav
+2026-05-22 03:35:50,916 - INFO - Berhasil memproses 346_AUDIO.wav. Durasi: 1221.80s -> 653.12s (Speech ratio: 53.5%)
+2026-05-22 03:35:51,072 - INFO - Memulai preprocessing untuk file: 347_AUDIO.wav
+2026-05-22 03:35:51,412 - INFO - Berhasil memproses 347_AUDIO.wav. Durasi: 611.60s -> 127.94s (Speech ratio: 20.9%)
+2026-05-22 03:35:51,450 - INFO - Memulai preprocessing untuk file: 348_AUDIO.wav
+2026-05-22 03:35:51,970 - INFO - Berhasil memproses 348_AUDIO.wav. Durasi: 719.40s -> 296.48s (Speech ratio: 41.2%)
+2026-05-22 03:35:52,041 - INFO - Memulai preprocessing untuk file: 349_AUDIO.wav
+2026-05-22 03:35:52,893 - INFO - Berhasil memproses 349_AUDIO.wav. Durasi: 1216.00s -> 515.68s (Speech ratio: 42.4%)
+2026-05-22 03:35:52,999 - INFO - Memulai preprocessing untuk file: 350_AUDIO.wav
+2026-05-22 03:35:53,675 - INFO - Berhasil memproses 350_AUDIO.wav. Durasi: 881.80s -> 458.69s (Speech ratio: 52.0%)
+2026-05-22 03:35:53,787 - INFO - Memulai preprocessing untuk file: 351_AUDIO.wav
+2026-05-22 03:35:54,412 - INFO - Berhasil memproses 351_AUDIO.wav. Durasi: 769.60s -> 406.21s (Speech ratio: 52.9%)
+2026-05-22 03:35:54,504 - INFO - Memulai preprocessing untuk file: 352_AUDIO.wav
+2026-05-22 03:35:55,262 - INFO - Berhasil memproses 352_AUDIO.wav. Durasi: 760.10s -> 498.72s (Speech ratio: 65.7%)
+2026-05-22 03:35:55,366 - INFO - Memulai preprocessing untuk file: 353_AUDIO.wav
+2026-05-22 03:35:56,050 - INFO - Berhasil memproses 353_AUDIO.wav. Durasi: 786.00s -> 415.14s (Speech ratio: 52.8%)
+2026-05-22 03:35:56,163 - INFO - Memulai preprocessing untuk file: 354_AUDIO.wav
+2026-05-22 03:35:56,531 - INFO - Berhasil memproses 354_AUDIO.wav. Durasi: 576.80s -> 146.38s (Speech ratio: 25.4%)
+2026-05-22 03:35:56,567 - INFO - Memulai preprocessing untuk file: 355_AUDIO.wav
+2026-05-22 03:35:57,086 - INFO - Berhasil memproses 355_AUDIO.wav. Durasi: 674.70s -> 332.35s (Speech ratio: 49.3%)
+2026-05-22 03:35:57,167 - INFO - Memulai preprocessing untuk file: 356_AUDIO.wav
+2026-05-22 03:35:57,975 - INFO - Berhasil memproses 356_AUDIO.wav. Durasi: 954.00s -> 527.73s (Speech ratio: 55.3%)
+2026-05-22 03:35:58,120 - INFO - Memulai preprocessing untuk file: 357_AUDIO.wav
+2026-05-22 03:35:58,407 - INFO - Berhasil memproses 357_AUDIO.wav. Durasi: 414.80s -> 133.94s (Speech ratio: 32.3%)
+2026-05-22 03:35:58,453 - INFO - Memulai preprocessing untuk file: 358_AUDIO.wav
+2026-05-22 03:35:58,872 - INFO - Berhasil memproses 358_AUDIO.wav. Durasi: 647.90s -> 238.24s (Speech ratio: 36.8%)
+2026-05-22 03:35:58,935 - INFO - Memulai preprocessing untuk file: 359_AUDIO.wav
+2026-05-22 03:35:59,870 - INFO - Berhasil memproses 359_AUDIO.wav. Durasi: 1033.60s -> 603.49s (Speech ratio: 58.4%)
+2026-05-22 03:36:00,077 - INFO - Memulai preprocessing untuk file: 360_AUDIO.wav
+2026-05-22 03:36:00,440 - INFO - Berhasil memproses 360_AUDIO.wav. Durasi: 440.40s -> 202.88s (Speech ratio: 46.1%)
+2026-05-22 03:36:00,544 - INFO - Memulai preprocessing untuk file: 361_AUDIO.wav
+2026-05-22 03:36:01,124 - INFO - Berhasil memproses 361_AUDIO.wav. Durasi: 641.90s -> 381.38s (Speech ratio: 59.4%)
+2026-05-22 03:36:01,316 - INFO - Memulai preprocessing untuk file: 362_AUDIO.wav
+2026-05-22 03:36:01,761 - INFO - Berhasil memproses 362_AUDIO.wav. Durasi: 590.20s -> 263.78s (Speech ratio: 45.3%)
+2026-05-22 03:36:01,904 - INFO - Memulai preprocessing untuk file: 363_AUDIO.wav
+2026-05-22 03:36:03,016 - INFO - Berhasil memproses 363_AUDIO.wav. Durasi: 1227.10s -> 709.22s (Speech ratio: 57.8%)
+2026-05-22 03:36:03,401 - INFO - Memulai preprocessing untuk file: 364_AUDIO.wav
+2026-05-22 03:36:05,249 - INFO - Berhasil memproses 364_AUDIO.wav. Durasi: 1781.50s -> 1173.79s (Speech ratio: 66.0%)
+2026-05-22 03:36:05,828 - INFO - Memulai preprocessing untuk file: 365_AUDIO.wav
+2026-05-22 03:36:06,856 - INFO - Berhasil memproses 365_AUDIO.wav. Durasi: 1386.10s -> 605.88s (Speech ratio: 43.7%)
+2026-05-22 03:36:07,247 - INFO - Memulai preprocessing untuk file: 366_AUDIO.wav
+2026-05-22 03:36:08,528 - INFO - Berhasil memproses 366_AUDIO.wav. Durasi: 1312.70s -> 780.61s (Speech ratio: 59.5%)
+2026-05-22 03:36:09,412 - INFO - Memulai preprocessing untuk file: 367_AUDIO.wav
+2026-05-22 03:36:10,862 - INFO - Berhasil memproses 367_AUDIO.wav. Durasi: 1637.00s -> 986.85s (Speech ratio: 60.3%)
+2026-05-22 03:36:11,295 - INFO - Memulai preprocessing untuk file: 368_AUDIO.wav
+2026-05-22 03:36:12,750 - INFO - Berhasil memproses 368_AUDIO.wav. Durasi: 1354.80s -> 911.16s (Speech ratio: 67.3%)
+2026-05-22 03:36:13,128 - INFO - Memulai preprocessing untuk file: 369_AUDIO.wav
+2026-05-22 03:36:14,200 - INFO - Berhasil memproses 369_AUDIO.wav. Durasi: 1041.10s -> 730.62s (Speech ratio: 70.4%)
+2026-05-22 03:36:14,492 - INFO - Memulai preprocessing untuk file: 370_AUDIO.wav
+2026-05-22 03:36:15,617 - INFO - Berhasil memproses 370_AUDIO.wav. Durasi: 1208.60s -> 789.06s (Speech ratio: 65.4%)
+2026-05-22 03:36:15,944 - INFO - Memulai preprocessing untuk file: 371_AUDIO.wav
+2026-05-22 03:36:16,439 - INFO - Berhasil memproses 371_AUDIO.wav. Durasi: 911.70s -> 253.20s (Speech ratio: 27.8%)
+2026-05-22 03:36:16,545 - INFO - Memulai preprocessing untuk file: 372_AUDIO.wav
+2026-05-22 03:36:17,750 - INFO - Berhasil memproses 372_AUDIO.wav. Durasi: 1513.70s -> 705.76s (Speech ratio: 46.7%)
+2026-05-22 03:36:18,040 - INFO - Memulai preprocessing untuk file: 373_AUDIO.wav
+2026-05-22 03:36:19,336 - INFO - Berhasil memproses 373_AUDIO.wav. Durasi: 1265.10s -> 845.73s (Speech ratio: 66.9%)
+2026-05-22 03:36:19,743 - INFO - Memulai preprocessing untuk file: 374_AUDIO.wav
+2026-05-22 03:36:20,933 - INFO - Berhasil memproses 374_AUDIO.wav. Durasi: 1287.70s -> 760.00s (Speech ratio: 59.1%)
+2026-05-22 03:36:21,165 - INFO - Memulai preprocessing untuk file: 375_AUDIO.wav
+2026-05-22 03:36:21,454 - INFO - Berhasil memproses 375_AUDIO.wav. Durasi: 621.20s -> 135.26s (Speech ratio: 21.8%)
+2026-05-22 03:36:21,514 - INFO - Memulai preprocessing untuk file: 376_AUDIO.wav
+2026-05-22 03:36:22,292 - INFO - Berhasil memproses 376_AUDIO.wav. Durasi: 1025.70s -> 529.34s (Speech ratio: 51.7%)
+2026-05-22 03:36:22,481 - INFO - Memulai preprocessing untuk file: 377_AUDIO.wav
+2026-05-22 03:36:23,637 - INFO - Berhasil memproses 377_AUDIO.wav. Durasi: 1328.30s -> 803.77s (Speech ratio: 60.5%)
+2026-05-22 03:36:23,885 - INFO - Memulai preprocessing untuk file: 378_AUDIO.wav
+2026-05-22 03:36:24,599 - INFO - Berhasil memproses 378_AUDIO.wav. Durasi: 873.40s -> 413.21s (Speech ratio: 47.3%)
+2026-05-22 03:36:24,728 - INFO - Memulai preprocessing untuk file: 379_AUDIO.wav
+2026-05-22 03:36:25,602 - INFO - Berhasil memproses 379_AUDIO.wav. Durasi: 1002.10s -> 611.84s (Speech ratio: 61.1%)
+2026-05-22 03:36:25,794 - INFO - Memulai preprocessing untuk file: 380_AUDIO.wav
+2026-05-22 03:36:27,599 - INFO - Berhasil memproses 380_AUDIO.wav. Durasi: 1966.20s -> 1213.47s (Speech ratio: 61.8%)
+2026-05-22 03:36:28,113 - INFO - Memulai preprocessing untuk file: 381_AUDIO.wav
+2026-05-22 03:36:28,957 - INFO - Berhasil memproses 381_AUDIO.wav. Durasi: 1089.30s -> 462.75s (Speech ratio: 42.5%)
+2026-05-22 03:36:29,316 - INFO - Memulai preprocessing untuk file: 382_AUDIO.wav
+2026-05-22 03:36:29,816 - INFO - Berhasil memproses 382_AUDIO.wav. Durasi: 824.20s -> 295.73s (Speech ratio: 35.9%)
+2026-05-22 03:36:29,950 - INFO - Memulai preprocessing untuk file: 383_AUDIO.wav
+2026-05-22 03:36:31,214 - INFO - Berhasil memproses 383_AUDIO.wav. Durasi: 1369.10s -> 891.78s (Speech ratio: 65.1%)
+2026-05-22 03:36:31,474 - INFO - Memulai preprocessing untuk file: 384_AUDIO.wav
+2026-05-22 03:36:32,169 - INFO - Berhasil memproses 384_AUDIO.wav. Durasi: 1056.80s -> 429.63s (Speech ratio: 40.8%)
+2026-05-22 03:36:32,309 - INFO - Memulai preprocessing untuk file: 385_AUDIO.wav
+2026-05-22 03:36:32,522 - INFO - Berhasil memproses 385_AUDIO.wav. Durasi: 536.30s -> 61.95s (Speech ratio: 11.6%)
+2026-05-22 03:36:32,548 - INFO - Memulai preprocessing untuk file: 386_AUDIO.wav
+2026-05-22 03:36:33,454 - INFO - Berhasil memproses 386_AUDIO.wav. Durasi: 1039.40s -> 649.79s (Speech ratio: 62.6%)
+2026-05-22 03:36:33,654 - INFO - Memulai preprocessing untuk file: 387_AUDIO.wav
+2026-05-22 03:36:34,012 - INFO - Berhasil memproses 387_AUDIO.wav. Durasi: 602.80s -> 167.30s (Speech ratio: 27.9%)
+2026-05-22 03:36:34,070 - INFO - Memulai preprocessing untuk file: 388_AUDIO.wav
+2026-05-22 03:36:34,467 - INFO - Berhasil memproses 388_AUDIO.wav. Durasi: 831.20s -> 153.06s (Speech ratio: 18.6%)
+2026-05-22 03:36:34,519 - INFO - Memulai preprocessing untuk file: 389_AUDIO.wav
+2026-05-22 03:36:34,985 - INFO - Berhasil memproses 389_AUDIO.wav. Durasi: 953.20s -> 223.90s (Speech ratio: 23.6%)
+2026-05-22 03:36:35,077 - INFO - Memulai preprocessing untuk file: 390_AUDIO.wav
+2026-05-22 03:36:36,044 - INFO - Berhasil memproses 390_AUDIO.wav. Durasi: 1356.70s -> 631.23s (Speech ratio: 46.6%)
+2026-05-22 03:36:36,263 - INFO - Memulai preprocessing untuk file: 391_AUDIO.wav
+2026-05-22 03:36:36,657 - INFO - Berhasil memproses 391_AUDIO.wav. Durasi: 680.10s -> 212.45s (Speech ratio: 31.3%)
+2026-05-22 03:36:36,732 - INFO - Memulai preprocessing untuk file: 392_AUDIO.wav
+2026-05-22 03:36:37,132 - INFO - Berhasil memproses 392_AUDIO.wav. Durasi: 655.70s -> 216.23s (Speech ratio: 33.0%)
+2026-05-22 03:36:37,203 - INFO - Memulai preprocessing untuk file: 393_AUDIO.wav
+2026-05-22 03:36:37,608 - INFO - Berhasil memproses 393_AUDIO.wav. Durasi: 630.00s -> 205.89s (Speech ratio: 32.7%)
+2026-05-22 03:36:37,670 - INFO - Memulai preprocessing untuk file: 395_AUDIO.wav
+2026-05-22 03:36:38,389 - INFO - Berhasil memproses 395_AUDIO.wav. Durasi: 889.20s -> 430.92s (Speech ratio: 48.5%)
+2026-05-22 03:36:38,573 - INFO - Memulai preprocessing untuk file: 396_AUDIO.wav
+2026-05-22 03:36:39,095 - INFO - Berhasil memproses 396_AUDIO.wav. Durasi: 780.40s -> 309.56s (Speech ratio: 39.7%)
+2026-05-22 03:36:39,192 - INFO - Memulai preprocessing untuk file: 397_AUDIO.wav
+2026-05-22 03:36:39,962 - INFO - Berhasil memproses 397_AUDIO.wav. Durasi: 953.30s -> 442.74s (Speech ratio: 46.5%)
+2026-05-22 03:36:40,255 - INFO - Memulai preprocessing untuk file: 399_AUDIO.wav
+2026-05-22 03:36:40,851 - INFO - Berhasil memproses 399_AUDIO.wav. Durasi: 734.00s -> 336.35s (Speech ratio: 45.9%)
+2026-05-22 03:36:40,973 - INFO - Memulai preprocessing untuk file: 400_AUDIO.wav
+2026-05-22 03:36:41,716 - INFO - Berhasil memproses 400_AUDIO.wav. Durasi: 936.70s -> 411.36s (Speech ratio: 44.0%)
+2026-05-22 03:36:41,831 - INFO - Memulai preprocessing untuk file: 401_AUDIO.wav
+2026-05-22 03:36:42,518 - INFO - Berhasil memproses 401_AUDIO.wav. Durasi: 934.20s -> 421.55s (Speech ratio: 45.1%)
+2026-05-22 03:36:42,655 - INFO - Memulai preprocessing untuk file: 402_AUDIO.wav
+2026-05-22 03:36:43,435 - INFO - Berhasil memproses 402_AUDIO.wav. Durasi: 955.50s -> 447.55s (Speech ratio: 46.8%)
+2026-05-22 03:36:43,570 - INFO - Memulai preprocessing untuk file: 403_AUDIO.wav
+2026-05-22 03:36:44,299 - INFO - Berhasil memproses 403_AUDIO.wav. Durasi: 862.50s -> 441.34s (Speech ratio: 51.4%)
+2026-05-22 03:36:44,446 - INFO - Memulai preprocessing untuk file: 404_AUDIO.wav
+2026-05-22 03:36:45,294 - INFO - Berhasil memproses 404_AUDIO.wav. Durasi: 1130.60s -> 479.94s (Speech ratio: 42.5%)
+2026-05-22 03:36:45,455 - INFO - Memulai preprocessing untuk file: 405_AUDIO.wav
+2026-05-22 03:36:46,837 - INFO - Berhasil memproses 405_AUDIO.wav. Durasi: 1570.20s -> 852.45s (Speech ratio: 54.4%)
+2026-05-22 03:36:47,122 - INFO - Memulai preprocessing untuk file: 406_AUDIO.wav
+2026-05-22 03:36:47,666 - INFO - Berhasil memproses 406_AUDIO.wav. Durasi: 721.80s -> 303.78s (Speech ratio: 42.3%)
+2026-05-22 03:36:47,770 - INFO - Memulai preprocessing untuk file: 407_AUDIO.wav
+2026-05-22 03:36:49,023 - INFO - Berhasil memproses 407_AUDIO.wav. Durasi: 1252.40s -> 824.03s (Speech ratio: 65.9%)
+2026-05-22 03:36:49,311 - INFO - Memulai preprocessing untuk file: 408_AUDIO.wav
+2026-05-22 03:36:49,978 - INFO - Berhasil memproses 408_AUDIO.wav. Durasi: 715.90s -> 320.86s (Speech ratio: 44.9%)
+2026-05-22 03:36:50,163 - INFO - Memulai preprocessing untuk file: 409_AUDIO.wav
+2026-05-22 03:36:51,107 - INFO - Berhasil memproses 409_AUDIO.wav. Durasi: 1032.40s -> 578.27s (Speech ratio: 56.0%)
+2026-05-22 03:36:51,327 - INFO - Memulai preprocessing untuk file: 410_AUDIO.wav
+2026-05-22 03:36:52,278 - INFO - Berhasil memproses 410_AUDIO.wav. Durasi: 1065.00s -> 550.82s (Speech ratio: 51.7%)
+2026-05-22 03:36:52,491 - INFO - Memulai preprocessing untuk file: 411_AUDIO.wav
+2026-05-22 03:36:53,928 - INFO - Berhasil memproses 411_AUDIO.wav. Durasi: 1382.90s -> 905.96s (Speech ratio: 65.6%)
+2026-05-22 03:36:54,305 - INFO - Memulai preprocessing untuk file: 412_AUDIO.wav
+2026-05-22 03:36:54,978 - INFO - Berhasil memproses 412_AUDIO.wav. Durasi: 856.90s -> 329.57s (Speech ratio: 38.6%)
+2026-05-22 03:36:55,131 - INFO - Memulai preprocessing untuk file: 413_AUDIO.wav
+2026-05-22 03:36:55,994 - INFO - Berhasil memproses 413_AUDIO.wav. Durasi: 996.80s -> 518.24s (Speech ratio: 52.0%)
+2026-05-22 03:36:56,207 - INFO - Memulai preprocessing untuk file: 414_AUDIO.wav
+2026-05-22 03:36:57,137 - INFO - Berhasil memproses 414_AUDIO.wav. Durasi: 984.30s -> 522.56s (Speech ratio: 53.1%)
+2026-05-22 03:36:57,366 - INFO - Memulai preprocessing untuk file: 415_AUDIO.wav
+2026-05-22 03:36:57,982 - INFO - Berhasil memproses 415_AUDIO.wav. Durasi: 780.70s -> 350.92s (Speech ratio: 45.0%)
+2026-05-22 03:36:58,154 - INFO - Memulai preprocessing untuk file: 416_AUDIO.wav
+2026-05-22 03:36:58,895 - INFO - Berhasil memproses 416_AUDIO.wav. Durasi: 865.80s -> 432.53s (Speech ratio: 50.0%)
+2026-05-22 03:36:59,107 - INFO - Memulai preprocessing untuk file: 417_AUDIO.wav
+2026-05-22 03:36:59,830 - INFO - Berhasil memproses 417_AUDIO.wav. Durasi: 886.30s -> 439.17s (Speech ratio: 49.6%)
+2026-05-22 03:37:00,046 - INFO - Memulai preprocessing untuk file: 418_AUDIO.wav
+2026-05-22 03:37:01,007 - INFO - Berhasil memproses 418_AUDIO.wav. Durasi: 1089.20s -> 586.85s (Speech ratio: 53.9%)
+2026-05-22 03:37:01,369 - INFO - Memulai preprocessing untuk file: 419_AUDIO.wav
+2026-05-22 03:37:02,246 - INFO - Berhasil memproses 419_AUDIO.wav. Durasi: 906.30s -> 561.05s (Speech ratio: 61.9%)
+2026-05-22 03:37:02,610 - INFO - Memulai preprocessing untuk file: 420_AUDIO.wav
+2026-05-22 03:37:03,278 - INFO - Berhasil memproses 420_AUDIO.wav. Durasi: 1048.90s -> 382.78s (Speech ratio: 36.6%)
+2026-05-22 03:37:03,477 - INFO - Memulai preprocessing untuk file: 421_AUDIO.wav
+2026-05-22 03:37:04,107 - INFO - Berhasil memproses 421_AUDIO.wav. Durasi: 837.00s -> 378.72s (Speech ratio: 45.3%)
+2026-05-22 03:37:04,292 - INFO - Memulai preprocessing untuk file: 422_AUDIO.wav
+2026-05-22 03:37:05,547 - INFO - Berhasil memproses 422_AUDIO.wav. Durasi: 1334.60s -> 750.40s (Speech ratio: 56.2%)
+2026-05-22 03:37:05,950 - INFO - Memulai preprocessing untuk file: 423_AUDIO.wav
+2026-05-22 03:37:06,791 - INFO - Berhasil memproses 423_AUDIO.wav. Durasi: 995.90s -> 431.97s (Speech ratio: 43.5%)
+2026-05-22 03:37:07,008 - INFO - Memulai preprocessing untuk file: 424_AUDIO.wav
+2026-05-22 03:37:08,120 - INFO - Berhasil memproses 424_AUDIO.wav. Durasi: 1062.70s -> 719.20s (Speech ratio: 67.7%)
+2026-05-22 03:37:08,625 - INFO - Memulai preprocessing untuk file: 425_AUDIO.wav
+2026-05-22 03:37:09,607 - INFO - Berhasil memproses 425_AUDIO.wav. Durasi: 1154.80s -> 613.49s (Speech ratio: 53.1%)
+2026-05-22 03:37:10,043 - INFO - Memulai preprocessing untuk file: 426_AUDIO.wav
+2026-05-22 03:37:10,877 - INFO - Berhasil memproses 426_AUDIO.wav. Durasi: 856.80s -> 340.63s (Speech ratio: 39.8%)
+2026-05-22 03:37:11,100 - INFO - Memulai preprocessing untuk file: 427_AUDIO.wav
+2026-05-22 03:37:11,782 - INFO - Berhasil memproses 427_AUDIO.wav. Durasi: 871.80s -> 321.28s (Speech ratio: 37.0%)
+2026-05-22 03:37:12,032 - INFO - Memulai preprocessing untuk file: 428_AUDIO.wav
+2026-05-22 03:37:12,533 - INFO - Berhasil memproses 428_AUDIO.wav. Durasi: 704.10s -> 247.94s (Speech ratio: 35.4%)
+2026-05-22 03:37:12,683 - INFO - Memulai preprocessing untuk file: 429_AUDIO.wav
+2026-05-22 03:37:13,377 - INFO - Berhasil memproses 429_AUDIO.wav. Durasi: 957.50s -> 409.96s (Speech ratio: 42.9%)
+2026-05-22 03:37:13,649 - INFO - Memulai preprocessing untuk file: 430_AUDIO.wav
+2026-05-22 03:37:14,382 - INFO - Berhasil memproses 430_AUDIO.wav. Durasi: 908.80s -> 400.61s (Speech ratio: 44.1%)
+2026-05-22 03:37:14,665 - INFO - Memulai preprocessing untuk file: 431_AUDIO.wav
+2026-05-22 03:37:15,407 - INFO - Berhasil memproses 431_AUDIO.wav. Durasi: 833.80s -> 350.30s (Speech ratio: 42.0%)
+2026-05-22 03:37:15,651 - INFO - Memulai preprocessing untuk file: 432_AUDIO.wav
+2026-05-22 03:37:16,494 - INFO - Berhasil memproses 432_AUDIO.wav. Durasi: 935.90s -> 385.88s (Speech ratio: 41.2%)
+2026-05-22 03:37:16,740 - INFO - Memulai preprocessing untuk file: 433_AUDIO.wav
+2026-05-22 03:37:17,440 - INFO - Berhasil memproses 433_AUDIO.wav. Durasi: 801.90s -> 296.15s (Speech ratio: 36.9%)
+2026-05-22 03:37:17,630 - INFO - Memulai preprocessing untuk file: 434_AUDIO.wav
+2026-05-22 03:37:19,210 - INFO - Berhasil memproses 434_AUDIO.wav. Durasi: 1319.90s -> 813.25s (Speech ratio: 61.7%)
+2026-05-22 03:37:19,724 - INFO - Memulai preprocessing untuk file: 435_AUDIO.wav
+2026-05-22 03:37:20,722 - INFO - Berhasil memproses 435_AUDIO.wav. Durasi: 1185.00s -> 502.90s (Speech ratio: 42.5%)
+2026-05-22 03:37:21,074 - INFO - Memulai preprocessing untuk file: 436_AUDIO.wav
+2026-05-22 03:37:21,666 - INFO - Berhasil memproses 436_AUDIO.wav. Durasi: 687.90s -> 329.39s (Speech ratio: 47.9%)
+2026-05-22 03:37:21,873 - INFO - Memulai preprocessing untuk file: 437_AUDIO.wav
+2026-05-22 03:37:22,635 - INFO - Berhasil memproses 437_AUDIO.wav. Durasi: 849.60s -> 440.99s (Speech ratio: 51.9%)
+2026-05-22 03:37:22,955 - INFO - Memulai preprocessing untuk file: 438_AUDIO.wav
+2026-05-22 03:37:24,657 - INFO - Berhasil memproses 438_AUDIO.wav. Durasi: 1429.90s -> 1035.05s (Speech ratio: 72.4%)
+2026-05-22 03:37:25,254 - INFO - Memulai preprocessing untuk file: 439_AUDIO.wav
+2026-05-22 03:37:26,651 - INFO - Berhasil memproses 439_AUDIO.wav. Durasi: 1284.60s -> 911.90s (Speech ratio: 71.0%)
+2026-05-22 03:37:27,187 - INFO - Memulai preprocessing untuk file: 440_AUDIO.wav
+2026-05-22 03:37:28,262 - INFO - Berhasil memproses 440_AUDIO.wav. Durasi: 1414.10s -> 642.85s (Speech ratio: 45.5%)
+2026-05-22 03:37:28,671 - INFO - Memulai preprocessing untuk file: 441_AUDIO.wav
+2026-05-22 03:37:29,260 - INFO - Berhasil memproses 441_AUDIO.wav. Durasi: 971.30s -> 284.90s (Speech ratio: 29.3%)
+2026-05-22 03:37:29,449 - INFO - Memulai preprocessing untuk file: 442_AUDIO.wav
+2026-05-22 03:37:30,250 - INFO - Berhasil memproses 442_AUDIO.wav. Durasi: 950.00s -> 465.56s (Speech ratio: 49.1%)
+2026-05-22 03:37:30,529 - INFO - Memulai preprocessing untuk file: 443_AUDIO.wav
+2026-05-22 03:37:30,980 - INFO - Berhasil memproses 443_AUDIO.wav. Durasi: 701.30s -> 200.93s (Speech ratio: 28.8%)
+2026-05-22 03:37:31,133 - INFO - Memulai preprocessing untuk file: 444_AUDIO.wav
+2026-05-22 03:37:32,415 - INFO - Berhasil memproses 444_AUDIO.wav. Durasi: 1310.50s -> 841.22s (Speech ratio: 64.2%)
+2026-05-22 03:37:33,042 - INFO - Memulai preprocessing untuk file: 445_AUDIO.wav
+2026-05-22 03:37:33,648 - INFO - Berhasil memproses 445_AUDIO.wav. Durasi: 709.60s -> 310.39s (Speech ratio: 43.7%)
+2026-05-22 03:37:33,850 - INFO - Memulai preprocessing untuk file: 446_AUDIO.wav
+2026-05-22 03:37:34,695 - INFO - Berhasil memproses 446_AUDIO.wav. Durasi: 998.40s -> 578.55s (Speech ratio: 57.9%)
+2026-05-22 03:37:35,013 - INFO - Memulai preprocessing untuk file: 447_AUDIO.wav
+2026-05-22 03:37:35,678 - INFO - Berhasil memproses 447_AUDIO.wav. Durasi: 820.30s -> 442.56s (Speech ratio: 54.0%)
+2026-05-22 03:37:35,931 - INFO - Memulai preprocessing untuk file: 448_AUDIO.wav
+2026-05-22 03:37:37,299 - INFO - Berhasil memproses 448_AUDIO.wav. Durasi: 1213.00s -> 794.91s (Speech ratio: 65.5%)
+2026-05-22 03:37:37,945 - INFO - Memulai preprocessing untuk file: 449_AUDIO.wav
+2026-05-22 03:37:39,099 - INFO - Berhasil memproses 449_AUDIO.wav. Durasi: 1029.70s -> 724.58s (Speech ratio: 70.4%)
+2026-05-22 03:37:39,543 - INFO - Memulai preprocessing untuk file: 450_AUDIO.wav
+2026-05-22 03:37:40,668 - INFO - Berhasil memproses 450_AUDIO.wav. Durasi: 1275.20s -> 722.75s (Speech ratio: 56.7%)
+2026-05-22 03:37:41,072 - INFO - Memulai preprocessing untuk file: 451_AUDIO.wav
+2026-05-22 03:37:42,057 - INFO - Berhasil memproses 451_AUDIO.wav. Durasi: 1188.40s -> 635.84s (Speech ratio: 53.5%)
+2026-05-22 03:37:42,499 - INFO - Memulai preprocessing untuk file: 452_AUDIO.wav
+2026-05-22 03:37:43,007 - INFO - Berhasil memproses 452_AUDIO.wav. Durasi: 889.10s -> 246.62s (Speech ratio: 27.7%)
+2026-05-22 03:37:43,153 - INFO - Memulai preprocessing untuk file: 453_AUDIO.wav
+2026-05-22 03:37:43,907 - INFO - Berhasil memproses 453_AUDIO.wav. Durasi: 1032.20s -> 456.67s (Speech ratio: 44.3%)
+2026-05-22 03:37:44,171 - INFO - Memulai preprocessing untuk file: 454_AUDIO.wav
+2026-05-22 03:37:44,654 - INFO - Berhasil memproses 454_AUDIO.wav. Durasi: 804.10s -> 208.07s (Speech ratio: 25.9%)
+2026-05-22 03:37:44,829 - INFO - Memulai preprocessing untuk file: 455_AUDIO.wav
+2026-05-22 03:37:45,512 - INFO - Berhasil memproses 455_AUDIO.wav. Durasi: 750.40s -> 384.55s (Speech ratio: 51.2%)
+2026-05-22 03:37:45,768 - INFO - Memulai preprocessing untuk file: 456_AUDIO.wav
+2026-05-22 03:37:46,466 - INFO - Berhasil memproses 456_AUDIO.wav. Durasi: 882.70s -> 465.94s (Speech ratio: 52.9%)
+2026-05-22 03:37:46,734 - INFO - Memulai preprocessing untuk file: 457_AUDIO.wav
+2026-05-22 03:37:47,462 - INFO - Berhasil memproses 457_AUDIO.wav. Durasi: 962.30s -> 459.52s (Speech ratio: 47.8%)
+2026-05-22 03:37:47,734 - INFO - Memulai preprocessing untuk file: 458_AUDIO.wav
+2026-05-22 03:37:48,576 - INFO - Berhasil memproses 458_AUDIO.wav. Durasi: 949.70s -> 546.66s (Speech ratio: 57.7%)
+2026-05-22 03:37:48,905 - INFO - Memulai preprocessing untuk file: 459_AUDIO.wav
+2026-05-22 03:37:49,542 - INFO - Berhasil memproses 459_AUDIO.wav. Durasi: 975.10s -> 350.37s (Speech ratio: 35.9%)
+2026-05-22 03:37:49,739 - INFO - Memulai preprocessing untuk file: 461_AUDIO.wav
+2026-05-22 03:37:50,372 - INFO - Berhasil memproses 461_AUDIO.wav. Durasi: 981.50s -> 295.79s (Speech ratio: 30.1%)
+2026-05-22 03:37:50,558 - INFO - Memulai preprocessing untuk file: 462_AUDIO.wav
+2026-05-22 03:37:51,472 - INFO - Berhasil memproses 462_AUDIO.wav. Durasi: 965.10s -> 582.21s (Speech ratio: 60.4%)
+2026-05-22 03:37:51,816 - INFO - Memulai preprocessing untuk file: 463_AUDIO.wav
+2026-05-22 03:37:52,427 - INFO - Berhasil memproses 463_AUDIO.wav. Durasi: 834.70s -> 348.78s (Speech ratio: 41.9%)
+2026-05-22 03:37:52,637 - INFO - Memulai preprocessing untuk file: 464_AUDIO.wav
+2026-05-22 03:37:53,445 - INFO - Berhasil memproses 464_AUDIO.wav. Durasi: 980.30s -> 512.82s (Speech ratio: 52.3%)
+2026-05-22 03:37:53,815 - INFO - Memulai preprocessing untuk file: 465_AUDIO.wav
+2026-05-22 03:37:54,872 - INFO - Berhasil memproses 465_AUDIO.wav. Durasi: 1163.40s -> 692.03s (Speech ratio: 59.6%)
+2026-05-22 03:37:55,294 - INFO - Memulai preprocessing untuk file: 466_AUDIO.wav
+2026-05-22 03:37:56,749 - INFO - Berhasil memproses 466_AUDIO.wav. Durasi: 1566.50s -> 910.91s (Speech ratio: 58.2%)
+2026-05-22 03:37:57,321 - INFO - Memulai preprocessing untuk file: 467_AUDIO.wav
+2026-05-22 03:37:58,004 - INFO - Berhasil memproses 467_AUDIO.wav. Durasi: 1002.40s -> 356.61s (Speech ratio: 35.6%)
+2026-05-22 03:37:58,233 - INFO - Memulai preprocessing untuk file: 468_AUDIO.wav
+2026-05-22 03:37:58,945 - INFO - Berhasil memproses 468_AUDIO.wav. Durasi: 939.80s -> 483.35s (Speech ratio: 51.5%)
+2026-05-22 03:37:59,237 - INFO - Memulai preprocessing untuk file: 469_AUDIO.wav
+2026-05-22 03:38:00,347 - INFO - Berhasil memproses 469_AUDIO.wav. Durasi: 1126.60s -> 629.81s (Speech ratio: 55.9%)
+2026-05-22 03:38:00,762 - INFO - Memulai preprocessing untuk file: 470_AUDIO.wav
+2026-05-22 03:38:01,633 - INFO - Berhasil memproses 470_AUDIO.wav. Durasi: 955.40s -> 492.77s (Speech ratio: 51.7%)
+2026-05-22 03:38:01,974 - INFO - Memulai preprocessing untuk file: 471_AUDIO.wav
+2026-05-22 03:38:02,899 - INFO - Berhasil memproses 471_AUDIO.wav. Durasi: 995.30s -> 591.36s (Speech ratio: 59.4%)
+2026-05-22 03:38:03,305 - INFO - Memulai preprocessing untuk file: 472_AUDIO.wav
+2026-05-22 03:38:04,142 - INFO - Berhasil memproses 472_AUDIO.wav. Durasi: 903.00s -> 390.43s (Speech ratio: 43.3%)
+2026-05-22 03:38:04,420 - INFO - Memulai preprocessing untuk file: 473_AUDIO.wav
+2026-05-22 03:38:04,686 - INFO - Berhasil memproses 473_AUDIO.wav. Durasi: 533.30s -> 94.14s (Speech ratio: 17.7%)
+2026-05-22 03:38:04,750 - INFO - Memulai preprocessing untuk file: 474_AUDIO.wav
+2026-05-22 03:38:05,495 - INFO - Berhasil memproses 474_AUDIO.wav. Durasi: 927.40s -> 459.58s (Speech ratio: 49.6%)
+2026-05-22 03:38:05,859 - INFO - Memulai preprocessing untuk file: 475_AUDIO.wav
+2026-05-22 03:38:06,261 - INFO - Berhasil memproses 475_AUDIO.wav. Durasi: 587.20s -> 203.90s (Speech ratio: 34.8%)
+2026-05-22 03:38:06,412 - INFO - Memulai preprocessing untuk file: 476_AUDIO.wav
+2026-05-22 03:38:06,799 - INFO - Berhasil memproses 476_AUDIO.wav. Durasi: 608.80s -> 195.56s (Speech ratio: 32.1%)
+2026-05-22 03:38:06,936 - INFO - Memulai preprocessing untuk file: 477_AUDIO.wav
+2026-05-22 03:38:08,135 - INFO - Berhasil memproses 477_AUDIO.wav. Durasi: 1244.70s -> 761.91s (Speech ratio: 61.3%)
+2026-05-22 03:38:08,824 - INFO - Memulai preprocessing untuk file: 478_AUDIO.wav
+2026-05-22 03:38:09,709 - INFO - Berhasil memproses 478_AUDIO.wav. Durasi: 936.20s -> 402.48s (Speech ratio: 43.1%)
+2026-05-22 03:38:09,973 - INFO - Memulai preprocessing untuk file: 479_AUDIO.wav
+2026-05-22 03:38:10,618 - INFO - Berhasil memproses 479_AUDIO.wav. Durasi: 910.40s -> 230.10s (Speech ratio: 25.3%)
+2026-05-22 03:38:10,757 - INFO - Memulai preprocessing untuk file: 480_AUDIO.wav
+2026-05-22 03:38:11,376 - INFO - Berhasil memproses 480_AUDIO.wav. Durasi: 865.70s -> 350.81s (Speech ratio: 40.6%)
+2026-05-22 03:38:11,679 - INFO - Memulai preprocessing untuk file: 481_AUDIO.wav
+2026-05-22 03:38:12,637 - INFO - Berhasil memproses 481_AUDIO.wav. Durasi: 1116.40s -> 598.43s (Speech ratio: 53.7%)
+2026-05-22 03:38:13,003 - INFO - Memulai preprocessing untuk file: 482_AUDIO.wav
+2026-05-22 03:38:13,814 - INFO - Berhasil memproses 482_AUDIO.wav. Durasi: 1019.00s -> 505.50s (Speech ratio: 49.6%)
+2026-05-22 03:38:14,140 - INFO - Memulai preprocessing untuk file: 483_AUDIO.wav
+2026-05-22 03:38:15,428 - INFO - Berhasil memproses 483_AUDIO.wav. Durasi: 1577.00s -> 828.35s (Speech ratio: 52.5%)
+2026-05-22 03:38:16,414 - INFO - Memulai preprocessing untuk file: 484_AUDIO.wav
+2026-05-22 03:38:17,331 - INFO - Berhasil memproses 484_AUDIO.wav. Durasi: 995.50s -> 549.49s (Speech ratio: 55.2%)
+2026-05-22 03:38:17,681 - INFO - Memulai preprocessing untuk file: 485_AUDIO.wav
+2026-05-22 03:38:18,237 - INFO - Berhasil memproses 485_AUDIO.wav. Durasi: 602.70s -> 196.04s (Speech ratio: 32.5%)
+2026-05-22 03:38:18,376 - INFO - Memulai preprocessing untuk file: 486_AUDIO.wav
+2026-05-22 03:38:18,867 - INFO - Berhasil memproses 486_AUDIO.wav. Durasi: 682.30s -> 261.81s (Speech ratio: 38.4%)
+2026-05-22 03:38:19,073 - INFO - Memulai preprocessing untuk file: 487_AUDIO.wav
+2026-05-22 03:38:20,037 - INFO - Berhasil memproses 487_AUDIO.wav. Durasi: 1023.50s -> 578.31s (Speech ratio: 56.5%)
+2026-05-22 03:38:20,582 - INFO - Memulai preprocessing untuk file: 488_AUDIO.wav
+2026-05-22 03:38:21,307 - INFO - Berhasil memproses 488_AUDIO.wav. Durasi: 884.90s -> 422.49s (Speech ratio: 47.7%)
+2026-05-22 03:38:21,654 - INFO - Memulai preprocessing untuk file: 489_AUDIO.wav
+2026-05-22 03:38:22,067 - INFO - Berhasil memproses 489_AUDIO.wav. Durasi: 704.70s -> 168.61s (Speech ratio: 24.0%)
+2026-05-22 03:38:22,184 - INFO - Memulai preprocessing untuk file: 490_AUDIO.wav
+2026-05-22 03:38:22,599 - INFO - Berhasil memproses 490_AUDIO.wav. Durasi: 691.30s -> 185.90s (Speech ratio: 26.9%)
+2026-05-22 03:38:22,715 - INFO - Memulai preprocessing untuk file: 491_AUDIO.wav
+2026-05-22 03:38:23,475 - INFO - Berhasil memproses 491_AUDIO.wav. Durasi: 881.70s -> 412.54s (Speech ratio: 46.9%)
+2026-05-22 03:38:23,716 - INFO - Memulai preprocessing untuk file: 492_AUDIO.wav
+2026-05-22 03:38:24,500 - INFO - Berhasil memproses 492_AUDIO.wav. Durasi: 912.50s -> 476.19s (Speech ratio: 52.2%)
+2026-05-22 03:38:24,822 - INFO - === PREPROCESSING STATISTICS SUMMARY ===
+2026-05-22 03:38:24,822 - INFO - Jumlah file diproses: 189
+2026-05-22 03:38:24,822 - INFO - Berhasil: 189
+2026-05-22 03:38:24,822 - INFO - Gagal: 0
+2026-05-22 03:38:24,823 - INFO - Rata-rata Durasi Audio Asli: 956.33 detik (~15.94 menit)
+2026-05-22 03:38:24,823 - INFO - Rata-rata Durasi Audio Bersih (Hanya Participant): 465.11 detik (~7.75 menit)
+2026-05-22 03:38:24,823 - INFO - Rata-rata Speech Ratio Participant: 46.4%
+2026-05-22 03:38:24,824 - INFO - Total durasi audio bersih yang siap dipakai: 24.42 jam
+2026-05-22 03:38:24,824 - INFO - Log preprocessing disimpan di: C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\cleaned\preprocessing_log.csv
+2026-05-22 03:38:24,828 - INFO - Pipeline selesai dalam 192.25 detik.
