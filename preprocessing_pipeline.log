@@ -1,3 +1,18 @@
+2026-05-26 22:47:34,233 - INFO - Memulai pipeline preprocessing audio DAIC-WOZ...
+2026-05-26 22:47:34,233 - INFO - Path Input (Raw): D:\repositories\menthealth-ai\data\raw\DAIC-WOZ
+2026-05-26 22:47:34,233 - INFO - Path Output (Cleaned): D:\repositories\menthealth-ai\data\cleaned
+2026-05-26 22:47:34,238 - INFO - Ditemukan 189 folder participant di D:\repositories\menthealth-ai\data\raw\DAIC-WOZ
+2026-05-26 22:47:34,242 - INFO - Memulai preprocessing untuk file: 300_AUDIO.wav
+2026-05-26 22:47:48,396 - INFO - Berhasil memproses 300_AUDIO.wav. Durasi: 648.50s -> 155.26s (Speech ratio: 24.0%)
+2026-05-26 22:47:48,436 - INFO - Memulai preprocessing untuk file: 301_AUDIO.wav
+2026-05-26 22:47:52,871 - INFO - Berhasil memproses 301_AUDIO.wav. Durasi: 823.90s -> 474.85s (Speech ratio: 57.7%)
+2026-05-26 22:47:52,963 - INFO - Memulai preprocessing untuk file: 302_AUDIO.wav
+2026-05-26 22:47:55,004 - INFO - Berhasil memproses 302_AUDIO.wav. Durasi: 758.80s -> 208.86s (Speech ratio: 27.5%)
+2026-05-26 22:47:55,052 - INFO - Memulai preprocessing untuk file: 303_AUDIO.wav
+2026-05-26 22:48:00,865 - INFO - Berhasil memproses 303_AUDIO.wav. Durasi: 985.30s -> 642.62s (Speech ratio: 65.3%)
+2026-05-26 22:48:00,974 - INFO - Memulai preprocessing untuk file: 304_AUDIO.wav
+2026-05-26 22:48:04,171 - INFO - Berhasil memproses 304_AUDIO.wav. Durasi: 792.60s -> 361.73s (Speech ratio: 45.7%)
+2026-05-26 22:48:04,236 - INFO - Memulai preprocessing untuk file: 305_AUDIO.wav
 2026-05-22 03:35:12,573 - INFO - Memulai pipeline preprocessing audio DAIC-WOZ...
 2026-05-22 03:35:12,573 - INFO - Path Input (Raw): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ
 2026-05-22 03:35:12,573 - INFO - Path Output (Cleaned): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\cleaned
