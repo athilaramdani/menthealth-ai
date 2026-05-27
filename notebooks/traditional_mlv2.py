@@ -3,11 +3,9 @@
 # **Pipeline**: Klasifikasi Kesehatan Mental Berbasis Audio (DAIC-WOZ)
 # **Peran**: ML & Data Engineer — Athila Ramdani Saputra
 #
-# **Strategi Labeling 4 Kelas (PHQ-8 Severity Proxy)**:
-# - Kelas 0: Normal
-# - Kelas 1: Stres
-# - Kelas 2: Cemas
-# - Kelas 3: Depresi
+# **Strategi Labeling Biner (2 Kelas)**:
+# - Kelas 0: Normal / Non-Depresi
+# - Kelas 1: Depresi
 #
 # Notebook ini melatih 4 model Machine Learning:
 # 1. Logistic Regression
@@ -23,6 +21,8 @@ import pickle
 import json
 import numpy as np
 import pandas as pd
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.linear_model import LogisticRegression
@@ -79,7 +79,7 @@ with open(FEATURE_LIST_PATH, 'r') as f:
 # Verify features are in dataframe
 FEAT_COLS = [f for f in FEAT_COLS if f in df.columns]
 
-META_COLS = ['participant_id', 'phq8_score', 'label_3kelas', 'split', 'gender']
+META_COLS = ['participant_id', 'phq8_score', 'label_depresi', 'split', 'gender']
 
 print(f"Shape dataset final: {df.shape}")
 print(f"Jumlah fitur final: {len(FEAT_COLS)}")
@@ -97,14 +97,14 @@ print(f"  Test : {len(df_test)}")
 # %%
 # Extract features and labels
 X_train = df_train[FEAT_COLS].values
-y_train = df_train['label_3kelas'].values
+y_train = df_train['label_depresi'].values
 groups_train = df_train['participant_id'].values
 
 X_dev = df_dev[FEAT_COLS].values
-y_dev = df_dev['label_3kelas'].values
+y_dev = df_dev['label_depresi'].values
 
 X_test = df_test[FEAT_COLS].values
-y_test = df_test['label_3kelas'].values
+y_test = df_test['label_depresi'].values
 
 # Fit scaler ONLY on train data to prevent statistical data leakage
 scaler = StandardScaler()
@@ -156,7 +156,7 @@ MODELS = {
         }
     },
     'XGBoost': {
-        'model': xgb.XGBClassifier(random_state=RANDOM_SEED, eval_metric='mlogloss', num_class=4, objective='multi:softmax', n_jobs=-1),
+        'model': xgb.XGBClassifier(random_state=RANDOM_SEED, eval_metric='logloss', objective='binary:logistic', n_jobs=-1),
         'param_grid': {
             'n_estimators': [50, 100],
             'max_depth': [3, 5],
@@ -294,14 +294,14 @@ print(f"Plot perbandingan model disimpan di: {plot_compare_path}")
 # %%
 # Visualisasi Confusion Matrix untuk semua model
 fig, axes = plt.subplots(2, 2, figsize=(12, 11))
-fig.suptitle('Confusion Matrix 4 Kelas (Test Set)\n(0: Normal | 1: Stres | 2: Cemas | 3: Depresi)', fontsize=13, fontweight='bold')
+fig.suptitle('Confusion Matrix Biner (Test Set)\n(0: Normal | 1: Depresi)', fontsize=13, fontweight='bold')
 
-class_labels = ['Normal (0)', 'Stres (1)', 'Cemas (2)', 'Depresi (3)']
+class_labels = ['Normal (0)', 'Depresi (1)']
 
 for idx, (model_name, model) in enumerate(best_models.items()):
     ax = axes[idx // 2, idx % 2]
     y_pred = model.predict(X_test_scaled)
-    cm = confusion_matrix(y_test, y_pred, labels=[0, 1, 2, 3])
+    cm = confusion_matrix(y_test, y_pred, labels=[0, 1])
     
     sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', ax=ax,
                 xticklabels=class_labels, yticklabels=class_labels,
@@ -335,7 +335,7 @@ print("="*65)
 
 print("\nClassification Report Model Terbaik (Test Set):")
 y_pred_best = best_model_obj.predict(X_test_scaled)
-print(classification_report(y_test, y_pred_best, labels=[0, 1, 2, 3], target_names=class_labels, zero_division=0))
+print(classification_report(y_test, y_pred_best, labels=[0, 1], target_names=class_labels, zero_division=0))
 
 # Save models
 for name, model in best_models.items():

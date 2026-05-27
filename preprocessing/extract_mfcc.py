@@ -151,62 +151,23 @@ def extract_all_audio_features(y, sr):
 
 def map_label_strategi_v1(row):
     """
-    Applies hierarchical rule-based labeling from docs/strategiv1.md and maps to 4 classes:
-    Class 0: NORMAL
-    Class 1: STRES
-    Class 2: CEMAS
-    Class 3: DEPRESI
+    Applies binary labeling (2 classes) based on PHQ-8 score:
+    Class 0: NORMAL / Non-Depressed (PHQ score <= 9)
+    Class 1: DEPRESI (PHQ score >= 10)
     """
-    # Extract scores
+    # Extract binary label if explicitly available in metadata
+    phq_binary = row.get('PHQ8_Binary', row.get('PHQ_Binary', np.nan))
+    if not pd.isna(phq_binary):
+        return int(phq_binary)
+        
+    # Fallback to score-based threshold
     phq_score = row.get('PHQ8_Score', row.get('PHQ_Score', np.nan))
     if pd.isna(phq_score):
         phq_score = 0
     else:
         phq_score = int(phq_score)
         
-    # Check if individual questionnaire item columns are present (Train & Dev splits)
-    # The test split only has PHQ_Score
-    has_items = 'PHQ8_Depressed' in row and not pd.isna(row['PHQ8_Depressed'])
-    
-    if has_items:
-        def get_val(key):
-            val = row.get(key, 0)
-            return 0 if pd.isna(val) else int(val)
-            
-        dep = get_val('PHQ8_Depressed')
-        noi = get_val('PHQ8_NoInterest')
-        fail = get_val('PHQ8_Failure')
-        mov = get_val('PHQ8_Moving')
-        conc = get_val('PHQ8_Concentrating')
-        sleep = get_val('PHQ8_Sleep')
-        tired = get_val('PHQ8_Tired')
-        
-        # 1. Prioritas Pertama: DEPRESI
-        if phq_score >= 10 or (dep >= 2 and noi >= 2 and fail >= 2):
-            return 3  # DEPRESI
-            
-        # 2. Prioritas Kedua: CEMAS
-        if phq_score >= 5 and (mov >= 1 or conc >= 2):
-            return 2  # CEMAS
-            
-        # 3. Prioritas Ketiga: STRES
-        if phq_score >= 5 and (sleep >= 2 or tired >= 2):
-            return 1  # STRES
-            
-        # 4. Prioritas Keempat: NORMAL
-        if phq_score <= 4 and dep <= 1 and noi <= 1:
-            return 0  # NORMAL
-            
-        # 5. Fallback
-        return 1  # STRES
-    else:
-        # Fallback logic for test set using only the score thresholds
-        if phq_score >= 10:
-            return 3
-        elif phq_score <= 4:
-            return 0
-        else:
-            return 1  # Fallback to STRES for score 5-9 when items are missing
+    return 1 if phq_score >= 10 else 0
 
 def build_dataset_and_extract_features(cleaned_dir, output_dir):
     """
@@ -235,9 +196,9 @@ def build_dataset_and_extract_features(cleaned_dir, output_dir):
     
     # Label splits using map_label_strategi_v1
     logger.info("Melabeli data train, dev, dan test sesuai docs/strategiv1.md...")
-    df_train['label_3kelas'] = df_train.apply(map_label_strategi_v1, axis=1)
-    df_dev['label_3kelas'] = df_dev.apply(map_label_strategi_v1, axis=1)
-    df_test['label_3kelas'] = df_test.apply(map_label_strategi_v1, axis=1)
+    df_train['label_depresi'] = df_train.apply(map_label_strategi_v1, axis=1)
+    df_dev['label_depresi'] = df_dev.apply(map_label_strategi_v1, axis=1)
+    df_test['label_depresi'] = df_test.apply(map_label_strategi_v1, axis=1)
     
     # Add split column
     df_train['split'] = 'train'
@@ -251,7 +212,7 @@ def build_dataset_and_extract_features(cleaned_dir, output_dir):
         df_test.rename(columns={'participant_ID': 'Participant_ID'}, inplace=True)
         
     # Combine metadata
-    meta_cols_to_keep = ['Participant_ID', 'PHQ8_Score', 'PHQ_Score', 'label_3kelas', 'split', 'Gender']
+    meta_cols_to_keep = ['Participant_ID', 'PHQ8_Score', 'PHQ_Score', 'label_depresi', 'split', 'Gender']
     all_metadata = []
     
     for df_part in [df_train, df_dev, df_test]:
@@ -301,7 +262,7 @@ def build_dataset_and_extract_features(cleaned_dir, output_dir):
             features = extract_all_audio_features(y, sr)
             features['participant_id'] = participant_id
             features['phq8_score'] = int(meta_row.iloc[0]['PHQ8_Score'])
-            features['label_3kelas'] = int(meta_row.iloc[0]['label_3kelas'])
+            features['label_depresi'] = int(meta_row.iloc[0]['label_depresi'])
             features['split'] = meta_row.iloc[0]['split']
             features['gender'] = int(meta_row.iloc[0]['Gender'])
             
@@ -316,7 +277,7 @@ def build_dataset_and_extract_features(cleaned_dir, output_dir):
     logger.info(f"Berhasil mengekstrak total {len(df_features)} baris fitur.")
     
     # Save Raw Feature Matrix
-    META_COLS = ['participant_id', 'phq8_score', 'label_3kelas', 'split', 'gender']
+    META_COLS = ['participant_id', 'phq8_score', 'label_depresi', 'split', 'gender']
     FEAT_COLS = [col for col in df_features.columns if col not in META_COLS]
     
     # Rearrange columns
@@ -362,7 +323,7 @@ def build_dataset_and_extract_features(cleaned_dir, output_dir):
     df_train_feats = df_features[train_mask]
     
     X_train = df_train_feats[FEAT_COLS_FILTERED].values
-    y_train = df_train_feats['label_3kelas'].values
+    y_train = df_train_feats['label_depresi'].values
     
     f_scores, p_values = f_classif(X_train, y_train)
     mi_scores = mutual_info_classif(X_train, y_train, random_state=42)
@@ -402,7 +363,7 @@ def build_dataset_and_extract_features(cleaned_dir, output_dir):
     # Print distribution
     logger.info("Distribusi Kelas:")
     for split_name in ['train', 'dev', 'test']:
-        counts = df_final[df_final['split'] == split_name]['label_3kelas'].value_counts().sort_index()
+        counts = df_final[df_final['split'] == split_name]['label_depresi'].value_counts().sort_index()
         logger.info(f"  {split_name.upper()}: {dict(counts)}")
 
 if __name__ == "__main__":
