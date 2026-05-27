@@ -1,0 +1,558 @@
+2026-05-19 11:55:48,182 - INFO - Memulai pembuatan custom dataset labels (4 Kelas)...
+2026-05-19 11:55:48,214 - INFO - Custom label mapping berhasil dibuat dan disimpan di: C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\splits\custom_4class_labels.csv
+2026-05-19 11:55:48,214 - INFO - Otomatis scanning DAIC-WOZ... Ditemukan 31 folder pasien.
+2026-05-19 11:55:48,232 - INFO - Ekstraksi Pasien 302 -> Dikelompokkan sebagai: [NORMAL]
+2026-05-19 11:55:49,965 - ERROR - GAGAL mengekstrak Pasien 302: File Corrupt/Librosa Error (No module named 'pkg_resources')
+2026-05-19 11:55:49,968 - INFO - Ekstraksi Pasien 303 -> Dikelompokkan sebagai: [NORMAL]
+2026-05-19 11:55:49,972 - ERROR - GAGAL mengekstrak Pasien 303: File Corrupt/Librosa Error (No module named 'pkg_resources')
+2026-05-19 11:55:49,974 - INFO - Ekstraksi Pasien 304 -> Dikelompokkan sebagai: [STRES]
+2026-05-19 11:55:49,978 - ERROR - GAGAL mengekstrak Pasien 304: File Corrupt/Librosa Error (No module named 'pkg_resources')
+2026-05-19 11:55:49,980 - INFO - Ekstraksi Pasien 305 -> Dikelompokkan sebagai: [STRES]
+2026-05-19 11:55:49,983 - ERROR - GAGAL mengekstrak Pasien 305: File Corrupt/Librosa Error (No module named 'pkg_resources')
+2026-05-19 11:55:49,985 - INFO - Ekstraksi Pasien 307 -> Dikelompokkan sebagai: [NORMAL]
+2026-05-19 11:55:49,990 - ERROR - GAGAL mengekstrak Pasien 307: File Corrupt/Librosa Error (No module named 'pkg_resources')
+2026-05-19 11:55:49,992 - INFO - Ekstraksi Pasien 310 -> Dikelompokkan sebagai: [NORMAL]
+2026-05-19 11:55:49,994 - ERROR - GAGAL mengekstrak Pasien 310: File Corrupt/Librosa Error (No module named 'pkg_resources')
+2026-05-19 11:55:49,996 - INFO - Ekstraksi Pasien 312 -> Dikelompokkan sebagai: [NORMAL]
+2026-05-19 11:55:49,999 - ERROR - GAGAL mengekstrak Pasien 312: File Corrupt/Librosa Error (No module named 'pkg_resources')
+2026-05-19 11:55:50,001 - INFO - Ekstraksi Pasien 313 -> Dikelompokkan sebagai: [STRES]
+2026-05-19 11:55:50,006 - ERROR - GAGAL mengekstrak Pasien 313: File Corrupt/Librosa Error (No module named 'pkg_resources')
+2026-05-19 11:55:50,006 - INFO - Ekstraksi Pasien 315 -> Dikelompokkan sebagai: [NORMAL]
+2026-05-19 11:55:50,010 - ERROR - GAGAL mengekstrak Pasien 315: File Corrupt/Librosa Error (No module named 'pkg_resources')
+2026-05-19 11:55:50,011 - INFO - Ekstraksi Pasien 316 -> Dikelompokkan sebagai: [STRES]
+2026-05-19 11:55:50,013 - ERROR - GAGAL mengekstrak Pasien 316: File Corrupt/Librosa Error (No module named 'pkg_resources')
+2026-05-19 11:55:50,014 - INFO - Ekstraksi Pasien 317 -> Dikelompokkan sebagai: [CEMAS]
+2026-05-19 11:55:50,015 - ERROR - GAGAL mengekstrak Pasien 317: File Corrupt/Librosa Error (No module named 'pkg_resources')
+2026-05-19 11:55:50,018 - INFO - Ekstraksi Pasien 318 -> Dikelompokkan sebagai: [NORMAL]
+2026-05-19 11:55:50,020 - ERROR - GAGAL mengekstrak Pasien 318: File Corrupt/Librosa Error (No module named 'pkg_resources')
+2026-05-19 11:55:50,022 - INFO - Ekstraksi Pasien 319 -> Dikelompokkan sebagai: [DEPRESI]
+2026-05-19 11:55:50,025 - ERROR - GAGAL mengekstrak Pasien 319: File Corrupt/Librosa Error (No module named 'pkg_resources')
+2026-05-19 11:55:50,026 - INFO - Ekstraksi Pasien 320 -> Dikelompokkan sebagai: [DEPRESI]
+2026-05-19 11:55:50,029 - ERROR - GAGAL mengekstrak Pasien 320: File Corrupt/Librosa Error (No module named 'pkg_resources')
+2026-05-19 11:55:50,030 - INFO - Ekstraksi Pasien 321 -> Dikelompokkan sebagai: [DEPRESI]
+2026-05-19 11:55:50,033 - ERROR - GAGAL mengekstrak Pasien 321: File Corrupt/Librosa Error (No module named 'pkg_resources')
+2026-05-19 11:55:50,033 - INFO - Ekstraksi Pasien 322 -> Dikelompokkan sebagai: [STRES]
+2026-05-19 11:55:50,037 - ERROR - GAGAL mengekstrak Pasien 322: File Corrupt/Librosa Error (No module named 'pkg_resources')
+2026-05-19 11:55:50,037 - INFO - Ekstraksi Pasien 324 -> Dikelompokkan sebagai: [STRES]
+2026-05-19 11:55:50,041 - ERROR - GAGAL mengekstrak Pasien 324: File Corrupt/Librosa Error (No module named 'pkg_resources')
+2026-05-19 11:55:50,042 - INFO - Ekstraksi Pasien 325 -> Dikelompokkan sebagai: [DEPRESI]
+2026-05-19 11:55:50,044 - ERROR - GAGAL mengekstrak Pasien 325: File Corrupt/Librosa Error (No module named 'pkg_resources')
+2026-05-19 11:55:50,046 - INFO - Ekstraksi Pasien 326 -> Dikelompokkan sebagai: [NORMAL]
+2026-05-19 11:55:50,050 - ERROR - GAGAL mengekstrak Pasien 326: File Corrupt/Librosa Error (No module named 'pkg_resources')
+2026-05-19 11:55:50,051 - INFO - Ekstraksi Pasien 327 -> Dikelompokkan sebagai: [NORMAL]
+2026-05-19 11:55:50,055 - ERROR - GAGAL mengekstrak Pasien 327: File Corrupt/Librosa Error (No module named 'pkg_resources')
+2026-05-19 11:55:50,056 - INFO - Ekstraksi Pasien 328 -> Dikelompokkan sebagai: [NORMAL]
+2026-05-19 11:55:50,059 - ERROR - GAGAL mengekstrak Pasien 328: File Corrupt/Librosa Error (No module named 'pkg_resources')
+2026-05-19 11:55:50,060 - INFO - Ekstraksi Pasien 330 -> Dikelompokkan sebagai: [DEPRESI]
+2026-05-19 11:55:50,063 - ERROR - GAGAL mengekstrak Pasien 330: File Corrupt/Librosa Error (No module named 'pkg_resources')
+2026-05-19 11:55:50,064 - INFO - 
+==================================================
+2026-05-19 11:55:50,064 - INFO - PROSES PREPROCESSING DL SPECTROGRAM SELESAI
+2026-05-19 11:55:50,064 - INFO - Berhasil Diekstrak  : 0 file
+2026-05-19 11:55:50,064 - INFO - Gagal / Corrupt     : 22 file
+2026-05-19 11:55:50,064 - INFO - Dilewati (No Label) : 9 file
+2026-05-19 11:55:50,064 - INFO - ==================================================
+2026-05-19 12:04:16,140 - INFO - Memulai pembuatan custom dataset labels (4 Kelas)...
+2026-05-19 12:04:16,156 - INFO - Custom label mapping berhasil dibuat dan disimpan di: C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\splits\custom_4class_labels.csv
+2026-05-19 12:04:16,157 - INFO - Otomatis scanning DAIC-WOZ... Ditemukan 31 folder pasien.
+2026-05-19 12:04:16,166 - INFO - Ekstraksi Pasien 302 -> Label: [NORMAL]
+2026-05-19 12:04:32,504 - INFO - Ekstraksi Pasien 303 -> Label: [NORMAL]
+2026-05-19 12:04:33,452 - INFO - Ekstraksi Pasien 304 -> Label: [STRES]
+2026-05-19 12:04:34,180 - INFO - Ekstraksi Pasien 305 -> Label: [STRES]
+2026-05-19 12:04:35,755 - INFO - Ekstraksi Pasien 307 -> Label: [NORMAL]
+2026-05-19 12:04:36,978 - INFO - Ekstraksi Pasien 310 -> Label: [NORMAL]
+2026-05-19 12:04:37,657 - INFO - Ekstraksi Pasien 312 -> Label: [NORMAL]
+2026-05-19 12:04:38,363 - INFO - Ekstraksi Pasien 313 -> Label: [STRES]
+2026-05-19 12:04:38,938 - INFO - Ekstraksi Pasien 315 -> Label: [NORMAL]
+2026-05-19 12:04:39,715 - INFO - Ekstraksi Pasien 316 -> Label: [STRES]
+2026-05-19 12:04:40,463 - INFO - Ekstraksi Pasien 317 -> Label: [CEMAS]
+2026-05-19 12:04:41,140 - INFO - Ekstraksi Pasien 318 -> Label: [NORMAL]
+2026-05-19 12:04:41,599 - INFO - Ekstraksi Pasien 319 -> Label: [DEPRESI]
+2026-05-19 12:04:42,265 - INFO - Ekstraksi Pasien 320 -> Label: [DEPRESI]
+2026-05-19 12:04:43,075 - INFO - Ekstraksi Pasien 321 -> Label: [DEPRESI]
+2026-05-19 12:04:43,846 - INFO - Ekstraksi Pasien 322 -> Label: [STRES]
+2026-05-19 12:04:44,782 - INFO - Ekstraksi Pasien 324 -> Label: [STRES]
+2026-05-19 12:04:45,447 - INFO - Ekstraksi Pasien 325 -> Label: [DEPRESI]
+2026-05-19 12:04:46,303 - INFO - Ekstraksi Pasien 326 -> Label: [NORMAL]
+2026-05-19 12:04:46,936 - INFO - Ekstraksi Pasien 327 -> Label: [NORMAL]
+2026-05-19 12:04:47,569 - INFO - Ekstraksi Pasien 328 -> Label: [NORMAL]
+2026-05-19 12:04:48,605 - INFO - Ekstraksi Pasien 330 -> Label: [DEPRESI]
+2026-05-19 12:04:49,549 - INFO - 
+==================================================
+2026-05-19 12:04:49,549 - INFO - PROSES PREPROCESSING DL SPECTROGRAM SELESAI
+2026-05-19 12:04:49,549 - INFO - Berhasil Diekstrak  : 22 file
+2026-05-19 12:04:49,549 - INFO - Gagal / Corrupt     : 0 file
+2026-05-19 12:04:49,549 - INFO - Dilewati (No Label) : 9 file
+2026-05-19 12:04:49,549 - INFO - ==================================================
+2026-05-22 03:31:03,372 - INFO - Memulai pembuatan custom dataset labels (4 Kelas)...
+2026-05-22 03:31:03,413 - INFO - Custom label mapping berhasil dibuat dan disimpan di: C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\splits\custom_4class_labels.csv
+2026-05-22 03:31:03,415 - INFO - Otomatis scanning DAIC-WOZ... Ditemukan 189 folder pasien.
+2026-05-22 03:31:03,442 - INFO - Ekstraksi Pasien 331 -> Label: [CEMAS]
+2026-05-22 03:31:13,257 - INFO - Ekstraksi Pasien 333 -> Label: [STRES]
+2026-05-22 03:31:14,513 - INFO - Ekstraksi Pasien 335 -> Label: [DEPRESI]
+2026-05-22 03:31:15,204 - INFO - Ekstraksi Pasien 336 -> Label: [STRES]
+2026-05-22 03:31:15,923 - INFO - Ekstraksi Pasien 338 -> Label: [DEPRESI]
+2026-05-22 03:31:16,351 - INFO - Ekstraksi Pasien 339 -> Label: [DEPRESI]
+2026-05-22 03:31:17,010 - INFO - Ekstraksi Pasien 340 -> Label: [NORMAL]
+2026-05-22 03:31:17,457 - INFO - Ekstraksi Pasien 341 -> Label: [STRES]
+2026-05-22 03:31:18,133 - INFO - Ekstraksi Pasien 343 -> Label: [STRES]
+2026-05-22 03:31:18,897 - INFO - Ekstraksi Pasien 344 -> Label: [DEPRESI]
+2026-05-22 03:31:19,820 - INFO - Ekstraksi Pasien 345 -> Label: [DEPRESI]
+2026-05-22 03:31:20,555 - INFO - Ekstraksi Pasien 346 -> Label: [DEPRESI]
+2026-05-22 03:31:21,589 - INFO - Ekstraksi Pasien 347 -> Label: [DEPRESI]
+2026-05-22 03:31:22,113 - INFO - Ekstraksi Pasien 348 -> Label: [DEPRESI]
+2026-05-22 03:31:22,659 - INFO - Ekstraksi Pasien 350 -> Label: [DEPRESI]
+2026-05-22 03:31:23,367 - INFO - Ekstraksi Pasien 351 -> Label: [DEPRESI]
+2026-05-22 03:31:23,956 - INFO - Ekstraksi Pasien 352 -> Label: [DEPRESI]
+2026-05-22 03:31:24,625 - INFO - Ekstraksi Pasien 353 -> Label: [DEPRESI]
+2026-05-22 03:31:25,222 - INFO - Ekstraksi Pasien 355 -> Label: [DEPRESI]
+2026-05-22 03:31:25,752 - INFO - Ekstraksi Pasien 356 -> Label: [DEPRESI]
+2026-05-22 03:31:26,519 - INFO - Ekstraksi Pasien 357 -> Label: [STRES]
+2026-05-22 03:31:26,862 - INFO - Ekstraksi Pasien 358 -> Label: [STRES]
+2026-05-22 03:31:27,423 - INFO - Ekstraksi Pasien 360 -> Label: [NORMAL]
+2026-05-22 03:31:27,788 - INFO - Ekstraksi Pasien 362 -> Label: [DEPRESI]
+2026-05-22 03:31:28,317 - INFO - Ekstraksi Pasien 363 -> Label: [NORMAL]
+2026-05-22 03:31:29,599 - INFO - Ekstraksi Pasien 364 -> Label: [NORMAL]
+2026-05-22 03:31:31,877 - INFO - Ekstraksi Pasien 366 -> Label: [NORMAL]
+2026-05-22 03:31:33,086 - INFO - Ekstraksi Pasien 367 -> Label: [DEPRESI]
+2026-05-22 03:31:34,514 - INFO - Ekstraksi Pasien 368 -> Label: [CEMAS]
+2026-05-22 03:31:35,751 - INFO - Ekstraksi Pasien 369 -> Label: [NORMAL]
+2026-05-22 03:31:36,576 - INFO - Ekstraksi Pasien 370 -> Label: [NORMAL]
+2026-05-22 03:31:37,745 - INFO - Ekstraksi Pasien 371 -> Label: [STRES]
+2026-05-22 03:31:38,993 - INFO - Ekstraksi Pasien 372 -> Label: [DEPRESI]
+2026-05-22 03:31:40,726 - INFO - Ekstraksi Pasien 374 -> Label: [NORMAL]
+2026-05-22 03:31:42,100 - INFO - Ekstraksi Pasien 375 -> Label: [CEMAS]
+2026-05-22 03:31:42,584 - INFO - Ekstraksi Pasien 376 -> Label: [DEPRESI]
+2026-05-22 03:31:43,686 - INFO - Ekstraksi Pasien 377 -> Label: [DEPRESI]
+2026-05-22 03:31:45,061 - INFO - Ekstraksi Pasien 379 -> Label: [NORMAL]
+2026-05-22 03:31:46,127 - INFO - Ekstraksi Pasien 380 -> Label: [DEPRESI]
+2026-05-22 03:31:48,520 - INFO - Ekstraksi Pasien 381 -> Label: [DEPRESI]
+2026-05-22 03:31:49,402 - INFO - Ekstraksi Pasien 382 -> Label: [NORMAL]
+2026-05-22 03:31:50,343 - INFO - Ekstraksi Pasien 383 -> Label: [STRES]
+2026-05-22 03:31:52,045 - INFO - Ekstraksi Pasien 385 -> Label: [CEMAS]
+2026-05-22 03:31:52,457 - INFO - Ekstraksi Pasien 386 -> Label: [DEPRESI]
+2026-05-22 03:31:53,300 - INFO - Ekstraksi Pasien 388 -> Label: [DEPRESI]
+2026-05-22 03:31:53,988 - INFO - Ekstraksi Pasien 389 -> Label: [DEPRESI]
+2026-05-22 03:31:54,980 - INFO - Ekstraksi Pasien 390 -> Label: [STRES]
+2026-05-22 03:31:56,894 - INFO - Ekstraksi Pasien 391 -> Label: [CEMAS]
+2026-05-22 03:31:57,507 - INFO - Ekstraksi Pasien 392 -> Label: [NORMAL]
+2026-05-22 03:31:58,605 - INFO - Ekstraksi Pasien 393 -> Label: [NORMAL]
+2026-05-22 03:31:59,144 - INFO - Ekstraksi Pasien 395 -> Label: [STRES]
+2026-05-22 03:31:59,970 - INFO - Ekstraksi Pasien 397 -> Label: [CEMAS]
+2026-05-22 03:32:00,720 - INFO - Ekstraksi Pasien 400 -> Label: [STRES]
+2026-05-22 03:32:01,440 - INFO - Ekstraksi Pasien 401 -> Label: [CEMAS]
+2026-05-22 03:32:02,438 - INFO - Ekstraksi Pasien 402 -> Label: [DEPRESI]
+2026-05-22 03:32:03,641 - INFO - Ekstraksi Pasien 403 -> Label: [NORMAL]
+2026-05-22 03:32:04,832 - INFO - Ekstraksi Pasien 404 -> Label: [NORMAL]
+2026-05-22 03:32:06,610 - INFO - Ekstraksi Pasien 406 -> Label: [NORMAL]
+2026-05-22 03:32:07,427 - INFO - Ekstraksi Pasien 409 -> Label: [DEPRESI]
+2026-05-22 03:32:08,413 - INFO - Ekstraksi Pasien 412 -> Label: [DEPRESI]
+2026-05-22 03:32:09,209 - INFO - Ekstraksi Pasien 413 -> Label: [DEPRESI]
+2026-05-22 03:32:10,105 - INFO - Ekstraksi Pasien 414 -> Label: [DEPRESI]
+2026-05-22 03:32:11,373 - INFO - Ekstraksi Pasien 415 -> Label: [NORMAL]
+2026-05-22 03:32:12,608 - INFO - Ekstraksi Pasien 416 -> Label: [NORMAL]
+2026-05-22 03:32:13,727 - INFO - Ekstraksi Pasien 417 -> Label: [CEMAS]
+2026-05-22 03:32:14,474 - INFO - Ekstraksi Pasien 418 -> Label: [DEPRESI]
+2026-05-22 03:32:15,546 - INFO - Ekstraksi Pasien 419 -> Label: [NORMAL]
+2026-05-22 03:32:16,403 - INFO - Ekstraksi Pasien 420 -> Label: [NORMAL]
+2026-05-22 03:32:17,478 - INFO - Ekstraksi Pasien 422 -> Label: [DEPRESI]
+2026-05-22 03:32:19,138 - INFO - Ekstraksi Pasien 423 -> Label: [NORMAL]
+2026-05-22 03:32:20,070 - INFO - Ekstraksi Pasien 425 -> Label: [STRES]
+2026-05-22 03:32:22,023 - INFO - Ekstraksi Pasien 426 -> Label: [DEPRESI]
+2026-05-22 03:32:23,022 - INFO - Ekstraksi Pasien 427 -> Label: [STRES]
+2026-05-22 03:32:23,719 - INFO - Ekstraksi Pasien 428 -> Label: [NORMAL]
+2026-05-22 03:32:24,441 - INFO - Ekstraksi Pasien 429 -> Label: [NORMAL]
+2026-05-22 03:32:25,588 - INFO - Ekstraksi Pasien 430 -> Label: [NORMAL]
+2026-05-22 03:32:26,612 - INFO - Ekstraksi Pasien 433 -> Label: [DEPRESI]
+2026-05-22 03:32:27,575 - INFO - Ekstraksi Pasien 434 -> Label: [NORMAL]
+2026-05-22 03:32:29,228 - INFO - Ekstraksi Pasien 436 -> Label: [NORMAL]
+2026-05-22 03:32:29,835 - INFO - Ekstraksi Pasien 437 -> Label: [NORMAL]
+2026-05-22 03:32:30,734 - INFO - Ekstraksi Pasien 439 -> Label: [NORMAL]
+2026-05-22 03:32:32,377 - INFO - Ekstraksi Pasien 440 -> Label: [DEPRESI]
+2026-05-22 03:32:33,887 - INFO - Ekstraksi Pasien 441 -> Label: [DEPRESI]
+2026-05-22 03:32:34,805 - INFO - Ekstraksi Pasien 443 -> Label: [NORMAL]
+2026-05-22 03:32:35,651 - INFO - Ekstraksi Pasien 444 -> Label: [STRES]
+2026-05-22 03:32:37,119 - INFO - Ekstraksi Pasien 445 -> Label: [NORMAL]
+2026-05-22 03:32:37,909 - INFO - Ekstraksi Pasien 446 -> Label: [NORMAL]
+2026-05-22 03:32:39,120 - INFO - Ekstraksi Pasien 447 -> Label: [NORMAL]
+2026-05-22 03:32:40,221 - INFO - Ekstraksi Pasien 448 -> Label: [DEPRESI]
+2026-05-22 03:32:41,901 - INFO - Ekstraksi Pasien 449 -> Label: [NORMAL]
+2026-05-22 03:32:42,907 - INFO - Ekstraksi Pasien 451 -> Label: [NORMAL]
+2026-05-22 03:32:44,238 - INFO - Ekstraksi Pasien 454 -> Label: [NORMAL]
+2026-05-22 03:32:45,084 - INFO - Ekstraksi Pasien 455 -> Label: [NORMAL]
+2026-05-22 03:32:45,750 - INFO - Ekstraksi Pasien 456 -> Label: [STRES]
+2026-05-22 03:32:46,926 - INFO - Ekstraksi Pasien 457 -> Label: [NORMAL]
+2026-05-22 03:32:47,790 - INFO - Ekstraksi Pasien 458 -> Label: [STRES]
+2026-05-22 03:32:48,679 - INFO - Ekstraksi Pasien 459 -> Label: [DEPRESI]
+2026-05-22 03:32:49,505 - INFO - Ekstraksi Pasien 463 -> Label: [NORMAL]
+2026-05-22 03:32:50,196 - INFO - Ekstraksi Pasien 464 -> Label: [NORMAL]
+2026-05-22 03:32:51,027 - INFO - Ekstraksi Pasien 468 -> Label: [STRES]
+2026-05-22 03:32:51,791 - INFO - Ekstraksi Pasien 471 -> Label: [NORMAL]
+2026-05-22 03:32:52,642 - INFO - Ekstraksi Pasien 472 -> Label: [NORMAL]
+2026-05-22 03:32:53,465 - INFO - Ekstraksi Pasien 473 -> Label: [NORMAL]
+2026-05-22 03:32:53,946 - INFO - Ekstraksi Pasien 474 -> Label: [NORMAL]
+2026-05-22 03:32:54,756 - INFO - Ekstraksi Pasien 475 -> Label: [CEMAS]
+2026-05-22 03:32:55,270 - INFO - Ekstraksi Pasien 476 -> Label: [NORMAL]
+2026-05-22 03:32:55,798 - INFO - Ekstraksi Pasien 477 -> Label: [NORMAL]
+2026-05-22 03:32:56,967 - INFO - Ekstraksi Pasien 478 -> Label: [NORMAL]
+2026-05-22 03:32:57,846 - INFO - Ekstraksi Pasien 479 -> Label: [STRES]
+2026-05-22 03:32:58,721 - INFO - Ekstraksi Pasien 482 -> Label: [NORMAL]
+2026-05-22 03:32:59,673 - INFO - Ekstraksi Pasien 483 -> Label: [DEPRESI]
+2026-05-22 03:33:01,127 - INFO - Ekstraksi Pasien 484 -> Label: [STRES]
+2026-05-22 03:33:01,956 - INFO - Ekstraksi Pasien 485 -> Label: [NORMAL]
+2026-05-22 03:33:02,565 - INFO - Ekstraksi Pasien 486 -> Label: [NORMAL]
+2026-05-22 03:33:03,151 - INFO - Ekstraksi Pasien 487 -> Label: [NORMAL]
+2026-05-22 03:33:03,968 - INFO - Ekstraksi Pasien 488 -> Label: [NORMAL]
+2026-05-22 03:33:04,672 - INFO - Ekstraksi Pasien 489 -> Label: [NORMAL]
+2026-05-22 03:33:05,255 - INFO - Ekstraksi Pasien 490 -> Label: [NORMAL]
+2026-05-22 03:33:05,806 - INFO - Ekstraksi Pasien 491 -> Label: [CEMAS]
+2026-05-22 03:33:06,544 - INFO - Ekstraksi Pasien 492 -> Label: [NORMAL]
+2026-05-22 03:33:07,268 - INFO - 
+==================================================
+2026-05-22 03:33:07,268 - INFO - PROSES PREPROCESSING DL SPECTROGRAM SELESAI
+2026-05-22 03:33:07,268 - INFO - Berhasil Diekstrak  : 142 file
+2026-05-22 03:33:07,268 - INFO - Gagal / Corrupt     : 0 file
+2026-05-22 03:33:07,268 - INFO - Dilewati (No Label) : 47 file
+2026-05-22 03:33:07,268 - INFO - ==================================================
+2026-05-22 03:38:57,778 - INFO - Memulai pembuatan custom dataset labels (4 Kelas)...
+2026-05-22 03:38:57,812 - INFO - Custom label mapping berhasil dibuat dan disimpan di: C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\splits\custom_4class_labels.csv
+2026-05-22 03:38:57,813 - INFO - Otomatis scanning cleaned audio... Ditemukan 189 file.
+2026-05-22 03:38:57,830 - INFO - Ekstraksi Pasien 302 -> Label: [NORMAL]
+2026-05-22 03:39:00,992 - INFO - Ekstraksi Pasien 303 -> Label: [NORMAL]
+2026-05-22 03:39:01,591 - INFO - Ekstraksi Pasien 304 -> Label: [STRES]
+2026-05-22 03:39:01,934 - INFO - Ekstraksi Pasien 305 -> Label: [STRES]
+2026-05-22 03:39:03,033 - INFO - Ekstraksi Pasien 307 -> Label: [NORMAL]
+2026-05-22 03:39:03,846 - INFO - Ekstraksi Pasien 310 -> Label: [NORMAL]
+2026-05-22 03:39:04,152 - INFO - Ekstraksi Pasien 312 -> Label: [NORMAL]
+2026-05-22 03:39:04,479 - INFO - Ekstraksi Pasien 313 -> Label: [STRES]
+2026-05-22 03:39:04,746 - INFO - Ekstraksi Pasien 315 -> Label: [NORMAL]
+2026-05-22 03:39:05,155 - INFO - Ekstraksi Pasien 316 -> Label: [STRES]
+2026-05-22 03:39:05,345 - INFO - Ekstraksi Pasien 317 -> Label: [CEMAS]
+2026-05-22 03:39:05,561 - INFO - Ekstraksi Pasien 318 -> Label: [NORMAL]
+2026-05-22 03:39:05,764 - INFO - Ekstraksi Pasien 319 -> Label: [DEPRESI]
+2026-05-22 03:39:05,974 - INFO - Ekstraksi Pasien 320 -> Label: [DEPRESI]
+2026-05-22 03:39:06,240 - INFO - Ekstraksi Pasien 321 -> Label: [DEPRESI]
+2026-05-22 03:39:06,560 - INFO - Ekstraksi Pasien 322 -> Label: [STRES]
+2026-05-22 03:39:07,026 - INFO - Ekstraksi Pasien 324 -> Label: [STRES]
+2026-05-22 03:39:07,287 - INFO - Ekstraksi Pasien 325 -> Label: [DEPRESI]
+2026-05-22 03:39:07,775 - INFO - Ekstraksi Pasien 326 -> Label: [NORMAL]
+2026-05-22 03:39:08,355 - INFO - Ekstraksi Pasien 327 -> Label: [NORMAL]
+2026-05-22 03:39:08,636 - INFO - Ekstraksi Pasien 328 -> Label: [NORMAL]
+2026-05-22 03:39:09,280 - INFO - Ekstraksi Pasien 330 -> Label: [DEPRESI]
+2026-05-22 03:39:09,662 - INFO - Ekstraksi Pasien 331 -> Label: [CEMAS]
+2026-05-22 03:39:10,069 - INFO - Ekstraksi Pasien 333 -> Label: [STRES]
+2026-05-22 03:39:10,643 - INFO - Ekstraksi Pasien 335 -> Label: [DEPRESI]
+2026-05-22 03:39:11,123 - INFO - Ekstraksi Pasien 336 -> Label: [STRES]
+2026-05-22 03:39:11,495 - INFO - Ekstraksi Pasien 338 -> Label: [DEPRESI]
+2026-05-22 03:39:11,764 - INFO - Ekstraksi Pasien 339 -> Label: [DEPRESI]
+2026-05-22 03:39:12,163 - INFO - Ekstraksi Pasien 340 -> Label: [NORMAL]
+2026-05-22 03:39:12,359 - INFO - Ekstraksi Pasien 341 -> Label: [STRES]
+2026-05-22 03:39:12,760 - INFO - Ekstraksi Pasien 343 -> Label: [STRES]
+2026-05-22 03:39:12,955 - INFO - Ekstraksi Pasien 344 -> Label: [DEPRESI]
+2026-05-22 03:39:13,520 - INFO - Ekstraksi Pasien 345 -> Label: [DEPRESI]
+2026-05-22 03:39:13,990 - INFO - Ekstraksi Pasien 346 -> Label: [DEPRESI]
+2026-05-22 03:39:14,561 - INFO - Ekstraksi Pasien 347 -> Label: [DEPRESI]
+2026-05-22 03:39:14,774 - INFO - Ekstraksi Pasien 348 -> Label: [DEPRESI]
+2026-05-22 03:39:15,041 - INFO - Ekstraksi Pasien 350 -> Label: [DEPRESI]
+2026-05-22 03:39:15,435 - INFO - Ekstraksi Pasien 351 -> Label: [DEPRESI]
+2026-05-22 03:39:15,985 - INFO - Ekstraksi Pasien 352 -> Label: [DEPRESI]
+2026-05-22 03:39:16,454 - INFO - Ekstraksi Pasien 353 -> Label: [DEPRESI]
+2026-05-22 03:39:16,795 - INFO - Ekstraksi Pasien 355 -> Label: [DEPRESI]
+2026-05-22 03:39:17,177 - INFO - Ekstraksi Pasien 356 -> Label: [DEPRESI]
+2026-05-22 03:39:17,662 - INFO - Ekstraksi Pasien 357 -> Label: [STRES]
+2026-05-22 03:39:17,863 - INFO - Ekstraksi Pasien 358 -> Label: [STRES]
+2026-05-22 03:39:18,121 - INFO - Ekstraksi Pasien 360 -> Label: [NORMAL]
+2026-05-22 03:39:18,320 - INFO - Ekstraksi Pasien 362 -> Label: [DEPRESI]
+2026-05-22 03:39:18,586 - INFO - Ekstraksi Pasien 363 -> Label: [NORMAL]
+2026-05-22 03:39:19,248 - INFO - Ekstraksi Pasien 364 -> Label: [NORMAL]
+2026-05-22 03:39:20,283 - INFO - Ekstraksi Pasien 366 -> Label: [NORMAL]
+2026-05-22 03:39:20,964 - INFO - Ekstraksi Pasien 367 -> Label: [DEPRESI]
+2026-05-22 03:39:21,851 - INFO - Ekstraksi Pasien 368 -> Label: [CEMAS]
+2026-05-22 03:39:22,586 - INFO - Ekstraksi Pasien 369 -> Label: [NORMAL]
+2026-05-22 03:39:23,191 - INFO - Ekstraksi Pasien 370 -> Label: [NORMAL]
+2026-05-22 03:39:23,858 - INFO - Ekstraksi Pasien 371 -> Label: [STRES]
+2026-05-22 03:39:24,113 - INFO - Ekstraksi Pasien 372 -> Label: [DEPRESI]
+2026-05-22 03:39:24,705 - INFO - Ekstraksi Pasien 374 -> Label: [NORMAL]
+2026-05-22 03:39:25,389 - INFO - Ekstraksi Pasien 375 -> Label: [CEMAS]
+2026-05-22 03:39:25,660 - INFO - Ekstraksi Pasien 376 -> Label: [DEPRESI]
+2026-05-22 03:39:26,112 - INFO - Ekstraksi Pasien 377 -> Label: [DEPRESI]
+2026-05-22 03:39:26,906 - INFO - Ekstraksi Pasien 379 -> Label: [NORMAL]
+2026-05-22 03:39:27,652 - INFO - Ekstraksi Pasien 380 -> Label: [DEPRESI]
+2026-05-22 03:39:28,735 - INFO - Ekstraksi Pasien 381 -> Label: [DEPRESI]
+2026-05-22 03:39:29,224 - INFO - Ekstraksi Pasien 382 -> Label: [NORMAL]
+2026-05-22 03:39:29,508 - INFO - Ekstraksi Pasien 383 -> Label: [STRES]
+2026-05-22 03:39:30,318 - INFO - Ekstraksi Pasien 385 -> Label: [CEMAS]
+2026-05-22 03:39:30,416 - INFO - Ekstraksi Pasien 386 -> Label: [DEPRESI]
+2026-05-22 03:39:30,963 - INFO - Ekstraksi Pasien 388 -> Label: [DEPRESI]
+2026-05-22 03:39:31,129 - INFO - Ekstraksi Pasien 389 -> Label: [DEPRESI]
+2026-05-22 03:39:31,332 - INFO - Ekstraksi Pasien 390 -> Label: [STRES]
+2026-05-22 03:39:31,867 - INFO - Ekstraksi Pasien 391 -> Label: [CEMAS]
+2026-05-22 03:39:32,079 - INFO - Ekstraksi Pasien 392 -> Label: [NORMAL]
+2026-05-22 03:39:32,278 - INFO - Ekstraksi Pasien 393 -> Label: [NORMAL]
+2026-05-22 03:39:32,467 - INFO - Ekstraksi Pasien 395 -> Label: [STRES]
+2026-05-22 03:39:32,921 - INFO - Ekstraksi Pasien 397 -> Label: [CEMAS]
+2026-05-22 03:39:33,313 - INFO - Ekstraksi Pasien 400 -> Label: [STRES]
+2026-05-22 03:39:33,711 - INFO - Ekstraksi Pasien 401 -> Label: [CEMAS]
+2026-05-22 03:39:34,090 - INFO - Ekstraksi Pasien 402 -> Label: [DEPRESI]
+2026-05-22 03:39:34,527 - INFO - Ekstraksi Pasien 403 -> Label: [NORMAL]
+2026-05-22 03:39:34,910 - INFO - Ekstraksi Pasien 404 -> Label: [NORMAL]
+2026-05-22 03:39:35,340 - INFO - Ekstraksi Pasien 406 -> Label: [NORMAL]
+2026-05-22 03:39:35,607 - INFO - Ekstraksi Pasien 409 -> Label: [DEPRESI]
+2026-05-22 03:39:36,138 - INFO - Ekstraksi Pasien 412 -> Label: [DEPRESI]
+2026-05-22 03:39:36,459 - INFO - Ekstraksi Pasien 413 -> Label: [DEPRESI]
+2026-05-22 03:39:36,941 - INFO - Ekstraksi Pasien 414 -> Label: [DEPRESI]
+2026-05-22 03:39:37,397 - INFO - Ekstraksi Pasien 415 -> Label: [NORMAL]
+2026-05-22 03:39:37,673 - INFO - Ekstraksi Pasien 416 -> Label: [NORMAL]
+2026-05-22 03:39:38,086 - INFO - Ekstraksi Pasien 417 -> Label: [CEMAS]
+2026-05-22 03:39:38,479 - INFO - Ekstraksi Pasien 418 -> Label: [DEPRESI]
+2026-05-22 03:39:39,047 - INFO - Ekstraksi Pasien 419 -> Label: [NORMAL]
+2026-05-22 03:39:39,581 - INFO - Ekstraksi Pasien 420 -> Label: [NORMAL]
+2026-05-22 03:39:39,952 - INFO - Ekstraksi Pasien 422 -> Label: [DEPRESI]
+2026-05-22 03:39:40,616 - INFO - Ekstraksi Pasien 423 -> Label: [NORMAL]
+2026-05-22 03:39:41,029 - INFO - Ekstraksi Pasien 425 -> Label: [STRES]
+2026-05-22 03:39:41,633 - INFO - Ekstraksi Pasien 426 -> Label: [DEPRESI]
+2026-05-22 03:39:41,972 - INFO - Ekstraksi Pasien 427 -> Label: [STRES]
+2026-05-22 03:39:42,262 - INFO - Ekstraksi Pasien 428 -> Label: [NORMAL]
+2026-05-22 03:39:42,524 - INFO - Ekstraksi Pasien 429 -> Label: [NORMAL]
+2026-05-22 03:39:42,900 - INFO - Ekstraksi Pasien 430 -> Label: [NORMAL]
+2026-05-22 03:39:43,306 - INFO - Ekstraksi Pasien 433 -> Label: [DEPRESI]
+2026-05-22 03:39:43,562 - INFO - Ekstraksi Pasien 434 -> Label: [NORMAL]
+2026-05-22 03:39:44,335 - INFO - Ekstraksi Pasien 436 -> Label: [NORMAL]
+2026-05-22 03:39:44,729 - INFO - Ekstraksi Pasien 437 -> Label: [NORMAL]
+2026-05-22 03:39:45,126 - INFO - Ekstraksi Pasien 439 -> Label: [NORMAL]
+2026-05-22 03:39:45,967 - INFO - Ekstraksi Pasien 440 -> Label: [DEPRESI]
+2026-05-22 03:39:46,601 - INFO - Ekstraksi Pasien 441 -> Label: [DEPRESI]
+2026-05-22 03:39:46,994 - INFO - Ekstraksi Pasien 443 -> Label: [NORMAL]
+2026-05-22 03:39:47,177 - INFO - Ekstraksi Pasien 444 -> Label: [STRES]
+2026-05-22 03:39:47,943 - INFO - Ekstraksi Pasien 445 -> Label: [NORMAL]
+2026-05-22 03:39:48,485 - INFO - Ekstraksi Pasien 446 -> Label: [NORMAL]
+2026-05-22 03:39:48,970 - INFO - Ekstraksi Pasien 447 -> Label: [NORMAL]
+2026-05-22 03:39:49,569 - INFO - Ekstraksi Pasien 448 -> Label: [DEPRESI]
+2026-05-22 03:39:50,236 - INFO - Ekstraksi Pasien 449 -> Label: [NORMAL]
+2026-05-22 03:39:50,880 - INFO - Ekstraksi Pasien 451 -> Label: [NORMAL]
+2026-05-22 03:39:51,509 - INFO - Ekstraksi Pasien 454 -> Label: [NORMAL]
+2026-05-22 03:39:51,711 - INFO - Ekstraksi Pasien 455 -> Label: [NORMAL]
+2026-05-22 03:39:52,065 - INFO - Ekstraksi Pasien 456 -> Label: [STRES]
+2026-05-22 03:39:52,473 - INFO - Ekstraksi Pasien 457 -> Label: [NORMAL]
+2026-05-22 03:39:52,854 - INFO - Ekstraksi Pasien 458 -> Label: [STRES]
+2026-05-22 03:39:53,325 - INFO - Ekstraksi Pasien 459 -> Label: [DEPRESI]
+2026-05-22 03:39:53,630 - INFO - Ekstraksi Pasien 463 -> Label: [NORMAL]
+2026-05-22 03:39:53,964 - INFO - Ekstraksi Pasien 464 -> Label: [NORMAL]
+2026-05-22 03:39:54,438 - INFO - Ekstraksi Pasien 468 -> Label: [STRES]
+2026-05-22 03:39:54,870 - INFO - Ekstraksi Pasien 471 -> Label: [NORMAL]
+2026-05-22 03:39:55,513 - INFO - Ekstraksi Pasien 472 -> Label: [NORMAL]
+2026-05-22 03:39:55,908 - INFO - Ekstraksi Pasien 473 -> Label: [NORMAL]
+2026-05-22 03:39:56,007 - INFO - Ekstraksi Pasien 474 -> Label: [NORMAL]
+2026-05-22 03:39:56,424 - INFO - Ekstraksi Pasien 475 -> Label: [CEMAS]
+2026-05-22 03:39:56,589 - INFO - Ekstraksi Pasien 476 -> Label: [NORMAL]
+2026-05-22 03:39:56,785 - INFO - Ekstraksi Pasien 477 -> Label: [NORMAL]
+2026-05-22 03:39:57,488 - INFO - Ekstraksi Pasien 478 -> Label: [NORMAL]
+2026-05-22 03:39:57,892 - INFO - Ekstraksi Pasien 479 -> Label: [STRES]
+2026-05-22 03:39:58,096 - INFO - Ekstraksi Pasien 482 -> Label: [NORMAL]
+2026-05-22 03:39:58,551 - INFO - Ekstraksi Pasien 483 -> Label: [DEPRESI]
+2026-05-22 03:39:59,265 - INFO - Ekstraksi Pasien 484 -> Label: [STRES]
+2026-05-22 03:39:59,748 - INFO - Ekstraksi Pasien 485 -> Label: [NORMAL]
+2026-05-22 03:39:59,941 - INFO - Ekstraksi Pasien 486 -> Label: [NORMAL]
+2026-05-22 03:40:00,222 - INFO - Ekstraksi Pasien 487 -> Label: [NORMAL]
+2026-05-22 03:40:00,786 - INFO - Ekstraksi Pasien 488 -> Label: [NORMAL]
+2026-05-22 03:40:01,188 - INFO - Ekstraksi Pasien 489 -> Label: [NORMAL]
+2026-05-22 03:40:01,332 - INFO - Ekstraksi Pasien 490 -> Label: [NORMAL]
+2026-05-22 03:40:01,529 - INFO - Ekstraksi Pasien 491 -> Label: [CEMAS]
+2026-05-22 03:40:01,879 - INFO - Ekstraksi Pasien 492 -> Label: [NORMAL]
+2026-05-22 03:40:02,307 - INFO - 
+==================================================
+2026-05-22 03:40:02,307 - INFO - PROSES PREPROCESSING DL SPECTROGRAM SELESAI
+2026-05-22 03:40:02,307 - INFO - Berhasil Diekstrak  : 142 file
+2026-05-22 03:40:02,307 - INFO - Gagal / Corrupt     : 0 file
+2026-05-22 03:40:02,307 - INFO - Dilewati (No Label) : 47 file
+2026-05-22 03:40:02,307 - INFO - ==================================================
+2026-05-22 11:42:14,040 - INFO - Memulai pembuatan custom dataset labels (4 Kelas)...
+2026-05-22 11:42:14,072 - INFO - Custom label mapping berhasil dibuat dan disimpan di: C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\splits\custom_4class_labels.csv
+2026-05-22 11:42:14,078 - INFO - Otomatis scanning cleaned audio... Ditemukan 189 file.
+2026-05-22 11:42:14,111 - INFO - 
+==================================================
+2026-05-22 11:42:14,112 - INFO - PROSES PREPROCESSING DL SPECTROGRAM SELESAI
+2026-05-22 11:42:14,112 - INFO - Berhasil Diekstrak  : 142 file
+2026-05-22 11:42:14,112 - INFO - Gagal / Corrupt     : 0 file
+2026-05-22 11:42:14,112 - INFO - Dilewati (No Label) : 47 file
+2026-05-22 11:42:14,112 - INFO - ==================================================
+2026-05-22 11:42:55,468 - INFO - Memulai pembuatan custom dataset labels (4 Kelas)...
+2026-05-22 11:42:55,487 - INFO - Custom label mapping berhasil dibuat dan disimpan di: C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\splits\custom_4class_labels.csv
+2026-05-22 11:42:55,490 - INFO - Otomatis scanning cleaned audio... Ditemukan 189 file.
+2026-05-22 11:42:55,524 - INFO - 
+==================================================
+2026-05-22 11:42:55,524 - INFO - PROSES PREPROCESSING DL SPECTROGRAM SELESAI
+2026-05-22 11:42:55,524 - INFO - Berhasil Diekstrak  : 142 file
+2026-05-22 11:42:55,524 - INFO - Gagal / Corrupt     : 0 file
+2026-05-22 11:42:55,524 - INFO - Dilewati (No Label) : 47 file
+2026-05-22 11:42:55,524 - INFO - ==================================================
+2026-05-22 11:48:06,846 - INFO - Memulai pembuatan custom dataset labels (4 Kelas)...
+2026-05-22 11:48:06,937 - INFO - Custom label mapping berhasil dibuat dan disimpan di: C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\splits\custom_4class_labels.csv
+2026-05-22 11:48:06,937 - INFO - Otomatis scanning cleaned audio... Ditemukan 189 file.
+2026-05-22 11:48:07,021 - INFO - 
+==================================================
+2026-05-22 11:48:07,021 - INFO - PROSES PREPROCESSING DL SPECTROGRAM SELESAI
+2026-05-22 11:48:07,021 - INFO - Berhasil Diekstrak  : 142 file
+2026-05-22 11:48:07,021 - INFO - Gagal / Corrupt     : 0 file
+2026-05-22 11:48:07,021 - INFO - Dilewati (No Label) : 47 file
+2026-05-22 11:48:07,021 - INFO - ==================================================
+2026-05-22 11:49:13,409 - INFO - Memulai pembuatan custom dataset labels (4 Kelas)...
+2026-05-22 11:49:13,583 - INFO - Custom label mapping berhasil dibuat dan disimpan di: C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\splits\custom_4class_labels.csv
+2026-05-22 11:49:13,588 - INFO - Otomatis scanning cleaned audio... Ditemukan 189 file.
+2026-05-22 11:49:13,699 - INFO - 
+==================================================
+2026-05-22 11:49:13,699 - INFO - PROSES PREPROCESSING DL SPECTROGRAM SELESAI
+2026-05-22 11:49:13,699 - INFO - Berhasil Diekstrak  : 142 file
+2026-05-22 11:49:13,699 - INFO - Gagal / Corrupt     : 0 file
+2026-05-22 11:49:13,699 - INFO - Dilewati (No Label) : 47 file
+2026-05-22 11:49:13,700 - INFO - ==================================================
+2026-05-22 11:50:16,106 - INFO - Memulai pembuatan custom dataset labels (4 Kelas)...
+2026-05-22 11:50:16,164 - INFO - Custom label mapping berhasil dibuat dan disimpan di: C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\splits\custom_4class_labels.csv
+2026-05-22 11:50:16,169 - INFO - Otomatis scanning cleaned audio... Ditemukan 189 file.
+2026-05-22 11:50:16,262 - INFO - 
+==================================================
+2026-05-22 11:50:16,262 - INFO - PROSES PREPROCESSING DL SPECTROGRAM SELESAI
+2026-05-22 11:50:16,262 - INFO - Berhasil Diekstrak  : 142 file
+2026-05-22 11:50:16,262 - INFO - Gagal / Corrupt     : 0 file
+2026-05-22 11:50:16,262 - INFO - Dilewati (No Label) : 47 file
+2026-05-22 11:50:16,262 - INFO - ==================================================
+2026-05-22 17:04:59,846 - INFO - Memulai pembuatan custom dataset labels (4 Kelas)...
+2026-05-22 17:04:59,872 - INFO - Custom label mapping berhasil dibuat dan disimpan di: C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\splits\custom_4class_labels.csv
+2026-05-22 17:04:59,872 - INFO - Otomatis scanning cleaned audio... Ditemukan 189 file.
+2026-05-22 17:04:59,912 - INFO - 
+==================================================
+2026-05-22 17:04:59,912 - INFO - PROSES PREPROCESSING DL SPECTROGRAM SELESAI
+2026-05-22 17:04:59,912 - INFO - Berhasil Diekstrak  : 142 file
+2026-05-22 17:04:59,912 - INFO - Gagal / Corrupt     : 0 file
+2026-05-22 17:04:59,912 - INFO - Dilewati (No Label) : 47 file
+2026-05-22 17:04:59,912 - INFO - ==================================================
+2026-05-22 17:46:30,668 - INFO - Memulai pembuatan custom dataset labels (4 Kelas)...
+2026-05-22 17:46:30,703 - INFO - Custom label mapping berhasil dibuat dan disimpan di: C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\splits\custom_4class_labels.csv
+2026-05-22 17:46:30,703 - INFO - Otomatis scanning cleaned audio... Ditemukan 189 file.
+2026-05-22 17:46:30,739 - INFO - 
+==================================================
+2026-05-22 17:46:30,739 - INFO - PROSES PREPROCESSING DL SPECTROGRAM SELESAI
+2026-05-22 17:46:30,739 - INFO - Berhasil Diekstrak  : 142 file
+2026-05-22 17:46:30,739 - INFO - Gagal / Corrupt     : 0 file
+2026-05-22 17:46:30,739 - INFO - Dilewati (No Label) : 47 file
+2026-05-22 17:46:30,739 - INFO - ==================================================
+2026-05-22 18:24:59,185 - INFO - Membuat custom dataset labels (4 kelas)...
+2026-05-22 18:24:59,218 - INFO - Distribusi kelas: {'NORMAL': 63, 'DEPRESI': 43, 'STRES': 25, 'CEMAS': 11}
+2026-05-22 18:24:59,218 - INFO - Label mapping disimpan di: C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\splits\custom_4class_labels.csv
+2026-05-22 18:24:59,222 - INFO - Ditemukan 189 file audio di C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\cleaned
+2026-05-22 18:24:59,258 - INFO - ==================================================
+2026-05-22 18:24:59,258 - INFO - PREPROCESSING SELESAI
+2026-05-22 18:24:59,258 - INFO - Berhasil    : 142
+2026-05-22 18:24:59,258 - INFO - Gagal       : 0
+2026-05-22 18:24:59,258 - INFO - Tanpa label : 47
+2026-05-22 18:24:59,258 - INFO - ==================================================
+2026-05-22 18:26:36,606 - INFO - Membuat custom dataset labels (4 kelas)...
+2026-05-22 18:26:36,625 - INFO - Distribusi kelas: {'NORMAL': 63, 'DEPRESI': 43, 'STRES': 25, 'CEMAS': 11}
+2026-05-22 18:26:36,625 - INFO - Label mapping disimpan di: C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\splits\custom_4class_labels.csv
+2026-05-22 18:26:36,626 - INFO - Ditemukan 189 file audio di C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\cleaned
+2026-05-22 18:26:36,656 - INFO - ==================================================
+2026-05-22 18:26:36,656 - INFO - PREPROCESSING SELESAI
+2026-05-22 18:26:36,656 - INFO - Berhasil    : 142
+2026-05-22 18:26:36,656 - INFO - Gagal       : 0
+2026-05-22 18:26:36,656 - INFO - Tanpa label : 47
+2026-05-22 18:26:36,656 - INFO - ==================================================
+2026-05-23 18:01:23,948 - INFO - Membuat custom dataset labels (4 kelas)...
+2026-05-23 18:01:23,996 - INFO - Distribusi kelas: {'NORMAL': 63, 'DEPRESI': 43, 'STRES': 25, 'CEMAS': 11}
+2026-05-23 18:01:23,996 - INFO - Label mapping disimpan di: C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\splits\custom_4class_labels.csv
+2026-05-23 18:01:24,001 - INFO - Ditemukan 189 file audio di C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\cleaned
+2026-05-23 18:01:24,053 - INFO - ==================================================
+2026-05-23 18:01:24,053 - INFO - PREPROCESSING SELESAI
+2026-05-23 18:01:24,055 - INFO - Berhasil    : 142
+2026-05-23 18:01:24,055 - INFO - Gagal       : 0
+2026-05-23 18:01:24,055 - INFO - Tanpa label : 47
+2026-05-23 18:01:24,055 - INFO - ==================================================
+2026-05-23 18:01:52,840 - INFO - Membuat custom dataset labels (4 kelas)...
+2026-05-23 18:01:52,859 - INFO - Distribusi kelas: {'NORMAL': 63, 'DEPRESI': 43, 'STRES': 25, 'CEMAS': 11}
+2026-05-23 18:01:52,859 - INFO - Label mapping disimpan di: C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\splits\custom_4class_labels.csv
+2026-05-23 18:01:52,860 - INFO - Ditemukan 189 file audio di C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\cleaned
+2026-05-23 18:01:52,881 - INFO - ==================================================
+2026-05-23 18:01:52,881 - INFO - PREPROCESSING SELESAI
+2026-05-23 18:01:52,881 - INFO - Berhasil    : 142
+2026-05-23 18:01:52,881 - INFO - Gagal       : 0
+2026-05-23 18:01:52,881 - INFO - Tanpa label : 47
+2026-05-23 18:01:52,887 - INFO - ==================================================
+2026-05-24 01:27:09,963 - INFO - Membuat custom dataset labels (4 kelas)...
+2026-05-24 01:27:10,012 - INFO - Distribusi kelas: {'NORMAL': 63, 'DEPRESI': 43, 'STRES': 25, 'CEMAS': 11}
+2026-05-24 01:27:10,012 - INFO - Label mapping disimpan di: C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\splits\custom_4class_labels.csv
+2026-05-24 01:27:10,016 - INFO - Ditemukan 189 file audio di C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\cleaned
+2026-05-24 01:27:10,050 - INFO - ==================================================
+2026-05-24 01:27:10,050 - INFO - PREPROCESSING SELESAI
+2026-05-24 01:27:10,050 - INFO - Berhasil    : 142
+2026-05-24 01:27:10,050 - INFO - Gagal       : 0
+2026-05-24 01:27:10,050 - INFO - Tanpa label : 47
+2026-05-24 01:27:10,050 - INFO - ==================================================
+2026-05-24 03:56:08,893 - INFO - Membuat custom dataset labels (4 kelas)...
+2026-05-24 03:56:08,915 - INFO - Distribusi kelas: {'NORMAL': 63, 'DEPRESI': 43, 'STRES': 25, 'CEMAS': 11}
+2026-05-24 03:56:08,915 - INFO - Label mapping disimpan di: C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\splits\custom_4class_labels.csv
+2026-05-24 03:56:08,916 - INFO - Ditemukan 189 file audio di C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\cleaned
+2026-05-24 03:56:08,942 - INFO - ==================================================
+2026-05-24 03:56:08,942 - INFO - PREPROCESSING SELESAI
+2026-05-24 03:56:08,942 - INFO - Berhasil    : 142
+2026-05-24 03:56:08,942 - INFO - Gagal       : 0
+2026-05-24 03:56:08,942 - INFO - Tanpa label : 47
+2026-05-24 03:56:08,942 - INFO - ==================================================
+2026-05-24 04:15:07,034 - INFO - Membuat custom dataset labels (4 kelas)...
+2026-05-24 04:15:07,058 - INFO - Distribusi kelas: {'NORMAL': 63, 'DEPRESI': 43, 'STRES': 25, 'CEMAS': 11}
+2026-05-24 04:15:07,059 - INFO - Label mapping disimpan di: C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\splits\custom_4class_labels.csv
+2026-05-24 04:15:07,059 - INFO - Ditemukan 189 file audio di C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\cleaned
+2026-05-24 04:15:07,096 - INFO - ==================================================
+2026-05-24 04:15:07,096 - INFO - PREPROCESSING SELESAI
+2026-05-24 04:15:07,096 - INFO - Berhasil    : 142
+2026-05-24 04:15:07,096 - INFO - Gagal       : 0
+2026-05-24 04:15:07,096 - INFO - Tanpa label : 47
+2026-05-24 04:15:07,096 - INFO - ==================================================
+2026-05-24 10:53:12,478 - INFO - Membuat custom dataset labels (4 kelas)...
+2026-05-24 10:53:12,518 - INFO - Distribusi kelas: {'NORMAL': 63, 'DEPRESI': 43, 'STRES': 25, 'CEMAS': 11}
+2026-05-24 10:53:12,519 - INFO - Label mapping disimpan di: C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\splits\custom_4class_labels.csv
+2026-05-24 10:53:12,524 - INFO - Ditemukan 189 file audio di C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\cleaned
+2026-05-24 10:53:12,549 - INFO - ==================================================
+2026-05-24 10:53:12,549 - INFO - PREPROCESSING SELESAI
+2026-05-24 10:53:12,549 - INFO - Berhasil    : 142
+2026-05-24 10:53:12,549 - INFO - Gagal       : 0
+2026-05-24 10:53:12,549 - INFO - Tanpa label : 47
+2026-05-24 10:53:12,549 - INFO - ==================================================
+2026-05-24 11:05:26,886 - INFO - Membuat custom dataset labels (4 kelas)...
+2026-05-24 11:05:26,912 - INFO - Distribusi kelas: {'NORMAL': 63, 'DEPRESI': 43, 'STRES': 25, 'CEMAS': 11}
+2026-05-24 11:05:26,912 - INFO - Label mapping disimpan di: C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\splits\custom_4class_labels.csv
+2026-05-24 11:05:26,917 - INFO - Ditemukan 189 file audio di C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\cleaned
+2026-05-24 11:05:26,942 - INFO - ==================================================
+2026-05-24 11:05:26,942 - INFO - PREPROCESSING SELESAI
+2026-05-24 11:05:26,942 - INFO - Berhasil    : 142
+2026-05-24 11:05:26,942 - INFO - Gagal       : 0
+2026-05-24 11:05:26,942 - INFO - Tanpa label : 47
+2026-05-24 11:05:26,942 - INFO - ==================================================
+2026-05-24 11:19:18,050 - INFO - Membuat custom dataset labels (4 kelas)...
+2026-05-24 11:19:18,074 - INFO - Distribusi kelas: {'NORMAL': 63, 'DEPRESI': 43, 'STRES': 25, 'CEMAS': 11}
+2026-05-24 11:19:18,074 - INFO - Label mapping disimpan di: C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\splits\custom_4class_labels.csv
+2026-05-24 11:19:18,080 - INFO - Ditemukan 189 file audio di C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\cleaned
+2026-05-24 11:19:18,103 - INFO - ==================================================
+2026-05-24 11:19:18,103 - INFO - PREPROCESSING SELESAI
+2026-05-24 11:19:18,103 - INFO - Berhasil    : 142
+2026-05-24 11:19:18,103 - INFO - Gagal       : 0
+2026-05-24 11:19:18,103 - INFO - Tanpa label : 47
+2026-05-24 11:19:18,103 - INFO - ==================================================
+2026-05-24 11:26:54,283 - INFO - Membuat custom dataset labels (4 kelas)...
+2026-05-24 11:26:54,303 - INFO - Distribusi kelas: {'NORMAL': 63, 'DEPRESI': 43, 'STRES': 25, 'CEMAS': 11}
+2026-05-24 11:26:54,304 - INFO - Label mapping disimpan di: C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\splits\custom_4class_labels.csv
+2026-05-24 11:26:54,308 - INFO - Ditemukan 189 file audio di C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\cleaned
+2026-05-24 11:26:54,331 - INFO - ==================================================
+2026-05-24 11:26:54,332 - INFO - PREPROCESSING SELESAI
+2026-05-24 11:26:54,332 - INFO - Berhasil    : 142
+2026-05-24 11:26:54,332 - INFO - Gagal       : 0
+2026-05-24 11:26:54,332 - INFO - Tanpa label : 47
+2026-05-24 11:26:54,332 - INFO - ==================================================
+2026-05-24 11:33:43,586 - INFO - Membuat custom dataset labels (4 kelas)...
+2026-05-24 11:33:43,608 - INFO - Distribusi kelas: {'NORMAL': 63, 'DEPRESI': 43, 'STRES': 25, 'CEMAS': 11}
+2026-05-24 11:33:43,608 - INFO - Label mapping disimpan di: C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\splits\custom_4class_labels.csv
+2026-05-24 11:33:43,611 - INFO - Ditemukan 189 file audio di C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\cleaned
+2026-05-24 11:33:43,640 - INFO - ==================================================
+2026-05-24 11:33:43,640 - INFO - PREPROCESSING SELESAI
+2026-05-24 11:33:43,640 - INFO - Berhasil    : 142
+2026-05-24 11:33:43,640 - INFO - Gagal       : 0
+2026-05-24 11:33:43,640 - INFO - Tanpa label : 47
+2026-05-24 11:33:43,640 - INFO - ==================================================
