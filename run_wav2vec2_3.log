@@ -1,0 +1,88 @@
+2026-05-24 14:19:24,242 - INFO - Device: cpu
+2026-05-24 14:19:24,244 - INFO - Loading processor & pretrained wav2vec2...
+2026-05-24 14:19:25,692 - INFO - HTTP Request: GET https://huggingface.co/api/models/facebook/wav2vec2-base-960h/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-05-24 14:19:26,137 - INFO - HTTP Request: HEAD https://huggingface.co/facebook/wav2vec2-base-960h/resolve/main/processor_config.json "HTTP/1.1 404 Not Found"
+2026-05-24 14:19:26,409 - INFO - HTTP Request: HEAD https://huggingface.co/facebook/wav2vec2-base-960h/resolve/main/chat_template.json "HTTP/1.1 404 Not Found"
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-05-24 14:19:26,410 - WARNING - Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-05-24 14:19:26,674 - INFO - HTTP Request: HEAD https://huggingface.co/facebook/wav2vec2-base-960h/resolve/main/chat_template.jinja "HTTP/1.1 404 Not Found"
+2026-05-24 14:19:26,938 - INFO - HTTP Request: HEAD https://huggingface.co/facebook/wav2vec2-base-960h/resolve/main/audio_tokenizer_config.json "HTTP/1.1 404 Not Found"
+2026-05-24 14:19:27,203 - INFO - HTTP Request: HEAD https://huggingface.co/facebook/wav2vec2-base-960h/resolve/main/processor_config.json "HTTP/1.1 404 Not Found"
+2026-05-24 14:19:27,465 - INFO - HTTP Request: HEAD https://huggingface.co/facebook/wav2vec2-base-960h/resolve/main/preprocessor_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-24 14:19:27,487 - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/facebook/wav2vec2-base-960h/22aad52d435eb6dbaf354bdad9b0da84ce7d6156/preprocessor_config.json "HTTP/1.1 200 OK"
+2026-05-24 14:19:27,745 - INFO - HTTP Request: HEAD https://huggingface.co/facebook/wav2vec2-base-960h/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-24 14:19:27,757 - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/facebook/wav2vec2-base-960h/22aad52d435eb6dbaf354bdad9b0da84ce7d6156/config.json "HTTP/1.1 200 OK"
+2026-05-24 14:19:28,046 - INFO - HTTP Request: HEAD https://huggingface.co/facebook/wav2vec2-base-960h/resolve/main/processor_config.json "HTTP/1.1 404 Not Found"
+2026-05-24 14:19:28,310 - INFO - HTTP Request: HEAD https://huggingface.co/facebook/wav2vec2-base-960h/resolve/main/preprocessor_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-24 14:19:28,325 - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/facebook/wav2vec2-base-960h/22aad52d435eb6dbaf354bdad9b0da84ce7d6156/preprocessor_config.json "HTTP/1.1 200 OK"
+2026-05-24 14:19:28,587 - INFO - HTTP Request: HEAD https://huggingface.co/facebook/wav2vec2-base-960h/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-24 14:19:28,600 - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/facebook/wav2vec2-base-960h/22aad52d435eb6dbaf354bdad9b0da84ce7d6156/config.json "HTTP/1.1 200 OK"
+2026-05-24 14:19:28,863 - INFO - HTTP Request: HEAD https://huggingface.co/facebook/wav2vec2-base-960h/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-24 14:19:28,874 - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/facebook/wav2vec2-base-960h/22aad52d435eb6dbaf354bdad9b0da84ce7d6156/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-24 14:19:29,145 - INFO - HTTP Request: GET https://huggingface.co/api/models/facebook/wav2vec2-base-960h/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-05-24 14:19:29,433 - INFO - HTTP Request: GET https://huggingface.co/api/models/facebook/wav2vec2-base-960h/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-05-24 14:19:29,716 - INFO - HTTP Request: HEAD https://huggingface.co/facebook/wav2vec2-base-960h/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-24 14:19:29,729 - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/facebook/wav2vec2-base-960h/22aad52d435eb6dbaf354bdad9b0da84ce7d6156/config.json "HTTP/1.1 200 OK"
+2026-05-24 14:19:30,052 - INFO - HTTP Request: HEAD https://huggingface.co/facebook/wav2vec2-base-960h/resolve/main/model.safetensors "HTTP/1.1 302 Found"
+Loading weights:   0%|          | 0/210 [00:00<?, ?it/s]Loading weights: 100%|##########| 210/210 [00:00<00:00, 4061.36it/s]
+[transformers] [1mWav2Vec2Model LOAD REPORT[0m from: facebook/wav2vec2-base-960h
+Key               | Status     | 
+------------------+------------+-
+lm_head.bias      | UNEXPECTED | 
+lm_head.weight    | UNEXPECTED | 
+masked_spec_embed | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+2026-05-24 14:19:31,616 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\300_P\300_AUDIO.wav (pid=300)
+2026-05-24 14:19:31,616 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\301_P\301_AUDIO.wav (pid=301)
+2026-05-24 14:19:31,616 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\306_P\306_AUDIO.wav (pid=306)
+2026-05-24 14:19:31,617 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\308_P\308_AUDIO.wav (pid=308)
+2026-05-24 14:19:31,617 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\309_P\309_AUDIO.wav (pid=309)
+2026-05-24 14:19:31,617 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\311_P\311_AUDIO.wav (pid=311)
+2026-05-24 14:19:31,617 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\314_P\314_AUDIO.wav (pid=314)
+2026-05-24 14:19:31,617 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\323_P\323_AUDIO.wav (pid=323)
+2026-05-24 14:19:31,618 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\329_P\329_AUDIO.wav (pid=329)
+2026-05-24 14:19:31,618 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\332_P\332_AUDIO.wav (pid=332)
+2026-05-24 14:19:31,618 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\334_P\334_AUDIO.wav (pid=334)
+2026-05-24 14:19:31,618 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\337_P\337_AUDIO.wav (pid=337)
+2026-05-24 14:19:31,619 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\349_P\349_AUDIO.wav (pid=349)
+2026-05-24 14:19:31,619 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\354_P\354_AUDIO.wav (pid=354)
+2026-05-24 14:19:31,619 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\359_P\359_AUDIO.wav (pid=359)
+2026-05-24 14:19:31,621 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\361_P\361_AUDIO.wav (pid=361)
+2026-05-24 14:19:31,621 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\365_P\365_AUDIO.wav (pid=365)
+2026-05-24 14:19:31,622 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\373_P\373_AUDIO.wav (pid=373)
+2026-05-24 14:19:31,622 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\378_P\378_AUDIO.wav (pid=378)
+2026-05-24 14:19:31,622 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\384_P\384_AUDIO.wav (pid=384)
+2026-05-24 14:19:31,623 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\387_P\387_AUDIO.wav (pid=387)
+2026-05-24 14:19:31,623 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\396_P\396_AUDIO.wav (pid=396)
+2026-05-24 14:19:31,623 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\399_P\399_AUDIO.wav (pid=399)
+2026-05-24 14:19:31,623 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\405_P\405_AUDIO.wav (pid=405)
+2026-05-24 14:19:31,623 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\407_P\407_AUDIO.wav (pid=407)
+2026-05-24 14:19:31,624 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\408_P\408_AUDIO.wav (pid=408)
+2026-05-24 14:19:31,624 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\410_P\410_AUDIO.wav (pid=410)
+2026-05-24 14:19:31,624 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\411_P\411_AUDIO.wav (pid=411)
+2026-05-24 14:19:31,624 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\421_P\421_AUDIO.wav (pid=421)
+2026-05-24 14:19:31,624 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\424_P\424_AUDIO.wav (pid=424)
+2026-05-24 14:19:31,625 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\431_P\431_AUDIO.wav (pid=431)
+2026-05-24 14:19:31,625 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\432_P\432_AUDIO.wav (pid=432)
+2026-05-24 14:19:31,625 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\435_P\435_AUDIO.wav (pid=435)
+2026-05-24 14:19:31,625 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\438_P\438_AUDIO.wav (pid=438)
+2026-05-24 14:19:31,625 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\442_P\442_AUDIO.wav (pid=442)
+2026-05-24 14:19:31,626 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\450_P\450_AUDIO.wav (pid=450)
+2026-05-24 14:19:31,626 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\452_P\452_AUDIO.wav (pid=452)
+2026-05-24 14:19:31,626 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\453_P\453_AUDIO.wav (pid=453)
+2026-05-24 14:19:31,626 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\461_P\461_AUDIO.wav (pid=461)
+2026-05-24 14:19:31,626 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\462_P\462_AUDIO.wav (pid=462)
+2026-05-24 14:19:31,627 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\465_P\465_AUDIO.wav (pid=465)
+2026-05-24 14:19:31,627 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\466_P\466_AUDIO.wav (pid=466)
+2026-05-24 14:19:31,627 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\467_P\467_AUDIO.wav (pid=467)
+2026-05-24 14:19:31,627 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\469_P\469_AUDIO.wav (pid=469)
+2026-05-24 14:19:31,627 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\470_P\470_AUDIO.wav (pid=470)
+2026-05-24 14:19:31,627 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\480_P\480_AUDIO.wav (pid=480)
+2026-05-24 14:19:31,627 - WARNING - Skip (pid tidak ada di label csv): C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\raw\DAIC-WOZ\481_P\481_AUDIO.wav (pid=481)
+2026-05-24 14:19:31,634 - INFO - [Wav2Vec2RawDataset] total samples: 142
+2026-05-24 14:19:31,634 - INFO - [Wav2Vec2RawDataset] distribusi dataset: {'NORMAL': 63, 'STRES': 25, 'CEMAS': 11, 'DEPRESI': 43}
+2026-05-24 14:19:31,666 - INFO - Start training...
+Train epoch 1:   0%|          | 0/27 [00:00<?, ?it/s]Train epoch 1:   4%|3         | 1/27 [00:48<21:12, 48.93s/it]Train epoch 1:   7%|7         | 2/27 [01:31<18:55, 45.41s/it]Train epoch 1:  11%|#1        | 3/27 [02:36<21:35, 53.96s/it]Train epoch 1:  15%|#4        | 4/27 [04:37<30:58, 80.80s/it]Train epoch 1:  19%|#8        | 5/27 [06:13<31:32, 86.01s/it]Train epoch 1:  22%|##2       | 6/27 [07:51<31:31, 90.08s/it]Train epoch 1:  26%|##5       | 7/27 [10:05<34:50, 104.54s/it]Train epoch 1:  30%|##9       | 8/27 [11:50<33:10, 104.78s/it]Train epoch 1:  33%|###3      | 9/27 [13:49<32:41, 108.98s/it]Train epoch 1:  37%|###7      | 10/27 [15:43<31:19, 110.55s/it]Train epoch 1:  41%|####      | 11/27 [17:28<29:01, 108.84s/it]Train epoch 1:  44%|####4     | 12/27 [19:15<27:05, 108.34s/it]Train epoch 1:  48%|####8     | 13/27 [20:48<24:12, 103.78s/it]

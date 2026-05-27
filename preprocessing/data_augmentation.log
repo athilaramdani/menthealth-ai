@@ -1,0 +1,464 @@
+2026-05-19 12:06:04,306 - INFO - Otomatis scanning DAIC-WOZ... Ditemukan 31 folder pasien.
+2026-05-19 12:06:04,316 - INFO - Memproses Augmentasi Pasien 302 -> Label: [NORMAL]
+2026-05-19 12:06:23,108 - INFO - Memproses Augmentasi Pasien 303 -> Label: [NORMAL]
+2026-05-19 12:06:38,079 - INFO - Memproses Augmentasi Pasien 304 -> Label: [STRES]
+2026-05-19 12:06:48,392 - INFO - Memproses Augmentasi Pasien 305 -> Label: [STRES]
+2026-05-19 12:07:12,201 - INFO - Memproses Augmentasi Pasien 307 -> Label: [NORMAL]
+2026-05-19 12:07:28,602 - INFO - Memproses Augmentasi Pasien 310 -> Label: [NORMAL]
+2026-05-19 12:07:40,278 - INFO - Memproses Augmentasi Pasien 312 -> Label: [NORMAL]
+2026-05-19 12:07:50,415 - INFO - Memproses Augmentasi Pasien 313 -> Label: [STRES]
+2026-05-19 12:08:00,207 - INFO - Memproses Augmentasi Pasien 315 -> Label: [NORMAL]
+2026-05-19 12:08:13,092 - INFO - Memproses Augmentasi Pasien 316 -> Label: [STRES]
+2026-05-19 12:08:24,260 - INFO - Memproses Augmentasi Pasien 317 -> Label: [CEMAS]
+2026-05-19 12:08:34,741 - INFO - Memproses Augmentasi Pasien 318 -> Label: [NORMAL]
+2026-05-19 12:08:42,308 - INFO - Memproses Augmentasi Pasien 319 -> Label: [DEPRESI]
+2026-05-19 12:08:51,046 - INFO - Memproses Augmentasi Pasien 320 -> Label: [DEPRESI]
+2026-05-19 12:09:02,215 - INFO - Memproses Augmentasi Pasien 321 -> Label: [DEPRESI]
+2026-05-19 12:09:12,813 - INFO - Memproses Augmentasi Pasien 322 -> Label: [STRES]
+2026-05-19 12:09:26,615 - INFO - Memproses Augmentasi Pasien 324 -> Label: [STRES]
+2026-05-19 12:09:35,626 - INFO - Memproses Augmentasi Pasien 325 -> Label: [DEPRESI]
+2026-05-19 12:09:47,929 - INFO - Memproses Augmentasi Pasien 326 -> Label: [NORMAL]
+2026-05-19 12:09:58,206 - INFO - Memproses Augmentasi Pasien 327 -> Label: [NORMAL]
+2026-05-19 12:10:07,367 - INFO - Memproses Augmentasi Pasien 328 -> Label: [NORMAL]
+2026-05-19 12:10:23,156 - INFO - Memproses Augmentasi Pasien 330 -> Label: [DEPRESI]
+2026-05-19 12:10:35,166 - INFO - 
+==================================================
+2026-05-19 12:10:35,166 - INFO - PROSES DATA AUGMENTATION SELESAI
+2026-05-19 12:10:35,166 - INFO - Berhasil Di-augmentasi : 22 pasien
+2026-05-19 12:10:35,166 - INFO - Gagal / Corrupt        : 0 pasien
+2026-05-19 12:10:35,166 - INFO - ==================================================
+2026-05-22 03:33:20,320 - INFO - Otomatis scanning DAIC-WOZ... Ditemukan 189 folder pasien.
+2026-05-22 03:33:20,380 - INFO - Memproses Augmentasi Pasien 331 -> Label: [CEMAS]
+2026-05-22 03:33:36,248 - INFO - Memproses Augmentasi Pasien 333 -> Label: [STRES]
+2026-05-22 03:33:49,975 - INFO - Memproses Augmentasi Pasien 335 -> Label: [DEPRESI]
+2026-05-22 03:34:01,382 - INFO - Memproses Augmentasi Pasien 336 -> Label: [STRES]
+2026-05-22 03:34:14,258 - INFO - Memproses Augmentasi Pasien 338 -> Label: [DEPRESI]
+2026-05-22 03:34:21,958 - INFO - Memproses Augmentasi Pasien 339 -> Label: [DEPRESI]
+2026-05-22 03:34:33,304 - INFO - Memproses Augmentasi Pasien 340 -> Label: [NORMAL]
+2026-05-22 03:34:41,358 - INFO - Memproses Augmentasi Pasien 341 -> Label: [STRES]
+2026-05-22 03:34:53,507 - INFO - Memproses Augmentasi Pasien 343 -> Label: [STRES]
+2026-05-22 03:35:06,275 - INFO - Memproses Augmentasi Pasien 344 -> Label: [DEPRESI]
+2026-05-22 03:42:56,310 - INFO - Otomatis scanning cleaned audio... Ditemukan 189 file.
+2026-05-22 03:42:56,322 - INFO - Memproses Augmentasi Pasien 302 -> Label: [NORMAL]
+2026-05-22 03:43:02,266 - INFO - Memproses Augmentasi Pasien 303 -> Label: [NORMAL]
+2026-05-22 03:43:11,528 - INFO - Memproses Augmentasi Pasien 304 -> Label: [STRES]
+2026-05-22 03:43:16,276 - INFO - Memproses Augmentasi Pasien 305 -> Label: [STRES]
+2026-05-22 03:43:31,765 - INFO - Memproses Augmentasi Pasien 307 -> Label: [NORMAL]
+2026-05-22 03:43:43,451 - INFO - Memproses Augmentasi Pasien 310 -> Label: [NORMAL]
+2026-05-22 03:43:47,409 - INFO - Memproses Augmentasi Pasien 312 -> Label: [NORMAL]
+2026-05-22 03:43:51,879 - INFO - Memproses Augmentasi Pasien 313 -> Label: [STRES]
+2026-05-22 03:43:56,017 - INFO - Memproses Augmentasi Pasien 315 -> Label: [NORMAL]
+2026-05-22 03:44:02,257 - INFO - Memproses Augmentasi Pasien 316 -> Label: [STRES]
+2026-05-22 03:44:04,943 - INFO - Memproses Augmentasi Pasien 317 -> Label: [CEMAS]
+2026-05-22 03:44:08,027 - INFO - Memproses Augmentasi Pasien 318 -> Label: [NORMAL]
+2026-05-22 03:44:10,811 - INFO - Memproses Augmentasi Pasien 319 -> Label: [DEPRESI]
+2026-05-22 03:44:13,694 - INFO - Memproses Augmentasi Pasien 320 -> Label: [DEPRESI]
+2026-05-22 03:44:16,971 - INFO - Memproses Augmentasi Pasien 321 -> Label: [DEPRESI]
+2026-05-22 03:44:20,616 - INFO - Memproses Augmentasi Pasien 322 -> Label: [STRES]
+2026-05-22 03:44:26,680 - INFO - Memproses Augmentasi Pasien 324 -> Label: [STRES]
+2026-05-22 03:44:30,337 - INFO - Memproses Augmentasi Pasien 325 -> Label: [DEPRESI]
+2026-05-22 03:44:37,026 - INFO - Memproses Augmentasi Pasien 326 -> Label: [NORMAL]
+2026-05-22 03:44:39,235 - INFO - Memproses Augmentasi Pasien 327 -> Label: [NORMAL]
+2026-05-22 03:44:42,694 - INFO - Memproses Augmentasi Pasien 328 -> Label: [NORMAL]
+2026-05-22 03:44:51,504 - INFO - Memproses Augmentasi Pasien 330 -> Label: [DEPRESI]
+2026-05-22 03:44:54,001 - INFO - Memproses Augmentasi Pasien 331 -> Label: [CEMAS]
+2026-05-22 03:44:59,172 - INFO - Memproses Augmentasi Pasien 333 -> Label: [STRES]
+2026-05-22 03:45:04,379 - INFO - Memproses Augmentasi Pasien 335 -> Label: [DEPRESI]
+2026-05-22 03:45:09,461 - INFO - Memproses Augmentasi Pasien 336 -> Label: [STRES]
+2026-05-22 03:45:13,993 - INFO - Memproses Augmentasi Pasien 338 -> Label: [DEPRESI]
+2026-05-22 03:45:17,308 - INFO - Memproses Augmentasi Pasien 339 -> Label: [DEPRESI]
+2026-05-22 03:45:22,245 - INFO - Memproses Augmentasi Pasien 340 -> Label: [NORMAL]
+2026-05-22 03:45:24,333 - INFO - Memproses Augmentasi Pasien 341 -> Label: [STRES]
+2026-05-22 03:45:28,912 - INFO - Memproses Augmentasi Pasien 343 -> Label: [STRES]
+2026-05-22 03:45:31,812 - INFO - Memproses Augmentasi Pasien 344 -> Label: [DEPRESI]
+2026-05-22 03:45:39,325 - INFO - Memproses Augmentasi Pasien 345 -> Label: [DEPRESI]
+2026-05-22 03:45:44,943 - INFO - Memproses Augmentasi Pasien 346 -> Label: [DEPRESI]
+2026-05-22 03:45:52,999 - INFO - Memproses Augmentasi Pasien 347 -> Label: [DEPRESI]
+2026-05-22 03:45:54,589 - INFO - Memproses Augmentasi Pasien 348 -> Label: [DEPRESI]
+2026-05-22 03:45:58,126 - INFO - Memproses Augmentasi Pasien 350 -> Label: [DEPRESI]
+2026-05-22 03:46:03,512 - INFO - Memproses Augmentasi Pasien 351 -> Label: [DEPRESI]
+2026-05-22 03:46:08,288 - INFO - Memproses Augmentasi Pasien 352 -> Label: [DEPRESI]
+2026-05-22 03:46:14,157 - INFO - Memproses Augmentasi Pasien 353 -> Label: [DEPRESI]
+2026-05-22 03:46:19,028 - INFO - Memproses Augmentasi Pasien 355 -> Label: [DEPRESI]
+2026-05-22 03:46:22,934 - INFO - Memproses Augmentasi Pasien 356 -> Label: [DEPRESI]
+2026-05-22 03:46:29,351 - INFO - Memproses Augmentasi Pasien 357 -> Label: [STRES]
+2026-05-22 03:46:31,022 - INFO - Memproses Augmentasi Pasien 358 -> Label: [STRES]
+2026-05-22 03:46:33,885 - INFO - Memproses Augmentasi Pasien 360 -> Label: [NORMAL]
+2026-05-22 03:46:36,331 - INFO - Memproses Augmentasi Pasien 362 -> Label: [DEPRESI]
+2026-05-22 03:46:39,458 - INFO - Memproses Augmentasi Pasien 363 -> Label: [NORMAL]
+2026-05-22 03:46:48,377 - INFO - Memproses Augmentasi Pasien 364 -> Label: [NORMAL]
+2026-05-22 03:47:04,231 - INFO - Memproses Augmentasi Pasien 366 -> Label: [NORMAL]
+2026-05-22 03:47:13,610 - INFO - Memproses Augmentasi Pasien 367 -> Label: [DEPRESI]
+2026-05-22 03:47:25,490 - INFO - Memproses Augmentasi Pasien 368 -> Label: [CEMAS]
+2026-05-22 03:47:36,818 - INFO - Memproses Augmentasi Pasien 369 -> Label: [NORMAL]
+2026-05-22 03:47:45,827 - INFO - Memproses Augmentasi Pasien 370 -> Label: [NORMAL]
+2026-05-22 03:47:55,532 - INFO - Memproses Augmentasi Pasien 371 -> Label: [STRES]
+2026-05-22 03:47:58,818 - INFO - Memproses Augmentasi Pasien 372 -> Label: [DEPRESI]
+2026-05-22 03:48:09,088 - INFO - Memproses Augmentasi Pasien 374 -> Label: [NORMAL]
+2026-05-22 03:48:19,401 - INFO - Memproses Augmentasi Pasien 375 -> Label: [CEMAS]
+2026-05-22 03:48:21,193 - INFO - Memproses Augmentasi Pasien 376 -> Label: [DEPRESI]
+2026-05-22 03:48:27,772 - INFO - Memproses Augmentasi Pasien 377 -> Label: [DEPRESI]
+2026-05-22 03:48:38,024 - INFO - Memproses Augmentasi Pasien 379 -> Label: [NORMAL]
+2026-05-22 03:48:45,507 - INFO - Memproses Augmentasi Pasien 380 -> Label: [DEPRESI]
+2026-05-22 03:49:01,470 - INFO - Memproses Augmentasi Pasien 381 -> Label: [DEPRESI]
+2026-05-22 03:49:07,223 - INFO - Memproses Augmentasi Pasien 382 -> Label: [NORMAL]
+2026-05-22 03:49:10,766 - INFO - Memproses Augmentasi Pasien 383 -> Label: [STRES]
+2026-05-22 03:49:21,745 - INFO - Memproses Augmentasi Pasien 385 -> Label: [CEMAS]
+2026-05-22 03:49:22,565 - INFO - Memproses Augmentasi Pasien 386 -> Label: [DEPRESI]
+2026-05-22 03:49:30,530 - INFO - Memproses Augmentasi Pasien 388 -> Label: [DEPRESI]
+2026-05-22 03:49:32,395 - INFO - Memproses Augmentasi Pasien 389 -> Label: [DEPRESI]
+2026-05-22 03:49:35,103 - INFO - Memproses Augmentasi Pasien 390 -> Label: [STRES]
+2026-05-22 03:49:42,776 - INFO - Memproses Augmentasi Pasien 391 -> Label: [CEMAS]
+2026-05-22 03:49:45,353 - INFO - Memproses Augmentasi Pasien 392 -> Label: [NORMAL]
+2026-05-22 03:49:47,999 - INFO - Memproses Augmentasi Pasien 393 -> Label: [NORMAL]
+2026-05-22 03:49:50,533 - INFO - Memproses Augmentasi Pasien 395 -> Label: [STRES]
+2026-05-22 03:49:55,695 - INFO - Memproses Augmentasi Pasien 397 -> Label: [CEMAS]
+2026-05-22 03:50:00,999 - INFO - Memproses Augmentasi Pasien 400 -> Label: [STRES]
+2026-05-22 03:50:06,067 - INFO - Memproses Augmentasi Pasien 401 -> Label: [CEMAS]
+2026-05-22 03:50:11,162 - INFO - Memproses Augmentasi Pasien 402 -> Label: [DEPRESI]
+2026-05-22 03:50:16,543 - INFO - Memproses Augmentasi Pasien 403 -> Label: [NORMAL]
+2026-05-22 03:50:21,795 - INFO - Memproses Augmentasi Pasien 404 -> Label: [NORMAL]
+2026-05-22 03:50:27,542 - INFO - Memproses Augmentasi Pasien 406 -> Label: [NORMAL]
+2026-05-22 03:50:31,307 - INFO - Memproses Augmentasi Pasien 409 -> Label: [DEPRESI]
+2026-05-22 03:50:38,650 - INFO - Memproses Augmentasi Pasien 412 -> Label: [DEPRESI]
+2026-05-22 03:50:42,613 - INFO - Memproses Augmentasi Pasien 413 -> Label: [DEPRESI]
+2026-05-22 03:50:48,828 - INFO - Memproses Augmentasi Pasien 414 -> Label: [DEPRESI]
+2026-05-22 03:50:55,096 - INFO - Memproses Augmentasi Pasien 415 -> Label: [NORMAL]
+2026-05-22 03:50:59,303 - INFO - Memproses Augmentasi Pasien 416 -> Label: [NORMAL]
+2026-05-22 03:51:04,482 - INFO - Memproses Augmentasi Pasien 417 -> Label: [CEMAS]
+2026-05-22 03:51:09,897 - INFO - Memproses Augmentasi Pasien 418 -> Label: [DEPRESI]
+2026-05-22 03:51:17,390 - INFO - Memproses Augmentasi Pasien 419 -> Label: [NORMAL]
+2026-05-22 03:51:24,249 - INFO - Memproses Augmentasi Pasien 420 -> Label: [NORMAL]
+2026-05-22 03:51:28,795 - INFO - Memproses Augmentasi Pasien 422 -> Label: [DEPRESI]
+2026-05-22 03:51:38,499 - INFO - Memproses Augmentasi Pasien 423 -> Label: [NORMAL]
+2026-05-22 03:51:43,705 - INFO - Memproses Augmentasi Pasien 425 -> Label: [STRES]
+2026-05-22 03:51:51,124 - INFO - Memproses Augmentasi Pasien 426 -> Label: [DEPRESI]
+2026-05-22 03:51:55,141 - INFO - Memproses Augmentasi Pasien 427 -> Label: [STRES]
+2026-05-22 03:51:58,970 - INFO - Memproses Augmentasi Pasien 428 -> Label: [NORMAL]
+2026-05-22 03:52:02,009 - INFO - Memproses Augmentasi Pasien 429 -> Label: [NORMAL]
+2026-05-22 03:52:06,805 - INFO - Memproses Augmentasi Pasien 430 -> Label: [NORMAL]
+2026-05-22 03:52:11,547 - INFO - Memproses Augmentasi Pasien 433 -> Label: [DEPRESI]
+2026-05-22 03:52:15,039 - INFO - Memproses Augmentasi Pasien 434 -> Label: [NORMAL]
+2026-05-22 03:52:25,445 - INFO - Memproses Augmentasi Pasien 436 -> Label: [NORMAL]
+2026-05-22 03:52:29,303 - INFO - Memproses Augmentasi Pasien 437 -> Label: [NORMAL]
+2026-05-22 03:52:34,467 - INFO - Memproses Augmentasi Pasien 439 -> Label: [NORMAL]
+2026-05-22 03:52:45,957 - INFO - Memproses Augmentasi Pasien 440 -> Label: [DEPRESI]
+2026-05-22 03:52:53,850 - INFO - Memproses Augmentasi Pasien 441 -> Label: [DEPRESI]
+2026-05-22 03:52:57,287 - INFO - Memproses Augmentasi Pasien 443 -> Label: [NORMAL]
+2026-05-22 03:52:59,732 - INFO - Memproses Augmentasi Pasien 444 -> Label: [STRES]
+2026-05-22 03:53:10,152 - INFO - Memproses Augmentasi Pasien 445 -> Label: [NORMAL]
+2026-05-22 03:53:13,849 - INFO - Memproses Augmentasi Pasien 446 -> Label: [NORMAL]
+2026-05-22 03:53:20,732 - INFO - Memproses Augmentasi Pasien 447 -> Label: [NORMAL]
+2026-05-22 03:53:25,937 - INFO - Memproses Augmentasi Pasien 448 -> Label: [DEPRESI]
+2026-05-22 03:53:36,054 - INFO - Memproses Augmentasi Pasien 449 -> Label: [NORMAL]
+2026-05-22 03:53:45,137 - INFO - Memproses Augmentasi Pasien 451 -> Label: [NORMAL]
+2026-05-22 03:53:52,806 - INFO - Memproses Augmentasi Pasien 454 -> Label: [NORMAL]
+2026-05-22 03:53:55,395 - INFO - Memproses Augmentasi Pasien 455 -> Label: [NORMAL]
+2026-05-22 03:54:00,107 - INFO - Memproses Augmentasi Pasien 456 -> Label: [STRES]
+2026-05-22 03:54:05,524 - INFO - Memproses Augmentasi Pasien 457 -> Label: [NORMAL]
+2026-05-22 03:54:10,913 - INFO - Memproses Augmentasi Pasien 458 -> Label: [STRES]
+2026-05-22 03:54:17,644 - INFO - Memproses Augmentasi Pasien 459 -> Label: [DEPRESI]
+2026-05-22 03:54:21,845 - INFO - Memproses Augmentasi Pasien 463 -> Label: [NORMAL]
+2026-05-22 03:54:25,909 - INFO - Memproses Augmentasi Pasien 464 -> Label: [NORMAL]
+2026-05-22 03:54:32,062 - INFO - Memproses Augmentasi Pasien 468 -> Label: [STRES]
+2026-05-22 03:54:37,835 - INFO - Memproses Augmentasi Pasien 471 -> Label: [NORMAL]
+2026-05-22 03:54:45,250 - INFO - Memproses Augmentasi Pasien 472 -> Label: [NORMAL]
+2026-05-22 03:54:49,879 - INFO - Memproses Augmentasi Pasien 473 -> Label: [NORMAL]
+2026-05-22 03:54:51,057 - INFO - Memproses Augmentasi Pasien 474 -> Label: [NORMAL]
+2026-05-22 03:54:56,457 - INFO - Memproses Augmentasi Pasien 475 -> Label: [CEMAS]
+2026-05-22 03:54:58,895 - INFO - Memproses Augmentasi Pasien 476 -> Label: [NORMAL]
+2026-05-22 03:55:01,299 - INFO - Memproses Augmentasi Pasien 477 -> Label: [NORMAL]
+2026-05-22 03:55:11,162 - INFO - Memproses Augmentasi Pasien 478 -> Label: [NORMAL]
+2026-05-22 03:55:16,001 - INFO - Memproses Augmentasi Pasien 479 -> Label: [STRES]
+2026-05-22 03:55:18,711 - INFO - Memproses Augmentasi Pasien 482 -> Label: [NORMAL]
+2026-05-22 03:55:24,689 - INFO - Memproses Augmentasi Pasien 483 -> Label: [DEPRESI]
+2026-05-22 03:55:34,964 - INFO - Memproses Augmentasi Pasien 484 -> Label: [STRES]
+2026-05-22 03:55:41,541 - INFO - Memproses Augmentasi Pasien 485 -> Label: [NORMAL]
+2026-05-22 03:55:43,905 - INFO - Memproses Augmentasi Pasien 486 -> Label: [NORMAL]
+2026-05-22 03:55:47,033 - INFO - Memproses Augmentasi Pasien 487 -> Label: [NORMAL]
+2026-05-22 03:55:53,982 - INFO - Memproses Augmentasi Pasien 488 -> Label: [NORMAL]
+2026-05-22 03:55:58,918 - INFO - Memproses Augmentasi Pasien 489 -> Label: [NORMAL]
+2026-05-22 03:56:00,976 - INFO - Memproses Augmentasi Pasien 490 -> Label: [NORMAL]
+2026-05-22 03:56:03,181 - INFO - Memproses Augmentasi Pasien 491 -> Label: [CEMAS]
+2026-05-22 03:56:08,055 - INFO - Memproses Augmentasi Pasien 492 -> Label: [NORMAL]
+2026-05-22 03:56:13,607 - INFO - 
+==================================================
+2026-05-22 03:56:13,607 - INFO - PROSES DATA AUGMENTATION SELESAI
+2026-05-22 03:56:13,607 - INFO - Berhasil Di-augmentasi : 142 pasien
+2026-05-22 03:56:13,607 - INFO - Gagal / Corrupt        : 0 pasien
+2026-05-22 03:56:13,607 - INFO - ==================================================
+2026-05-22 11:43:01,407 - INFO - Otomatis scanning cleaned audio... Ditemukan 189 file.
+2026-05-22 11:43:01,435 - INFO - 
+==================================================
+2026-05-22 11:43:01,435 - INFO - PROSES DATA AUGMENTATION SELESAI
+2026-05-22 11:43:01,435 - INFO - Berhasil Di-augmentasi : 142 pasien
+2026-05-22 11:43:01,435 - INFO - Gagal / Corrupt        : 0 pasien
+2026-05-22 11:43:01,435 - INFO - ==================================================
+2026-05-22 11:48:10,276 - INFO - Otomatis scanning cleaned audio... Ditemukan 189 file.
+2026-05-22 11:48:10,348 - INFO - 
+==================================================
+2026-05-22 11:48:10,349 - INFO - PROSES DATA AUGMENTATION SELESAI
+2026-05-22 11:48:10,349 - INFO - Berhasil Di-augmentasi : 142 pasien
+2026-05-22 11:48:10,349 - INFO - Gagal / Corrupt        : 0 pasien
+2026-05-22 11:48:10,349 - INFO - ==================================================
+2026-05-22 11:49:18,118 - INFO - Otomatis scanning cleaned audio... Ditemukan 189 file.
+2026-05-22 11:49:18,209 - INFO - 
+==================================================
+2026-05-22 11:49:18,209 - INFO - PROSES DATA AUGMENTATION SELESAI
+2026-05-22 11:49:18,209 - INFO - Berhasil Di-augmentasi : 142 pasien
+2026-05-22 11:49:18,209 - INFO - Gagal / Corrupt        : 0 pasien
+2026-05-22 11:49:18,211 - INFO - ==================================================
+2026-05-22 11:50:18,790 - INFO - Otomatis scanning cleaned audio... Ditemukan 189 file.
+2026-05-22 11:50:18,864 - INFO - 
+==================================================
+2026-05-22 11:50:18,864 - INFO - PROSES DATA AUGMENTATION SELESAI
+2026-05-22 11:50:18,864 - INFO - Berhasil Di-augmentasi : 142 pasien
+2026-05-22 11:50:18,864 - INFO - Gagal / Corrupt        : 0 pasien
+2026-05-22 11:50:18,864 - INFO - ==================================================
+2026-05-22 17:05:00,617 - INFO - Otomatis scanning cleaned audio... Ditemukan 189 file.
+2026-05-22 17:05:00,628 - INFO - Memproses Augmentasi Pasien 304 -> Label: [STRES]
+2026-05-22 17:05:10,850 - INFO - Memproses Augmentasi Pasien 305 -> Label: [STRES]
+2026-05-22 17:05:26,523 - INFO - Memproses Augmentasi Pasien 313 -> Label: [STRES]
+2026-05-22 17:05:29,955 - INFO - Memproses Augmentasi Pasien 316 -> Label: [STRES]
+2026-05-22 17:05:32,514 - INFO - Memproses Augmentasi Pasien 317 -> Label: [CEMAS]
+2026-05-22 17:05:35,560 - INFO - Memproses Augmentasi Pasien 322 -> Label: [STRES]
+2026-05-22 17:05:41,357 - INFO - Memproses Augmentasi Pasien 324 -> Label: [STRES]
+2026-05-22 17:05:44,707 - INFO - Memproses Augmentasi Pasien 331 -> Label: [CEMAS]
+2026-05-22 17:05:49,472 - INFO - Memproses Augmentasi Pasien 333 -> Label: [STRES]
+2026-05-22 17:05:54,299 - INFO - Memproses Augmentasi Pasien 336 -> Label: [STRES]
+2026-05-22 17:05:58,737 - INFO - Memproses Augmentasi Pasien 341 -> Label: [STRES]
+2026-05-22 17:06:03,185 - INFO - Memproses Augmentasi Pasien 343 -> Label: [STRES]
+2026-05-22 17:06:06,037 - INFO - Memproses Augmentasi Pasien 357 -> Label: [STRES]
+2026-05-22 17:06:07,703 - INFO - Memproses Augmentasi Pasien 358 -> Label: [STRES]
+2026-05-22 17:06:10,572 - INFO - Memproses Augmentasi Pasien 368 -> Label: [CEMAS]
+2026-05-22 17:06:22,054 - INFO - Memproses Augmentasi Pasien 371 -> Label: [STRES]
+2026-05-22 17:06:25,103 - INFO - Memproses Augmentasi Pasien 375 -> Label: [CEMAS]
+2026-05-22 17:06:26,751 - INFO - Memproses Augmentasi Pasien 383 -> Label: [STRES]
+2026-05-22 17:06:38,022 - INFO - Memproses Augmentasi Pasien 385 -> Label: [CEMAS]
+2026-05-22 17:06:38,799 - INFO - Memproses Augmentasi Pasien 390 -> Label: [STRES]
+2026-05-22 17:06:46,267 - INFO - Memproses Augmentasi Pasien 391 -> Label: [CEMAS]
+2026-05-22 17:06:48,736 - INFO - Memproses Augmentasi Pasien 395 -> Label: [STRES]
+2026-05-22 17:06:53,728 - INFO - Memproses Augmentasi Pasien 397 -> Label: [CEMAS]
+2026-05-22 17:06:58,857 - INFO - Memproses Augmentasi Pasien 400 -> Label: [STRES]
+2026-05-22 17:07:03,717 - INFO - Memproses Augmentasi Pasien 401 -> Label: [CEMAS]
+2026-05-22 17:07:08,728 - INFO - Memproses Augmentasi Pasien 417 -> Label: [CEMAS]
+2026-05-22 17:07:13,827 - INFO - Memproses Augmentasi Pasien 425 -> Label: [STRES]
+2026-05-22 17:07:21,207 - INFO - Memproses Augmentasi Pasien 427 -> Label: [STRES]
+2026-05-22 17:07:25,007 - INFO - Memproses Augmentasi Pasien 444 -> Label: [STRES]
+2026-05-22 17:07:35,721 - INFO - Memproses Augmentasi Pasien 456 -> Label: [STRES]
+2026-05-22 17:07:41,128 - INFO - Memproses Augmentasi Pasien 458 -> Label: [STRES]
+2026-05-22 17:07:47,617 - INFO - Memproses Augmentasi Pasien 468 -> Label: [STRES]
+2026-05-22 17:07:53,247 - INFO - Memproses Augmentasi Pasien 475 -> Label: [CEMAS]
+2026-05-22 17:07:55,657 - INFO - Memproses Augmentasi Pasien 479 -> Label: [STRES]
+2026-05-22 17:07:58,605 - INFO - Memproses Augmentasi Pasien 484 -> Label: [STRES]
+2026-05-22 17:08:05,178 - INFO - Memproses Augmentasi Pasien 491 -> Label: [CEMAS]
+2026-05-22 17:08:09,999 - INFO - 
+==================================================
+2026-05-22 17:08:10,001 - INFO - PROSES DATA AUGMENTATION SELESAI
+2026-05-22 17:08:10,001 - INFO - Berhasil Di-augmentasi : 142 pasien
+2026-05-22 17:08:10,001 - INFO - Gagal / Corrupt        : 0 pasien
+2026-05-22 17:08:10,001 - INFO - ==================================================
+2026-05-22 17:46:31,431 - INFO - Otomatis scanning cleaned audio... Ditemukan 189 file.
+2026-05-22 17:46:31,469 - INFO - 
+==================================================
+2026-05-22 17:46:31,470 - INFO - PROSES DATA AUGMENTATION SELESAI
+2026-05-22 17:46:31,470 - INFO - Berhasil Di-augmentasi : 142 pasien
+2026-05-22 17:46:31,470 - INFO - Gagal / Corrupt        : 0 pasien
+2026-05-22 17:46:31,470 - INFO - ==================================================
+2026-05-22 18:25:00,144 - INFO - Ditemukan 189 file audio di C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\cleaned
+2026-05-22 18:25:00,173 - INFO - ==================================================
+2026-05-22 18:25:00,173 - INFO - DATA AUGMENTATION SELESAI
+2026-05-22 18:25:00,173 - INFO - Berhasil    : 142 pasien
+2026-05-22 18:25:00,173 - INFO - Gagal       : 0 pasien
+2026-05-22 18:25:00,173 - INFO - Tanpa label : 47 pasien
+2026-05-22 18:25:00,173 - INFO - ==================================================
+2026-05-22 18:26:37,255 - INFO - Ditemukan 189 file audio di C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\cleaned
+2026-05-22 18:26:37,304 - INFO - ==================================================
+2026-05-22 18:26:37,306 - INFO - DATA AUGMENTATION SELESAI
+2026-05-22 18:26:37,308 - INFO - Berhasil    : 142 pasien
+2026-05-22 18:26:37,308 - INFO - Gagal       : 0 pasien
+2026-05-22 18:26:37,308 - INFO - Tanpa label : 47 pasien
+2026-05-22 18:26:37,308 - INFO - ==================================================
+2026-05-23 18:01:24,832 - INFO - Ditemukan 189 file audio di C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\cleaned
+2026-05-23 18:01:24,889 - INFO - ==================================================
+2026-05-23 18:01:24,889 - INFO - DATA AUGMENTATION SELESAI
+2026-05-23 18:01:24,889 - INFO - Berhasil    : 142 pasien
+2026-05-23 18:01:24,889 - INFO - Gagal       : 0 pasien
+2026-05-23 18:01:24,891 - INFO - Tanpa label : 47 pasien
+2026-05-23 18:01:24,891 - INFO - ==================================================
+2026-05-23 18:01:53,586 - INFO - Ditemukan 189 file audio di C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\cleaned
+2026-05-23 18:01:53,613 - INFO - ==================================================
+2026-05-23 18:01:53,613 - INFO - DATA AUGMENTATION SELESAI
+2026-05-23 18:01:53,613 - INFO - Berhasil    : 142 pasien
+2026-05-23 18:01:53,613 - INFO - Gagal       : 0 pasien
+2026-05-23 18:01:53,613 - INFO - Tanpa label : 47 pasien
+2026-05-23 18:01:53,615 - INFO - ==================================================
+2026-05-23 19:28:28,409 - INFO - Ditemukan 189 file audio di C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\cleaned
+2026-05-23 19:28:28,416 - INFO - Augmentasi 302 -> [NORMAL]
+2026-05-23 19:28:38,545 - INFO - Augmentasi 303 -> [NORMAL]
+2026-05-23 19:28:46,540 - INFO - Augmentasi 307 -> [NORMAL]
+2026-05-23 19:28:56,323 - INFO - Augmentasi 310 -> [NORMAL]
+2026-05-23 19:28:59,509 - INFO - Augmentasi 312 -> [NORMAL]
+2026-05-23 19:29:03,121 - INFO - Augmentasi 315 -> [NORMAL]
+2026-05-23 19:29:08,290 - INFO - Augmentasi 318 -> [NORMAL]
+2026-05-23 19:29:10,747 - INFO - Augmentasi 319 -> [DEPRESI]
+2026-05-23 19:29:13,370 - INFO - Augmentasi 320 -> [DEPRESI]
+2026-05-23 19:29:16,162 - INFO - Augmentasi 321 -> [DEPRESI]
+2026-05-23 19:29:19,424 - INFO - Augmentasi 325 -> [DEPRESI]
+2026-05-23 19:29:25,273 - INFO - Augmentasi 326 -> [NORMAL]
+2026-05-23 19:29:27,360 - INFO - Augmentasi 327 -> [NORMAL]
+2026-05-23 19:29:30,340 - INFO - Augmentasi 328 -> [NORMAL]
+2026-05-23 19:29:38,035 - INFO - Augmentasi 330 -> [DEPRESI]
+2026-05-23 19:29:40,168 - INFO - Augmentasi 335 -> [DEPRESI]
+2026-05-23 19:29:44,976 - INFO - Augmentasi 338 -> [DEPRESI]
+2026-05-23 19:29:48,101 - INFO - Augmentasi 339 -> [DEPRESI]
+2026-05-23 19:29:52,840 - INFO - Augmentasi 340 -> [NORMAL]
+2026-05-23 19:29:54,922 - INFO - Augmentasi 344 -> [DEPRESI]
+2026-05-23 19:30:01,732 - INFO - Augmentasi 345 -> [DEPRESI]
+2026-05-23 19:30:07,147 - INFO - Augmentasi 346 -> [DEPRESI]
+2026-05-23 19:30:14,513 - INFO - Augmentasi 347 -> [DEPRESI]
+2026-05-23 19:30:16,083 - INFO - Augmentasi 348 -> [DEPRESI]
+2026-05-23 19:30:19,367 - INFO - Augmentasi 350 -> [DEPRESI]
+2026-05-23 19:30:24,486 - INFO - Augmentasi 351 -> [DEPRESI]
+2026-05-23 19:30:29,104 - INFO - Augmentasi 352 -> [DEPRESI]
+2026-05-23 19:30:34,656 - INFO - Augmentasi 353 -> [DEPRESI]
+2026-05-23 19:30:39,259 - INFO - Augmentasi 355 -> [DEPRESI]
+2026-05-23 19:30:43,041 - INFO - Augmentasi 356 -> [DEPRESI]
+2026-05-23 19:30:48,945 - INFO - Augmentasi 360 -> [NORMAL]
+2026-05-23 19:30:51,241 - INFO - Augmentasi 362 -> [DEPRESI]
+2026-05-23 19:30:54,256 - INFO - Augmentasi 363 -> [NORMAL]
+2026-05-23 19:31:02,547 - INFO - Augmentasi 364 -> [NORMAL]
+2026-05-23 19:31:16,211 - INFO - Augmentasi 366 -> [NORMAL]
+2026-05-23 19:31:25,050 - INFO - Augmentasi 367 -> [DEPRESI]
+2026-05-23 19:31:36,337 - INFO - Augmentasi 369 -> [NORMAL]
+2026-05-23 19:31:44,515 - INFO - Augmentasi 370 -> [NORMAL]
+2026-05-23 19:31:53,359 - INFO - Augmentasi 372 -> [DEPRESI]
+2026-05-23 19:32:01,295 - INFO - Augmentasi 374 -> [NORMAL]
+2026-05-23 19:32:09,711 - INFO - Augmentasi 376 -> [DEPRESI]
+2026-05-23 19:32:15,571 - INFO - Augmentasi 377 -> [DEPRESI]
+2026-05-23 19:32:24,607 - INFO - Augmentasi 379 -> [NORMAL]
+2026-05-23 19:32:31,319 - INFO - Augmentasi 380 -> [DEPRESI]
+2026-05-23 19:32:45,518 - INFO - Augmentasi 381 -> [DEPRESI]
+2026-05-23 19:32:50,877 - INFO - Augmentasi 382 -> [NORMAL]
+2026-05-23 19:32:54,253 - INFO - Augmentasi 386 -> [DEPRESI]
+2026-05-23 19:33:01,530 - INFO - Augmentasi 388 -> [DEPRESI]
+2026-05-23 19:33:03,278 - INFO - Augmentasi 389 -> [DEPRESI]
+2026-05-23 19:33:05,816 - INFO - Augmentasi 392 -> [NORMAL]
+2026-05-23 19:33:08,335 - INFO - Augmentasi 393 -> [NORMAL]
+2026-05-23 19:33:10,737 - INFO - Augmentasi 402 -> [DEPRESI]
+2026-05-23 19:33:15,727 - INFO - Augmentasi 403 -> [NORMAL]
+2026-05-23 19:33:20,695 - INFO - Augmentasi 404 -> [NORMAL]
+2026-05-23 19:33:26,102 - INFO - Augmentasi 406 -> [NORMAL]
+2026-05-23 19:33:29,587 - INFO - Augmentasi 409 -> [DEPRESI]
+2026-05-23 19:33:36,207 - INFO - Augmentasi 412 -> [DEPRESI]
+2026-05-23 19:33:39,968 - INFO - Augmentasi 413 -> [DEPRESI]
+2026-05-23 19:33:45,786 - INFO - Augmentasi 414 -> [DEPRESI]
+2026-05-23 19:33:51,619 - INFO - Augmentasi 415 -> [NORMAL]
+2026-05-23 19:33:55,564 - INFO - Augmentasi 416 -> [NORMAL]
+2026-05-23 19:34:00,419 - INFO - Augmentasi 418 -> [DEPRESI]
+2026-05-23 19:34:06,946 - INFO - Augmentasi 419 -> [NORMAL]
+2026-05-23 19:34:13,179 - INFO - Augmentasi 420 -> [NORMAL]
+2026-05-23 19:34:17,455 - INFO - Augmentasi 422 -> [DEPRESI]
+2026-05-23 19:34:26,058 - INFO - Augmentasi 423 -> [NORMAL]
+2026-05-23 19:34:31,249 - INFO - Augmentasi 426 -> [DEPRESI]
+2026-05-23 19:34:34,957 - INFO - Augmentasi 428 -> [NORMAL]
+2026-05-23 19:34:37,775 - INFO - Augmentasi 429 -> [NORMAL]
+2026-05-23 19:34:42,624 - INFO - Augmentasi 430 -> [NORMAL]
+2026-05-23 19:34:47,249 - INFO - Augmentasi 433 -> [DEPRESI]
+2026-05-23 19:34:50,471 - INFO - Augmentasi 434 -> [NORMAL]
+2026-05-23 19:34:59,881 - INFO - Augmentasi 436 -> [NORMAL]
+2026-05-23 19:35:03,541 - INFO - Augmentasi 437 -> [NORMAL]
+2026-05-23 19:35:08,301 - INFO - Augmentasi 439 -> [NORMAL]
+2026-05-23 19:35:18,346 - INFO - Augmentasi 440 -> [DEPRESI]
+2026-05-23 19:35:26,511 - INFO - Augmentasi 441 -> [DEPRESI]
+2026-05-23 19:35:31,136 - INFO - Augmentasi 443 -> [NORMAL]
+2026-05-23 19:35:34,017 - INFO - Augmentasi 445 -> [NORMAL]
+2026-05-23 19:35:37,659 - INFO - Augmentasi 446 -> [NORMAL]
+2026-05-23 19:35:44,307 - INFO - Augmentasi 447 -> [NORMAL]
+2026-05-23 19:35:49,079 - INFO - Augmentasi 448 -> [DEPRESI]
+2026-05-23 19:35:58,100 - INFO - Augmentasi 449 -> [NORMAL]
+2026-05-23 19:36:06,008 - INFO - Augmentasi 451 -> [NORMAL]
+2026-05-23 19:36:13,424 - INFO - Augmentasi 454 -> [NORMAL]
+2026-05-23 19:36:15,692 - INFO - Augmentasi 455 -> [NORMAL]
+2026-05-23 19:36:19,924 - INFO - Augmentasi 457 -> [NORMAL]
+2026-05-23 19:36:24,961 - INFO - Augmentasi 459 -> [DEPRESI]
+2026-05-23 19:36:28,997 - INFO - Augmentasi 463 -> [NORMAL]
+2026-05-23 19:36:33,068 - INFO - Augmentasi 464 -> [NORMAL]
+2026-05-23 19:36:38,780 - INFO - Augmentasi 471 -> [NORMAL]
+2026-05-23 19:36:45,731 - INFO - Augmentasi 472 -> [NORMAL]
+2026-05-23 19:36:50,236 - INFO - Augmentasi 473 -> [NORMAL]
+2026-05-23 19:36:51,324 - INFO - Augmentasi 474 -> [NORMAL]
+2026-05-23 19:36:56,491 - INFO - Augmentasi 476 -> [NORMAL]
+2026-05-23 19:36:58,730 - INFO - Augmentasi 477 -> [NORMAL]
+2026-05-23 19:37:07,528 - INFO - Augmentasi 478 -> [NORMAL]
+2026-05-23 19:37:11,938 - INFO - Augmentasi 482 -> [NORMAL]
+2026-05-23 19:37:17,760 - INFO - Augmentasi 483 -> [DEPRESI]
+2026-05-23 19:37:29,510 - INFO - Augmentasi 485 -> [NORMAL]
+2026-05-23 19:37:32,421 - INFO - Augmentasi 486 -> [NORMAL]
+2026-05-23 19:37:36,061 - INFO - Augmentasi 487 -> [NORMAL]
+2026-05-23 19:37:44,116 - INFO - Augmentasi 488 -> [NORMAL]
+2026-05-23 19:37:49,495 - INFO - Augmentasi 489 -> [NORMAL]
+2026-05-23 19:37:51,616 - INFO - Augmentasi 490 -> [NORMAL]
+2026-05-23 19:37:53,801 - INFO - Augmentasi 492 -> [NORMAL]
+2026-05-23 19:37:58,926 - INFO - ==================================================
+2026-05-23 19:37:58,926 - INFO - DATA AUGMENTATION SELESAI
+2026-05-23 19:37:58,926 - INFO - Berhasil    : 142 pasien
+2026-05-23 19:37:58,926 - INFO - Gagal       : 0 pasien
+2026-05-23 19:37:58,927 - INFO - Tanpa label : 47 pasien
+2026-05-23 19:37:58,927 - INFO - ==================================================
+2026-05-24 01:27:10,701 - INFO - Ditemukan 189 file audio di C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\cleaned
+2026-05-24 01:27:10,743 - INFO - ==================================================
+2026-05-24 01:27:10,743 - INFO - DATA AUGMENTATION SELESAI
+2026-05-24 01:27:10,743 - INFO - Berhasil    : 142 pasien
+2026-05-24 01:27:10,743 - INFO - Gagal       : 0 pasien
+2026-05-24 01:27:10,743 - INFO - Tanpa label : 47 pasien
+2026-05-24 01:27:10,743 - INFO - ==================================================
+2026-05-24 03:56:09,633 - INFO - Ditemukan 189 file audio di C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\cleaned
+2026-05-24 03:56:09,656 - INFO - ==================================================
+2026-05-24 03:56:09,656 - INFO - DATA AUGMENTATION SELESAI
+2026-05-24 03:56:09,656 - INFO - Berhasil    : 142 pasien
+2026-05-24 03:56:09,656 - INFO - Gagal       : 0 pasien
+2026-05-24 03:56:09,657 - INFO - Tanpa label : 47 pasien
+2026-05-24 03:56:09,657 - INFO - ==================================================
+2026-05-24 04:15:07,754 - INFO - Ditemukan 189 file audio di C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\cleaned
+2026-05-24 04:15:07,776 - INFO - ==================================================
+2026-05-24 04:15:07,776 - INFO - DATA AUGMENTATION SELESAI
+2026-05-24 04:15:07,777 - INFO - Berhasil    : 142 pasien
+2026-05-24 04:15:07,777 - INFO - Gagal       : 0 pasien
+2026-05-24 04:15:07,777 - INFO - Tanpa label : 47 pasien
+2026-05-24 04:15:07,777 - INFO - ==================================================
+2026-05-24 10:53:13,104 - INFO - Ditemukan 189 file audio di C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\cleaned
+2026-05-24 10:53:13,148 - INFO - ==================================================
+2026-05-24 10:53:13,149 - INFO - DATA AUGMENTATION SELESAI
+2026-05-24 10:53:13,149 - INFO - Berhasil    : 142 pasien
+2026-05-24 10:53:13,149 - INFO - Gagal       : 0 pasien
+2026-05-24 10:53:13,149 - INFO - Tanpa label : 47 pasien
+2026-05-24 10:53:13,149 - INFO - ==================================================
+2026-05-24 11:05:27,562 - INFO - Ditemukan 189 file audio di C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\cleaned
+2026-05-24 11:05:27,587 - INFO - ==================================================
+2026-05-24 11:05:27,587 - INFO - DATA AUGMENTATION SELESAI
+2026-05-24 11:05:27,587 - INFO - Berhasil    : 142 pasien
+2026-05-24 11:05:27,587 - INFO - Gagal       : 0 pasien
+2026-05-24 11:05:27,587 - INFO - Tanpa label : 47 pasien
+2026-05-24 11:05:27,587 - INFO - ==================================================
+2026-05-24 11:19:18,822 - INFO - Ditemukan 189 file audio di C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\cleaned
+2026-05-24 11:19:18,848 - INFO - ==================================================
+2026-05-24 11:19:18,848 - INFO - DATA AUGMENTATION SELESAI
+2026-05-24 11:19:18,848 - INFO - Berhasil    : 142 pasien
+2026-05-24 11:19:18,848 - INFO - Gagal       : 0 pasien
+2026-05-24 11:19:18,848 - INFO - Tanpa label : 47 pasien
+2026-05-24 11:19:18,848 - INFO - ==================================================
+2026-05-24 11:26:54,963 - INFO - Ditemukan 189 file audio di C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\cleaned
+2026-05-24 11:26:54,986 - INFO - ==================================================
+2026-05-24 11:26:54,986 - INFO - DATA AUGMENTATION SELESAI
+2026-05-24 11:26:54,987 - INFO - Berhasil    : 142 pasien
+2026-05-24 11:26:54,987 - INFO - Gagal       : 0 pasien
+2026-05-24 11:26:54,987 - INFO - Tanpa label : 47 pasien
+2026-05-24 11:26:54,987 - INFO - ==================================================
+2026-05-24 11:33:44,357 - INFO - Ditemukan 189 file audio di C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\cleaned
+2026-05-24 11:33:44,381 - INFO - ==================================================
+2026-05-24 11:33:44,381 - INFO - DATA AUGMENTATION SELESAI
+2026-05-24 11:33:44,381 - INFO - Berhasil    : 142 pasien
+2026-05-24 11:33:44,381 - INFO - Gagal       : 0 pasien
+2026-05-24 11:33:44,381 - INFO - Tanpa label : 47 pasien
+2026-05-24 11:33:44,381 - INFO - ==================================================
