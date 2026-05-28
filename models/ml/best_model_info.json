@@ -1,11 +1,12 @@
 {
-  "best_model_name": "Logistic Regression",
+  "best_model_name": "Random Forest",
   "best_params": {
-    "C": 10.0,
-    "solver": "lbfgs"
+    "max_depth": 5,
+    "min_samples_split": 5,
+    "n_estimators": 200
   },
-  "best_cv_f1": 0.7150793650793652,
-  "test_f1_macro": 0.7067669172932332,
-  "test_accuracy": 0.7692307692307693,
-  "feature_count": 51
+  "best_cv_f1": 0.6366311612364244,
+  "test_f1_macro": 0.6166666666666667,
+  "test_accuracy": 0.6521739130434783,
+  "feature_count": 56
 }

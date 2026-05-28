@@ -23,7 +23,6 @@ mentalhealth-ai/
 │
 ├── preprocessing/
 │   ├── audio_cleaning.py        # Noise reduction, trimming, normalization
-│   ├── extract_mfcc.py          # MFCC feature extraction
 │   ├── generate_spectrogram.py  # Spectrogram generation
 │   └── prepare_waveform.py      # Waveform preprocessing for Wav2Vec2
 │

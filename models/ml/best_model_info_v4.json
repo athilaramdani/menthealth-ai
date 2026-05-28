@@ -1,0 +1,11 @@
+{
+  "best_model_name": "Logistic Regression",
+  "best_params": {
+    "C": 0.1,
+    "solver": "liblinear"
+  },
+  "best_cv_f1": 0.5215883572423641,
+  "test_f1_macro": 0.5436507936507937,
+  "test_accuracy": 0.5652173913043478,
+  "feature_count": 84
+}
