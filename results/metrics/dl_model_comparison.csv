@@ -1,0 +1,4 @@
+Model,Best Fold,CV Mean F1,CV Std F1,Best Fold Macro F1,Best Fold Accuracy,Recall DEPRESI,Precision DEPRESI,F1 DEPRESI,Recall NORMAL,Precision NORMAL,F1 NORMAL
+2D CNN Mel-Spectrogram,4,0.5203,0.0639,0.6211,0.68,0.42,0.56,0.48,0.82,0.72,0.77
+BiLSTM MFCC,4,0.5359,0.0446,0.608,0.62,0.57,0.5,0.53,0.65,0.71,0.68
+Wav2Vec2 Fine-tuned,5,0.3517,0.146,0.6386,0.68,0.5,0.55,0.52,0.77,0.74,0.76

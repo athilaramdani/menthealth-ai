@@ -1,0 +1,13 @@
+=== Test Set Report - CNN v4b [TEST MODE] (Best Fold: 1) ===
+
+CV Mean Macro F1 : 0.4757 +/- 0.0061
+Test Macro F1    : 0.4738
+
+              precision    recall  f1-score   support
+
+      NORMAL       0.62      0.67      0.64        12
+     DEPRESI       0.33      0.29      0.31         7
+
+    accuracy                           0.53        19
+   macro avg       0.47      0.48      0.47        19
+weighted avg       0.51      0.53      0.52        19

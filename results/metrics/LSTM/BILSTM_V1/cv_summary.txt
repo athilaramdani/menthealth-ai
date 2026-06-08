@@ -1,0 +1,10 @@
+=== 5-Fold StratifiedKFold CV Summary — BiLSTM MFCC ===
+
+Fold 1: Macro F1 = 0.5359
+Fold 2: Macro F1 = 0.5318
+Fold 3: Macro F1 = 0.4670
+Fold 4: Macro F1 = 0.6080
+Fold 5: Macro F1 = 0.5368
+
+Mean Macro F1 : 0.5359
+Std  Macro F1 : 0.0446

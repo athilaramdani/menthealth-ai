@@ -1,0 +1,13 @@
+=== Test Set Report (Best Fold: 4) ===
+
+CV Mean Macro F1 : 0.5354 ± 0.0391
+Test Macro F1    : 0.6087
+
+              precision    recall  f1-score   support
+
+      NORMAL       0.71      0.78      0.75       542
+     DEPRESI       0.52      0.43      0.47       300
+
+    accuracy                           0.66       842
+   macro avg       0.62      0.61      0.61       842
+weighted avg       0.64      0.66      0.65       842

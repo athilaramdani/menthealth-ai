@@ -1,0 +1,27 @@
+=== Wav2Vec2 Attention Visualization Report ===
+
+Model         : C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\models\dl\wav2vec\best_model_v2.pt
+Pretrained    : facebook/wav2vec2-base
+n_layers      : 12
+n_samples     : 4
+
+Sample                             True     Pred    Conf  PeakAttn%  AvgEntropy
+--------------------------------------------------------------------------------
+310_310                          NORMAL  DEPRESI   72.1%      39.53%      5.8707
+447_447                          NORMAL   NORMAL   63.9%      32.21%      5.5594
+320_320                         DEPRESI  DEPRESI   90.9%      31.08%      6.0987
+345_345                         DEPRESI   NORMAL   70.0%      25.00%      5.4554
+
+================================================================================
+Akurasi    : 2/4 (50.0%)
+
+INTERPRETASI:
+- Peak Attn% : persentil-90 dari rollout attention (semakin tinggi = lebih fokus)
+- Avg Entropy: rata-rata entropy attention (tinggi = global/difus, rendah = lokal/fokus)
+- Layer rendah (1-4) umumnya menangkap pola fonetik lokal
+- Layer tinggi (8-12) menangkap pola prosodik jangka panjang (relevan untuk depresi)
+
+Catatan:
+- Attention weights bukanlah penjelasan sempurna — mereka korelasional, bukan kausal
+- Gunakan Attention Rollout (bukan raw attention) untuk estimasi yang lebih akurat
+- Kombinasikan dengan SHAP untuk interpretasi yang lebih robust

@@ -1,0 +1,13 @@
+=== Wav2Vec2 Test Set (Best Fold: 5) ===
+
+CV Mean F1 : 0.3517 ± 0.1460
+Test F1    : 0.3942
+
+              precision    recall  f1-score   support
+
+      NORMAL       0.55      0.50      0.52        12
+     DEPRESI       0.25      0.29      0.27         7
+
+    accuracy                           0.42        19
+   macro avg       0.40      0.39      0.39        19
+weighted avg       0.44      0.42      0.43        19

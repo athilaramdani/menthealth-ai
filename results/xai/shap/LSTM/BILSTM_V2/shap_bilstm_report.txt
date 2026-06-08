@@ -1,0 +1,12 @@
+=== SHAP DeepExplainer Report — BiLSTM MFCC ===
+
+Sample                             True     Pred    Conf   MeanSHAP      TopFeature
+--------------------------------------------------------------------------------
+377_377_seg009                  DEPRESI   NORMAL   72.1%   0.001147 Detail Spektrum-5
+424_424_seg024                   NORMAL   NORMAL   79.4%   0.001126 Detail Spektrum-5
+419_419_seg051                   NORMAL   NORMAL   86.5%   0.001114 Kecepatan Ubah Pola Suara-31
+476_476_seg014                   NORMAL   NORMAL   94.4%   0.001097 Kecepatan Ubah Pola Suara-31
+407_407_seg076                  DEPRESI   NORMAL   58.6%   0.001119 Tekstur Suara-2
+424_424_seg047                   NORMAL   NORMAL   62.2%   0.001092 Kecepatan Ubah Pola Suara-31
+438_438_seg095                   NORMAL   NORMAL   91.3%   0.001078 Kecepatan Ubah Pola Suara-31
+417_417_seg026                   NORMAL   NORMAL   89.0%   0.001097 Detail Spektrum-5

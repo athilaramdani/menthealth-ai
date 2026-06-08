@@ -1,0 +1,8 @@
+=== SHAP DeepExplainer Report — CNN Mel-Spectrogram ===
+
+Sample                                  True     Pred    Conf   MeanSHAP_D   MeanSHAP_N
+-------------------------------------------------------------------------------------
+483_483_mel                          DEPRESI   NORMAL   51.6%     0.000002     0.000002
+345_345_mel                          DEPRESI  DEPRESI   51.3%     0.000004     0.000003
+352_352_mel                          DEPRESI  DEPRESI   50.1%     0.000003     0.000002
+357_357_mel                           NORMAL   NORMAL   51.5%     0.000002     0.000002

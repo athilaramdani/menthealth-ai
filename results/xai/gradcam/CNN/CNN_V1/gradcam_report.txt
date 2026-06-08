@@ -1,0 +1,23 @@
+=== Grad-CAM Analysis Report — 2D CNN Mel-Spectrogram ===
+Model       : C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\models\dl\cnn\best_model_1;1.pt
+Target Layer: conv2[ReLU]
+n_samples   : 2
+
+Sample                             True     Pred    Conf  TopFreq  TimeStart   TimeEnd
+-------------------------------------------------------------------------------------
+310_310_mel                      NORMAL   NORMAL   52.1%      low        3.1%      99.9%
+320_320_mel                     DEPRESI   NORMAL   52.0%      low        1.0%      99.9%
+
+=====================================================================================
+Akurasi pada 2 sampel: 1/2 (50.0%)
+
+INTERPRETASI:
+- Heatmap merah/kuning  = region PALING BERPENGARUH pada keputusan model
+- Heatmap biru/hijau    = region kurang berpengaruh
+- Top Freq Band         : band frekuensi dominan (low=0-3kHz, mid=3-6kHz, high=6-8kHz)
+- Time Start/End        : persentase posisi temporal area paling aktif
+
+Catatan untuk depresi detection:
+- Literatur menunjukkan fitur prosodik (pitch, energy) lebih dominan
+- Frekuensi rendah (formant F0, F1) umumnya lebih informatif
+- Segmen awal dan akhir ucapan cenderung lebih diagnostik
