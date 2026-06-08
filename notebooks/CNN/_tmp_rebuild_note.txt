@@ -1,0 +1,1 @@
+Rebuild needed: notebooks/CNN/train_2d_cnn.ipynb and notebooks/CNN/quick_test_cnn.ipynb were corrupted (invalid JSON) after edit. This file indicates that we will rewrite them with valid ipynb content for 2-class training/evaluation and correct output paths.

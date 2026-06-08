@@ -1,0 +1,27 @@
+2026-05-28 17:44:51,526 - WARNING - custom_4class_labels.csv tidak ditemukan. Fallback: hanya buat mapping DEPRESI vs NORMAL (untuk kompatibilitas dataloader CNN 4-class).
+2026-05-28 17:44:51,535 - INFO - Ditemukan 189 file .wav di C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\cleaned
+2026-05-28 17:46:02,842 - INFO - ============================================================
+2026-05-28 17:46:02,842 - INFO - GENERATE SPECTROGRAM SELESAI
+2026-05-28 17:46:02,843 - INFO - Created : 189
+2026-05-28 17:46:02,843 - INFO - Skipped : 0
+2026-05-28 17:46:02,843 - INFO - Failed  : 0
+2026-05-28 17:46:02,843 - INFO - ============================================================
+2026-05-28 17:47:35,945 - WARNING - custom_4class_labels.csv tidak ditemukan. Fallback: hanya buat mapping DEPRESI vs NORMAL (untuk kompatibilitas dataloader CNN 4-class).
+2026-05-28 17:47:35,953 - INFO - Ditemukan 189 file .wav di C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\cleaned
+2026-05-28 17:48:32,551 - WARNING - custom_4class_labels.csv tidak ditemukan. Fallback: hanya buat mapping DEPRESI vs NORMAL (untuk kompatibilitas dataloader CNN 4-class).
+2026-05-28 17:48:32,562 - INFO - Ditemukan 189 file .wav di C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\cleaned
+2026-05-28 17:50:18,256 - WARNING - custom_4class_labels.csv tidak ditemukan. Fallback: hanya buat mapping DEPRESI vs NORMAL (untuk kompatibilitas dataloader CNN 4-class).
+2026-05-28 17:50:18,265 - INFO - Ditemukan 189 file .wav di C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\cleaned
+2026-05-28 17:51:23,864 - INFO - ============================================================
+2026-05-28 17:51:23,864 - INFO - GENERATE SPECTROGRAM SELESAI
+2026-05-28 17:51:23,864 - INFO - Created : 189
+2026-05-28 17:51:23,864 - INFO - Skipped : 0
+2026-05-28 17:51:23,865 - INFO - Failed  : 0
+2026-05-28 17:51:23,865 - INFO - ============================================================
+2026-05-28 17:54:49,536 - INFO - Ditemukan 189 file .wav di C:\Users\raiha\OneDrive\Documents\GitHub\menthealth-ai\data\cleaned
+2026-05-28 17:55:52,962 - INFO - ============================================================
+2026-05-28 17:55:52,963 - INFO - GENERATE SPECTROGRAM SELESAI
+2026-05-28 17:55:52,963 - INFO - Created : 189
+2026-05-28 17:55:52,963 - INFO - Skipped : 0
+2026-05-28 17:55:52,963 - INFO - Failed  : 0
+2026-05-28 17:55:52,964 - INFO - ============================================================

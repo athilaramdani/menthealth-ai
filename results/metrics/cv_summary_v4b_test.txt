@@ -1,0 +1,13 @@
+=== CV Summary - 2D CNN Mel-Spectrogram v4b [TEST MODE (2 folds)] ===
+
+Fold 1: Macro F1 = 0.4818
+Fold 2: Macro F1 = 0.4696
+
+Mean Macro F1 : 0.4757
+Std  Macro F1 : 0.0061
+
+Fold Best Epoch  Val Accuracy  Macro F1  Prec NORMAL  Prec DEPRESI  Recall NORMAL  Recall DEPRESI  F1 NORMAL  F1 DEPRESI
+   1         38        0.5647    0.4818       0.6508        0.3182         0.7321          0.2414     0.6891      0.2745
+   2         17        0.5647    0.4696       0.6462        0.3000         0.7500          0.2069     0.6942      0.2449
+Mean          -        0.5647    0.4757       0.6485        0.3091         0.7410          0.2242     0.6917      0.2597
+ Std          -        0.0000    0.0086       0.0033        0.0129         0.0127          0.0244     0.0036      0.0209

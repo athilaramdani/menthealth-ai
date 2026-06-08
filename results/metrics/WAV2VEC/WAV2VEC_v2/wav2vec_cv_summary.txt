@@ -1,0 +1,10 @@
+=== Wav2Vec2 5-Fold CV Summary ===
+
+Fold 1: Macro F1 = 0.2917
+Fold 2: Macro F1 = 0.2444
+Fold 3: Macro F1 = 0.3229
+Fold 4: Macro F1 = 0.2609
+Fold 5: Macro F1 = 0.6386
+
+Mean : 0.3517
+Std  : 0.1460

@@ -1,0 +1,10 @@
+=== Fold 3 — Best Epoch 7 — Macro F1: 0.4842 ===
+
+              precision    recall  f1-score   support
+
+      NORMAL       0.62      0.48      0.54       934
+     DEPRESI       0.37      0.52      0.43       551
+
+    accuracy                           0.49      1485
+   macro avg       0.50      0.50      0.48      1485
+weighted avg       0.53      0.49      0.50      1485

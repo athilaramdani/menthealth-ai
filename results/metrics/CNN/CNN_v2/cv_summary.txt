@@ -1,0 +1,10 @@
+=== 5-Fold StratifiedKFold CV Summary ===
+
+Fold 1: Macro F1 = 0.4522
+Fold 2: Macro F1 = 0.5018
+Fold 3: Macro F1 = 0.5641
+Fold 4: Macro F1 = 0.6211
+Fold 5: Macro F1 = 0.4625
+
+Mean : 0.5203
+Std  : 0.0639

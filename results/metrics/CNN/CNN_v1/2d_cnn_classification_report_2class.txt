@@ -1,0 +1,10 @@
+=== 2D CNN Classification Report (2 classes) ===
+
+              precision    recall  f1-score   support
+
+      NORMAL       0.70      0.74      0.72        19
+     DEPRESI       0.44      0.40      0.42        10
+
+    accuracy                           0.62        29
+   macro avg       0.57      0.57      0.57        29
+weighted avg       0.61      0.62      0.62        29
