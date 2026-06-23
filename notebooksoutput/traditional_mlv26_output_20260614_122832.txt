@@ -1,0 +1,57 @@
+================================================================================
+  NOTEBOOK OUTPUT EXTRACTOR
+  File   : traditional_mlv26.ipynb
+  Path   : d:\repositories\menthealth-ai\notebooks\traditional_mlv26.ipynb
+  Diambil: 2026-06-14 12:28:32
+  Total  : 15 cell
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+Dataset Overview: DAIC-WOZ
+**Pipeline v26** — Klasifikasi Kesehatan Mental Berbasis Audio
+
+─────────────────────────────────────────────────────────────────────
+ v26 = LOOCV + SMOTE + SelectFromModel (Lasso) + Early Fusion + Ensemble
+
+ Tujuan: Menembus Macro F1 > 0.70
+ [1] 3 Ekstraksi Fitur (MFCC, Spectrogram, Wav2Vec 2.0 Full)
+ [2] Menggunakan keseluruhan data (102 partisipan) dengan LOOCV
+ [3] Terdapat 4 model dasar: LR, SVM, XGBoost, Random Forest
+ [4] Menggunakan L1-based Feature Selection (Lasso) di dalam LOOCV
+ [5] Menambahkan Soft Voting Ensemble di akhir
+─────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Setup
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Load Features
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Model Config
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## LOOCV Evaluation Loop
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Running
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Ensembles (Soft Voting Top-2, Top-3, Top-4)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Save Results
+
+================================================================================
+  RINGKASAN
+  Code cells  : 7
+  Cells dengan output teks: 0
+================================================================================

@@ -1,0 +1,241 @@
+{
+  "version": "v7",
+  "features": [
+    "MFCC",
+    "Spectrogram",
+    "Wav2Vec",
+    "Fused"
+  ],
+  "models": [
+    "Logistic Regression",
+    "SVM",
+    "XGBoost",
+    "Random Forest"
+  ],
+  "total_models": 16,
+  "pca_components": 100,
+  "threshold": 0.5,
+  "smote": false,
+  "augmentation": false,
+  "avec2017": {
+    "MFCC + Logistic Regression": {
+      "accuracy": 0.3913,
+      "f1_macro": 0.3611,
+      "precision": 0.3611,
+      "recall": 0.3611,
+      "roc_auc": 0.3651,
+      "val_f1": 0.55
+    },
+    "MFCC + SVM": {
+      "accuracy": 0.6087,
+      "f1_macro": 0.3784,
+      "precision": 0.3043,
+      "recall": 0.5,
+      "roc_auc": 0.5317,
+      "val_f1": 0.3478
+    },
+    "MFCC + XGBoost": {
+      "accuracy": 0.5217,
+      "f1_macro": 0.4559,
+      "precision": 0.4608,
+      "recall": 0.4683,
+      "roc_auc": 0.4603,
+      "val_f1": 0.4976
+    },
+    "MFCC + Random Forest": {
+      "accuracy": 0.5217,
+      "f1_macro": 0.4559,
+      "precision": 0.4608,
+      "recall": 0.4683,
+      "roc_auc": 0.4444,
+      "val_f1": 0.6606
+    },
+    "Spectrogram + Logistic Regression": {
+      "accuracy": 0.4783,
+      "f1_macro": 0.4524,
+      "precision": 0.4524,
+      "recall": 0.4524,
+      "roc_auc": 0.4603,
+      "val_f1": 0.3541
+    },
+    "Spectrogram + SVM": {
+      "accuracy": 0.6087,
+      "f1_macro": 0.3784,
+      "precision": 0.3043,
+      "recall": 0.5,
+      "roc_auc": 0.5635,
+      "val_f1": 0.3478
+    },
+    "Spectrogram + XGBoost": {
+      "accuracy": 0.5652,
+      "f1_macro": 0.4866,
+      "precision": 0.5056,
+      "recall": 0.504,
+      "roc_auc": 0.3968,
+      "val_f1": 0.55
+    },
+    "Spectrogram + Random Forest": {
+      "accuracy": 0.5217,
+      "f1_macro": 0.4103,
+      "precision": 0.4145,
+      "recall": 0.4484,
+      "roc_auc": 0.4921,
+      "val_f1": 0.6411
+    },
+    "Wav2Vec + Logistic Regression": {
+      "accuracy": 0.5217,
+      "f1_macro": 0.4559,
+      "precision": 0.4608,
+      "recall": 0.4683,
+      "roc_auc": 0.4841,
+      "val_f1": 0.5982
+    },
+    "Wav2Vec + SVM": {
+      "accuracy": 0.6087,
+      "f1_macro": 0.3784,
+      "precision": 0.3043,
+      "recall": 0.5,
+      "roc_auc": 0.4206,
+      "val_f1": 0.3478
+    },
+    "Wav2Vec + XGBoost": {
+      "accuracy": 0.5652,
+      "f1_macro": 0.4866,
+      "precision": 0.5056,
+      "recall": 0.504,
+      "roc_auc": 0.4127,
+      "val_f1": 0.5833
+    },
+    "Wav2Vec + Random Forest": {
+      "accuracy": 0.4783,
+      "f1_macro": 0.3839,
+      "precision": 0.3778,
+      "recall": 0.4127,
+      "roc_auc": 0.381,
+      "val_f1": 0.6411
+    },
+    "Fused + Logistic Regression": {
+      "accuracy": 0.3913,
+      "f1_macro": 0.3611,
+      "precision": 0.3611,
+      "recall": 0.3611,
+      "roc_auc": 0.4286,
+      "val_f1": 0.4976
+    },
+    "Fused + SVM": {
+      "accuracy": 0.6087,
+      "f1_macro": 0.3784,
+      "precision": 0.3043,
+      "recall": 0.5,
+      "roc_auc": 0.5238,
+      "val_f1": 0.3478
+    },
+    "Fused + XGBoost": {
+      "accuracy": 0.5217,
+      "f1_macro": 0.4868,
+      "precision": 0.4875,
+      "recall": 0.4881,
+      "roc_auc": 0.5714,
+      "val_f1": 0.4
+    },
+    "Fused + Random Forest": {
+      "accuracy": 0.5217,
+      "f1_macro": 0.4559,
+      "precision": 0.4608,
+      "recall": 0.4683,
+      "roc_auc": 0.4286,
+      "val_f1": 0.55
+    }
+  },
+  "repeated_80_10_10": {
+    "MFCC + Logistic Regression": {
+      "f1_mean": 0.4158,
+      "f1_std": 0.1037,
+      "f1_max": 0.5299
+    },
+    "MFCC + SVM": {
+      "f1_mean": 0.4335,
+      "f1_std": 0.0892,
+      "f1_max": 0.6118
+    },
+    "MFCC + XGBoost": {
+      "f1_mean": 0.4601,
+      "f1_std": 0.1466,
+      "f1_max": 0.6857
+    },
+    "MFCC + Random Forest": {
+      "f1_mean": 0.5835,
+      "f1_std": 0.1388,
+      "f1_max": 0.7708
+    },
+    "Spectrogram + Logistic Regression": {
+      "f1_mean": 0.4558,
+      "f1_std": 0.0976,
+      "f1_max": 0.5299
+    },
+    "Spectrogram + SVM": {
+      "f1_mean": 0.3889,
+      "f1_std": 0.0,
+      "f1_max": 0.3889
+    },
+    "Spectrogram + XGBoost": {
+      "f1_mean": 0.5141,
+      "f1_std": 0.0673,
+      "f1_max": 0.6118
+    },
+    "Spectrogram + Random Forest": {
+      "f1_mean": 0.455,
+      "f1_std": 0.0855,
+      "f1_max": 0.5455
+    },
+    "Wav2Vec + Logistic Regression": {
+      "f1_mean": 0.4562,
+      "f1_std": 0.1721,
+      "f1_max": 0.6333
+    },
+    "Wav2Vec + SVM": {
+      "f1_mean": 0.3889,
+      "f1_std": 0.0,
+      "f1_max": 0.3889
+    },
+    "Wav2Vec + XGBoost": {
+      "f1_mean": 0.6293,
+      "f1_std": 0.1182,
+      "f1_max": 0.8036
+    },
+    "Wav2Vec + Random Forest": {
+      "f1_mean": 0.5409,
+      "f1_std": 0.1474,
+      "f1_max": 0.8036
+    },
+    "Fused + Logistic Regression": {
+      "f1_mean": 0.4518,
+      "f1_std": 0.1446,
+      "f1_max": 0.7179
+    },
+    "Fused + SVM": {
+      "f1_mean": 0.4335,
+      "f1_std": 0.0892,
+      "f1_max": 0.6118
+    },
+    "Fused + XGBoost": {
+      "f1_mean": 0.3629,
+      "f1_std": 0.0896,
+      "f1_max": 0.5299
+    },
+    "Fused + Random Forest": {
+      "f1_mean": 0.4446,
+      "f1_std": 0.1462,
+      "f1_max": 0.6333
+    }
+  },
+  "best_avec": {
+    "model": "Fused + XGBoost",
+    "f1": 0.4868
+  },
+  "best_repeated": {
+    "model": "Wav2Vec + XGBoost",
+    "f1_mean": 0.6293,
+    "f1_max": 0.8036
+  }
+}

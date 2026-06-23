@@ -1,0 +1,145 @@
+{
+  "version": "v8",
+  "evaluation": "LOOCV (102 folds)",
+  "wav2vec": "FULL 768-dim (mean + std pooled = 1536 features)",
+  "threshold": "tuned per model (0.30-0.70)",
+  "smote": false,
+  "augmentation": false,
+  "n_participants": 102,
+  "best_model": "MFCC + Random Forest",
+  "best_f1_tuned": 0.6242,
+  "best_f1_fixed": 0.6056,
+  "best_auc": 0.5462,
+  "all_results": {
+    "MFCC + Logistic Regression": {
+      "accuracy": 0.4706,
+      "f1_macro": 0.4338,
+      "precision": 0.4333,
+      "recall": 0.4347,
+      "roc_auc": 0.3903,
+      "f1_tuned": 0.4486,
+      "best_threshold": 0.51,
+      "acc_tuned": 0.4902
+    },
+    "MFCC + SVM": {
+      "accuracy": 0.6275,
+      "f1_macro": 0.4091,
+      "precision": 0.8119,
+      "recall": 0.5128,
+      "roc_auc": 0.3989,
+      "f1_tuned": 0.5146,
+      "best_threshold": 0.4,
+      "acc_tuned": 0.5784
+    },
+    "MFCC + XGBoost": {
+      "accuracy": 0.549,
+      "f1_macro": 0.5226,
+      "precision": 0.5226,
+      "recall": 0.5226,
+      "roc_auc": 0.4591,
+      "f1_tuned": 0.5226,
+      "best_threshold": 0.5,
+      "acc_tuned": 0.549
+    },
+    "MFCC + Random Forest": {
+      "accuracy": 0.6275,
+      "f1_macro": 0.6056,
+      "precision": 0.6056,
+      "recall": 0.6056,
+      "roc_auc": 0.5462,
+      "f1_tuned": 0.6242,
+      "best_threshold": 0.46,
+      "acc_tuned": 0.6373
+    },
+    "Spectrogram + Logistic Regression": {
+      "accuracy": 0.5,
+      "f1_macro": 0.4732,
+      "precision": 0.4734,
+      "recall": 0.4731,
+      "roc_auc": 0.4432,
+      "f1_tuned": 0.487,
+      "best_threshold": 0.36,
+      "acc_tuned": 0.4902
+    },
+    "Spectrogram + SVM": {
+      "accuracy": 0.6078,
+      "f1_macro": 0.378,
+      "precision": 0.3069,
+      "recall": 0.4921,
+      "roc_auc": 0.2589,
+      "f1_tuned": 0.3973,
+      "best_threshold": 0.37,
+      "acc_tuned": 0.402
+    },
+    "Spectrogram + XGBoost": {
+      "accuracy": 0.4706,
+      "f1_macro": 0.4494,
+      "precision": 0.4509,
+      "recall": 0.4493,
+      "roc_auc": 0.49,
+      "f1_tuned": 0.5355,
+      "best_threshold": 0.59,
+      "acc_tuned": 0.5784
+    },
+    "Spectrogram + Random Forest": {
+      "accuracy": 0.5,
+      "f1_macro": 0.4623,
+      "precision": 0.4621,
+      "recall": 0.4634,
+      "roc_auc": 0.486,
+      "f1_tuned": 0.5381,
+      "best_threshold": 0.41,
+      "acc_tuned": 0.5392
+    },
+    "Wav2Vec_Full + Logistic Regression": {
+      "accuracy": 0.5392,
+      "f1_macro": 0.5045,
+      "precision": 0.5051,
+      "recall": 0.5049,
+      "roc_auc": 0.501,
+      "f1_tuned": 0.5345,
+      "best_threshold": 0.41,
+      "acc_tuned": 0.549
+    },
+    "Wav2Vec_Full + SVM": {
+      "accuracy": 0.6078,
+      "f1_macro": 0.378,
+      "precision": 0.3069,
+      "recall": 0.4921,
+      "roc_auc": 0.151,
+      "f1_tuned": 0.3818,
+      "best_threshold": 0.5,
+      "acc_tuned": 0.6176
+    },
+    "Wav2Vec_Full + XGBoost": {
+      "accuracy": 0.5686,
+      "f1_macro": 0.5476,
+      "precision": 0.5474,
+      "recall": 0.5482,
+      "roc_auc": 0.5295,
+      "f1_tuned": 0.5598,
+      "best_threshold": 0.47,
+      "acc_tuned": 0.5784
+    },
+    "Wav2Vec_Full + Random Forest": {
+      "accuracy": 0.5882,
+      "f1_macro": 0.5547,
+      "precision": 0.5569,
+      "recall": 0.5543,
+      "roc_auc": 0.5438,
+      "f1_tuned": 0.5868,
+      "best_threshold": 0.51,
+      "acc_tuned": 0.6275
+    },
+    "Ensemble (Top-3)": {
+      "f1_macro": 0.5256,
+      "accuracy": 0.5588,
+      "f1_tuned": 0.5483,
+      "best_threshold": 0.4,
+      "acc_tuned": 0.549,
+      "roc_auc": 0.5486,
+      "precision": 0.5692,
+      "recall": 0.5714
+    }
+  }
+}

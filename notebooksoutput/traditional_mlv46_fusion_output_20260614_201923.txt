@@ -1,0 +1,62 @@
+================================================================================
+  NOTEBOOK OUTPUT EXTRACTOR
+  File   : traditional_mlv46_fusion.ipynb
+  Path   : d:\repositories\menthealth-ai\notebooks\traditional_mlv46_fusion.ipynb
+  Diambil: 2026-06-14 20:19:23
+  Total  : 9 cell
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+Dataset Overview: DAIC-WOZ (FULL 189 PARTICIPANTS)
+**Pipeline v46** — THE ULTIMATE MULTIMODAL FUSION (TEXT + AUDIO)
+
+─────────────────────────────────────────────────────────────────────
+ Tujuan: Memecah rekor F1 > 0.70 secara absolut pada 189 Partisipan.
+ Data: Audio COVAREP (296 Statistik) + Teks Transkrip (TF-IDF 2000).
+ Metode: Early Fusion (Menggabungkan Audio & Teks pada level fitur),
+         diikuti oleh PCA 95% variance reduction untuk mencegah Curse of Dimensionality.
+         Stratified 5-Fold Cross Validation.
+─────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Setup & Imports
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Load Labels (189 Participants)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Multimodal Feature Extraction
+
+────────────────────────────────────────────────────────────────────────────────
+In [3] (Code Cell #3)
+────────────────────────────────────────────────────────────────────────────────
+Extracting Audio & Text for 189 files...
+Audio Shape: (189, 296)
+Text Shape: (189,)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Modeling (5-Fold CV Early Fusion)
+
+────────────────────────────────────────────────────────────────────────────────
+In [4] (Code Cell #4)
+────────────────────────────────────────────────────────────────────────────────
+
+==================================================
+FINAL RESULTS (v46 MULTIMODAL FUSION) - 189 Participants
+==================================================
+              Model  Macro_F1  Best_Thr      AUC
+                SVM  0.548187      0.43 0.524302
+Logistic Regression  0.543942      0.38 0.549812
+      Random Forest  0.539594      0.48 0.522758
+            XGBoost  0.506845      0.70 0.495166
+
+================================================================================
+  RINGKASAN
+  Code cells  : 4
+  Cells dengan output teks: 2
+================================================================================

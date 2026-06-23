@@ -1,0 +1,76 @@
+================================================================================
+  NOTEBOOK OUTPUT EXTRACTOR
+  File   : traditional_mlv45_nlp.ipynb
+  Path   : d:\repositories\menthealth-ai\notebooks\traditional_mlv45_nlp.ipynb
+  Diambil: 2026-06-14 20:16:25
+  Total  : 11 cell
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+Dataset Overview: DAIC-WOZ (FULL 189 PARTICIPANTS)
+**Pipeline v45** — NATURAL LANGUAGE PROCESSING (TF-IDF on Transcripts)
+
+─────────────────────────────────────────────────────────────────────
+ Tujuan: Menembus F1 > 0.70 secara absolut dengan 189 Partisipan utuh.
+ Data: Transkrip percakapan 189 Partisipan (hanya teks partisipan).
+ Fitur: TF-IDF (Term Frequency - Inverse Document Frequency) uni-bigrams.
+ Metode: Stratified 5-Fold Cross Validation & Train/Test Eval.
+ Model: LR, SVM, Random Forest, XGBoost.
+─────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Setup & Imports
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Load Labels (189 Participants)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Process Transcripts
+
+────────────────────────────────────────────────────────────────────────────────
+In [3] (Code Cell #3)
+────────────────────────────────────────────────────────────────────────────────
+Extracting participant texts from 189 transcript files...
+Extracted shape: (189, 3)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Modeling (5-Fold CV across ALL 189)
+
+────────────────────────────────────────────────────────────────────────────────
+In [4] (Code Cell #4)
+────────────────────────────────────────────────────────────────────────────────
+
+==================================================
+FINAL RESULTS (v45 NLP) - 189 Participants (5-Fold CV)
+==================================================
+              Model  Macro_F1  Best_Thr      AUC
+      Random Forest  0.657609      0.37 0.701195
+Logistic Regression  0.636502      0.50 0.675618
+                SVM  0.617696      0.56 0.658432
+            XGBoost  0.613672      0.30 0.632653
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Modeling (Train/Dev on Official Splits)
+Untuk menyamai evaluasi SOTA jurnal, kita latih di Train, validasi di Dev.
+
+────────────────────────────────────────────────────────────────────────────────
+In [5] (Code Cell #5)
+────────────────────────────────────────────────────────────────────────────────
+
+==================================================
+OFFICIAL TEST SPLIT EVALUATION (SVM TF-IDF)
+==================================================
+Dev Macro F1 : 0.6259 (Thr: 0.57)
+Test Macro F1: 0.3649
+
+================================================================================
+  RINGKASAN
+  Code cells  : 5
+  Cells dengan output teks: 3
+================================================================================

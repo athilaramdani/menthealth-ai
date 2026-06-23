@@ -1,0 +1,27 @@
+Saya sedang mengembangkan model Machine Learning tradisional untuk analisis data audio menggunakan dataset **DAIC-WOZ** secara keseluruhan. Saat ini eksperimen sudah mencapai versi 47, namun akurasi/F1-score belum menyentuh angka **0,7 ke atas**. Tugas kamu adalah melanjutkan eksperimen ini secara iteratif hingga performa model mencapai target tersebut.
+
+**Technical Specifications yang wajib ada di versi selanjutnya:**
+
+1. **Feature Extraction (3 Fitur):** * MFCC
+* Spectrogram
+* Wav2Vec
+
+2. **Data Splitting:**
+* Proporsi: **80% Training, 20% Testing** (pastikan pembagian testing seimbang, misalnya jika total 20 data test, bagi rata menjadi masing-masing 10 untuk tiap kelas/kategori terkait).
+
+data harus digunakan semua
+
+### **Workflow & Pipeline (Revisi):**
+
+1. **Buat Script Python Baru:** Buat file script Python (`.py`) versi terbaru di dalam folder `D:\repositories\menthealth-ai\notebooks` dengan format penamaan `tradisional_mlv[NomorVersiTerbaru].py` (melanjutkan dari versi terakhir).
+2. **Konversi ke Notebook:** Setelah script `.py` siap, gunakan *tool* konverter `D:\repositories\menthealth-ai\app\py_to_ipynb.py` (atau script/utilitas konversi yang sudah disediakan di repositori) untuk mengubah file `.py` tersebut menjadi file Jupyter Notebook (`.ipynb`) di dalam folder `notebook/`.
+3. **Eksekusi & Ekstrak Output:** Jalankan notebook hasil konversi tersebut. Setelah selesai, gunakan script yang ada di folder `D:\repositories\menthealth-ai\notebooksoutput\extract_notebook_output.py` untuk mengekstrak hasil output dan performanya.
+4. **Analisis Hasil:** Periksa metrik performa model pada hasil ekstraksi, terutama **Akurasi** dan **F1-Score**.
+
+---
+
+**Iterative Instruction:**
+
+* Jika hasil evaluasi (Akurasi atau F1-Score) **masih di bawah 0,8**, lakukan analisis kesalahan (*error analysis*), sesuaikan pendekatan Machine Learning kamu (misal: tuning hyperparameter, seleksi fitur, atau ganti algoritma ML tradisional lainnya), lalu buat versi notebook baru berikutnya.
+* Ulangi proses ini secara otomatis atau iteratif **sampai target Akurasi atau F1-Score $\ge$ 0,8 terpenuhi**.
+* cek juga versi2 sebelumnya agar melihat akurasi terbaik dari versi sebelumnya dipegang versi ke berapa?

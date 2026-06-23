@@ -1,1024 +1,726 @@
 # %% [markdown]
-# Dataset Overview: DAIC-WOZ (Segmented Audio Experiment)
-# **Pipeline**: Klasifikasi Kesehatan Mental Berbasis Audio (DAIC-WOZ) - Segmentasi 10 Detik
+# Dataset Overview: DAIC-WOZ
+# **Pipeline v7** — Klasifikasi Kesehatan Mental Berbasis Audio
 # **Peran**: ML & Data Engineer — Athila Ramdani Saputra
 #
-# **Eksperimen (v7)**:
-# 1. **Cepstral Mean and Variance Normalization (CMVN)**: Standardisasi fitur per partisipan untuk menyaring sidik suara individu.
-# 2. **Custom Participant-Level F1 Scorer**: GridSearchCV dioptimalkan langsung pada metrik F1 tingkat partisipan.
-# 3. **Top-K Segment Probability Voting**: Agregasi diagnosis menggunakan rata-rata top K (K=5) segmen probabilitas depresi tertinggi.
-# 4. **Ensemble Voting Classifier & SMOTE-Tomek** di dalam CV loop tetap digunakan.
+# ─────────────────────────────────────────────────────────────────────
+#  v7 = v6 + Feature Fusion + Dual Split
+#
+#  [1] Reuse fitur v6 (participant-level, Wav2Vec NYATA)
+#      → MFCC (990 fitur) + Spectrogram (687) + Wav2Vec (72)
+#
+#  [2] Feature Fusion BARU
+#      Gabungkan MFCC + Spectrogram + Wav2Vec → 1 vector per participant
+#      → PCA dimensionality reduction → compact representation
+#
+#  [3] Dual Split
+#      Mode A: AVEC2017 official (64 train / 15 val / 23 test)
+#      Mode B: 80/10/10 × 5 repeated stratified
+#
+#  [4] 16 model = 4 Feature Type × 4 Classifier
+#      Feature: MFCC, Spectrogram, Wav2Vec, Fused
+#      Model:   LR, SVM, XGBoost, Random Forest
+#
+#  [5] Tetap: class_weight='balanced', threshold 0.5, NO SMOTE
+# ─────────────────────────────────────────────────────────────────────
+
+# %% [markdown]
+# ## Setup
 
 # %%
-import os
-import pickle
-import json
+import subprocess, sys
+
+def _pip_install(pkg, name=None, upgrade=False):
+    check = name or pkg.split('[')[0].split('>=')[0].split('==')[0]
+    try:
+        __import__(check)
+        if not upgrade: return
+    except ImportError: pass
+    except Exception: return
+    print(f"[Installing] {pkg} ...")
+    try:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", pkg, "-q"] + (["--upgrade"] if upgrade else []))
+        print(f"[OK] {pkg}")
+    except Exception as e:
+        print(f"[WARN] {e}")
+
+_pip_install("librosa")
+_pip_install("scikit-learn", "sklearn")
+_pip_install("xgboost")
+_pip_install("seaborn")
+
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+
+print("[OK] Dependencies siap.\n")
+
+# %%
+import os, pickle, json, time, warnings
+warnings.filterwarnings('ignore')
+
 import numpy as np
 import pandas as pd
 import matplotlib
-try:
-    get_ipython_fn = globals().get('get_ipython', None)
-    if get_ipython_fn is None:
-        import builtins
-        get_ipython_fn = getattr(builtins, 'get_ipython', None)
-        
-    if get_ipython_fn is not None:
-        cfg = get_ipython_fn().__class__.__name__
-        if cfg != 'ZMQInteractiveShell':
-            matplotlib.use('Agg')
-    else:
-        matplotlib.use('Agg')
-except Exception:
-    matplotlib.use('Agg')
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import seaborn as sns
-import librosa
+
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
-from sklearn.ensemble import RandomForestClassifier, VotingClassifier
-from sklearn.model_selection import GroupKFold, GridSearchCV
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import (accuracy_score, precision_score, recall_score,
-                             f1_score, confusion_matrix, classification_report, roc_auc_score)
-from sklearn.feature_selection import f_classif, mutual_info_classif, SelectKBest
-from imblearn.pipeline import Pipeline as ImbPipeline
-from imblearn.combine import SMOTETomek
+from sklearn.decomposition import PCA
+from sklearn.metrics import (
+    accuracy_score, f1_score, precision_score, recall_score,
+    roc_auc_score, confusion_matrix, classification_report
+)
 import xgboost as xgb
-import warnings
-warnings.filterwarnings('ignore')
 
-# Set font family for plots
 plt.rcParams['font.family'] = 'DejaVu Sans'
 
-print("Library berhasil diimport.")
-
-# %%
-# Konfigurasi Path
-PROJECT_ROOT = os.path.abspath(os.path.join(os.getcwd(), "..")) if "notebooks" in os.getcwd() else os.getcwd()
-
-CLEANED_DIR = os.path.join(PROJECT_ROOT, "data", "cleaned")
-FEATURES_DIR = os.path.join(PROJECT_ROOT, "data", "features", "mfcc")
-MODELS_DIR = os.path.join(PROJECT_ROOT, "models", "ml")
-RESULTS_DIR = os.path.join(PROJECT_ROOT, "results")
-
-os.makedirs(MODELS_DIR, exist_ok=True)
-os.makedirs(os.path.join(MODELS_DIR, "svm"), exist_ok=True)
-os.makedirs(os.path.join(MODELS_DIR, "random_forest"), exist_ok=True)
-os.makedirs(os.path.join(MODELS_DIR, "xgboost"), exist_ok=True)
-
-os.makedirs(os.path.join(RESULTS_DIR, "metrics"), exist_ok=True)
-os.makedirs(os.path.join(RESULTS_DIR, "plots"), exist_ok=True)
-os.makedirs(os.path.join(RESULTS_DIR, "confusion_matrix"), exist_ok=True)
-
-# Path unik untuk Eksperimen Segmentasi (v7)
-FINAL_FEATURES_PATH = os.path.join(FEATURES_DIR, "daic_features_segmented_final_v7.csv")
-FEATURE_LIST_PATH = os.path.join(FEATURES_DIR, "daic_feature_list_segmented_v7.txt")
-
-# Set FORCE_EXTRACT to True if you want to rerun the feature extraction pipeline
-FORCE_EXTRACT = False
-
-print(f"Project root: {PROJECT_ROOT}")
-print(f"Features file: {FINAL_FEATURES_PATH}")
-
-# %% [markdown]
-# ## 0. Audio Feature Extraction Pipeline (Segmented 10s + Delta MFCC)
-
-# %%
-# Konfigurasi Parameter Audio
-TARGET_SR = 16000
-N_MFCC = 13
-FRAME_LENGTH = int(0.025 * TARGET_SR)  # 25ms window
-HOP_LENGTH = int(0.010 * TARGET_SR)    # 10ms hop
-SEGMENT_DURATION_SEC = 10              # Segmen 10 detik
-
-def calculate_jitter_shimmer_manual(y, sr, frame_length=FRAME_LENGTH, hop_length=HOP_LENGTH):
-    try:
-        pitches, magnitudes = librosa.piptrack(
-            y=y, sr=sr, n_fft=frame_length, hop_length=hop_length,
-            fmin=librosa.note_to_hz('C2'), fmax=librosa.note_to_hz('C7')
-        )
-        
-        pitch_vals = []
-        voiced_frames = []
-        for t in range(pitches.shape[1]):
-            idx = magnitudes[:, t].argmax()
-            p = pitches[idx, t]
-            if p > 50.0:
-                pitch_vals.append(p)
-                voiced_frames.append(t)
-        
-        if len(pitch_vals) < 2:
-            return 0.0, 0.0
-        
-        pitch_vals = np.array(pitch_vals)
-        periods = 1.0 / pitch_vals
-        
-        jitter = (np.mean(np.abs(np.diff(periods))) / np.mean(periods)) * 100
-        
-        rms = librosa.feature.rms(y=y, frame_length=frame_length, hop_length=hop_length)[0]
-        voiced_rms = []
-        for frame in voiced_frames:
-            if frame < len(rms):
-                val = rms[frame]
-                if val > 0:
-                    voiced_rms.append(val)
-        
-        if len(voiced_rms) < 2:
-            shimmer = 0.0
-        else:
-            voiced_rms = np.array(voiced_rms)
-            shimmer = (np.mean(np.abs(np.diff(voiced_rms))) / np.mean(voiced_rms)) * 100
-            
-        return float(jitter), float(shimmer)
-    except Exception:
-        return 0.0, 0.0
-
-def aggregate_feature(feat_array, name):
-    if len(feat_array) == 0:
-        return {
-            f'{name}_mean': 0.0, f'{name}_std': 0.0, f'{name}_min': 0.0,
-            f'{name}_max': 0.0, f'{name}_p25': 0.0, f'{name}_p75': 0.0
-        }
-    return {
-        f'{name}_mean': float(np.mean(feat_array)),
-        f'{name}_std': float(np.std(feat_array)),
-        f'{name}_min': float(np.min(feat_array)),
-        f'{name}_max': float(np.max(feat_array)),
-        f'{name}_p25': float(np.percentile(feat_array, 25)),
-        f'{name}_p75': float(np.percentile(feat_array, 75))
-    }
-
-def extract_all_audio_features(y, sr):
-    features = {}
-    
-    # 1. MFCC
-    mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=N_MFCC, n_fft=FRAME_LENGTH, hop_length=HOP_LENGTH)
-    for i in range(N_MFCC):
-        features.update(aggregate_feature(mfccs[i], f'mfcc_{i+1}'))
-        
-    # 1b. Delta MFCC
-    delta_mfccs = librosa.feature.delta(mfccs)
-    for i in range(N_MFCC):
-        features.update(aggregate_feature(delta_mfccs[i], f'delta_mfcc_{i+1}'))
-        
-    # 1c. Delta-Delta MFCC
-    delta2_mfccs = librosa.feature.delta(mfccs, order=2)
-    for i in range(N_MFCC):
-        features.update(aggregate_feature(delta2_mfccs[i], f'delta2_mfcc_{i+1}'))
-        
-    # 2. Pitch / F0
-    try:
-        pitches, magnitudes = librosa.piptrack(
-            y=y, sr=sr, n_fft=FRAME_LENGTH, hop_length=HOP_LENGTH,
-            fmin=librosa.note_to_hz('C2'), fmax=librosa.note_to_hz('C7')
-        )
-        pitch_vals = []
-        for t in range(pitches.shape[1]):
-            idx = magnitudes[:, t].argmax()
-            p = pitches[idx, t]
-            if p > 0:
-                pitch_vals.append(p)
-        features.update(aggregate_feature(np.array(pitch_vals) if pitch_vals else np.array([0.0]), 'pitch'))
-    except Exception:
-        features.update(aggregate_feature(np.array([0.0]), 'pitch'))
-        
-    # 3. RMS Energy
-    rms = librosa.feature.rms(y=y, frame_length=FRAME_LENGTH, hop_length=HOP_LENGTH)[0]
-    features.update(aggregate_feature(rms, 'rms_energy'))
-    
-    # 4. Spectral Centroid
-    cent = librosa.feature.spectral_centroid(y=y, sr=sr, n_fft=FRAME_LENGTH, hop_length=HOP_LENGTH)[0]
-    features.update(aggregate_feature(cent, 'spectral_centroid'))
-    
-    # 5. Spectral Bandwidth
-    bw = librosa.feature.spectral_bandwidth(y=y, sr=sr, n_fft=FRAME_LENGTH, hop_length=HOP_LENGTH)[0]
-    features.update(aggregate_feature(bw, 'spectral_bandwidth'))
-    
-    # 6. Spectral Rolloff
-    rolloff = librosa.feature.spectral_rolloff(y=y, sr=sr, n_fft=FRAME_LENGTH, hop_length=HOP_LENGTH)[0]
-    features.update(aggregate_feature(rolloff, 'spectral_rolloff'))
-    
-    # 7. ZCR
-    zcr = librosa.feature.zero_crossing_rate(y=y, frame_length=FRAME_LENGTH, hop_length=HOP_LENGTH)[0]
-    features.update(aggregate_feature(zcr, 'zcr'))
-    
-    # 8. Jitter/Shimmer
-    jitter, shimmer = calculate_jitter_shimmer_manual(y, sr)
-    features['jitter'] = jitter
-    features['shimmer'] = shimmer
-    
-    return features
-
-def map_label_strategi_v1(row):
-    phq_binary = row.get('PHQ8_Binary', row.get('PHQ_Binary', np.nan))
-    if not pd.isna(phq_binary):
-        return int(phq_binary)
-        
-    phq_score = row.get('PHQ8_Score', row.get('PHQ_Score', np.nan))
-    if pd.isna(phq_score):
-        phq_score = 0
-    else:
-        phq_score = int(phq_score)
-        
-    return 1 if phq_score >= 10 else 0
-
-def build_segmented_dataset_and_extract_features(cleaned_dir, output_dir, segment_duration_sec=SEGMENT_DURATION_SEC):
-    os.makedirs(output_dir, exist_ok=True)
-    
-    raw_dir = os.path.join(os.path.dirname(cleaned_dir), "raw", "DAIC-WOZ")
-    train_split_path = os.path.join(raw_dir, "train_split_Depression_AVEC2017.csv")
-    dev_split_path = os.path.join(raw_dir, "dev_split_Depression_AVEC2017.csv")
-    test_split_path = os.path.join(raw_dir, "full_test_split.csv")
-    
-    if not (os.path.exists(train_split_path) and os.path.exists(dev_split_path) and os.path.exists(test_split_path)):
-        raise FileNotFoundError(f"File split metadata resmi tidak ditemukan di {raw_dir}")
-        
-    df_train = pd.read_csv(train_split_path)
-    df_dev = pd.read_csv(dev_split_path)
-    df_test = pd.read_csv(test_split_path)
-    
-    df_train.columns = [col.strip() for col in df_train.columns]
-    df_dev.columns = [col.strip() for col in df_dev.columns]
-    df_test.columns = [col.strip() for col in df_test.columns]
-    
-    df_train['label_depresi'] = df_train.apply(map_label_strategi_v1, axis=1)
-    df_dev['label_depresi'] = df_dev.apply(map_label_strategi_v1, axis=1)
-    df_test['label_depresi'] = df_test.apply(map_label_strategi_v1, axis=1)
-    
-    df_train['split'] = 'train'
-    df_dev['split'] = 'dev'
-    df_test['split'] = 'test'
-    
-    for df_part in [df_train, df_dev, df_test]:
-        for col in df_part.columns:
-            if col.lower() == 'participant_id':
-                df_part.rename(columns={col: 'Participant_ID'}, inplace=True)
-        if 'PHQ_Score' not in df_part.columns and 'PHQ8_Score' in df_part.columns:
-            df_part['PHQ_Score'] = df_part['PHQ8_Score']
-        elif 'PHQ8_Score' not in df_part.columns and 'PHQ_Score' in df_part.columns:
-            df_part['PHQ8_Score'] = df_part['PHQ_Score']
-            
-    all_metadata = []
-    meta_cols_to_keep = ['Participant_ID', 'PHQ8_Score', 'PHQ_Score', 'label_depresi', 'split', 'Gender']
-    for df_part in [df_train, df_dev, df_test]:
-        cols_avail = [c for c in meta_cols_to_keep if c in df_part.columns]
-        all_metadata.append(df_part[cols_avail])
-        
-    df_meta_combined = pd.concat(all_metadata, ignore_index=True)
-    df_meta_combined.rename(columns={'Participant_ID': 'participant_id'}, inplace=True)
-    
-    dataset_rows = []
-    cleaned_files = [f for f in os.listdir(cleaned_dir) if f.endswith('.wav')]
-    segment_len_samples = segment_duration_sec * TARGET_SR
-    
-    for file in cleaned_files:
-        participant_id = int(file.replace('.wav', ''))
-        meta_row = df_meta_combined[df_meta_combined['participant_id'] == participant_id]
-        if meta_row.empty:
-            continue
-            
-        audio_path = os.path.join(cleaned_dir, file)
-        transcript_path = os.path.join(raw_dir, f"{participant_id}_P", f"{participant_id}_TRANSCRIPT.csv")
-        
-        try:
-            y, sr = librosa.load(audio_path, sr=TARGET_SR, mono=True)
-            if len(y) < segment_len_samples:
-                segments_y = [y]
-            else:
-                segments_y = []
-                num_segments = len(y) // segment_len_samples
-                for i in range(num_segments):
-                    segments_y.append(y[i * segment_len_samples : (i + 1) * segment_len_samples])
-            
-            original_duration = 0.0
-            cleaned_duration = len(y) / sr
-            speech_ratio = 0.0
-            participant_turns = 0
-            ellie_turns = 0
-            
-            if os.path.exists(transcript_path):
-                try:
-                    try:
-                        df_trans = pd.read_csv(transcript_path, sep='\t')
-                    except Exception:
-                        df_trans = pd.read_csv(transcript_path)
-                    
-                    df_trans.columns = [col.lower().strip() for col in df_trans.columns]
-                    part_turns = df_trans[df_trans['speaker'].str.lower().str.strip() == 'participant']
-                    ellie_turns_df = df_trans[df_trans['speaker'].str.lower().str.strip() == 'ellie']
-                    participant_turns = len(part_turns)
-                    ellie_turns = len(ellie_turns_df)
-                    part_duration = (part_turns['stop_time'] - part_turns['start_time']).sum()
-                    total_duration = df_trans['stop_time'].max() if len(df_trans) > 0 else 1.0
-                    original_duration = float(total_duration)
-                    cleaned_duration = float(part_duration)
-                    speech_ratio = float(part_duration / total_duration)
-                except Exception:
-                    pass
-            
-            for seg_idx, y_seg in enumerate(segments_y):
-                if len(y_seg) < TARGET_SR:
-                    continue
-                features = extract_all_audio_features(y_seg, sr)
-                
-                features['original_duration_sec'] = original_duration
-                features['cleaned_duration_sec'] = cleaned_duration
-                features['speech_ratio'] = speech_ratio
-                features['participant_turns'] = float(participant_turns)
-                features['ellie_turns'] = float(ellie_turns)
-                
-                features['participant_id'] = participant_id
-                features['segment_id'] = f"{participant_id}_seg_{seg_idx}"
-                features['phq8_score'] = int(meta_row.iloc[0]['PHQ8_Score'])
-                features['label_depresi'] = int(meta_row.iloc[0]['label_depresi'])
-                features['split'] = meta_row.iloc[0]['split']
-                features['gender'] = int(meta_row.iloc[0]['Gender'])
-                
-                dataset_rows.append(features)
-                
-        except Exception:
-            pass
-            
-    df_features = pd.DataFrame(dataset_rows)
-    
-    META_COLS = ['participant_id', 'segment_id', 'phq8_score', 'label_depresi', 'split', 'gender']
-    FEAT_COLS = [col for col in df_features.columns if col not in META_COLS]
-    df_features = df_features[META_COLS + FEAT_COLS]
-    
-    raw_csv_path = os.path.join(output_dir, "daic_features_segmented_raw_v7.csv")
-    df_features.to_csv(raw_csv_path, index=False)
-    
-    # Cleaning
-    df_features[FEAT_COLS] = df_features[FEAT_COLS].fillna(df_features[FEAT_COLS].median())
-    std_vals = df_features[FEAT_COLS].std()
-    const_feats = std_vals[std_vals < 1e-8].index.tolist()
-    FEAT_COLS = [f for f in FEAT_COLS if f not in const_feats]
-    
-    Q1 = df_features[FEAT_COLS].quantile(0.25)
-    Q3 = df_features[FEAT_COLS].quantile(0.75)
-    IQR = Q3 - Q1
-    for col in FEAT_COLS:
-        lower = Q1[col] - 10 * IQR[col]
-        upper = Q3[col] + 10 * IQR[col]
-        df_features[col] = df_features[col].clip(lower=lower, upper=upper)
-        
-    corr_matrix = df_features[FEAT_COLS].corr().abs()
-    upper_tri = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(bool))
-    to_drop = [col for col in upper_tri.columns if any(upper_tri[col] > 0.95)]
-    FEAT_COLS_FILTERED = [f for f in FEAT_COLS if f not in to_drop]
-    
-    # Feature selection on Train split
-    train_mask = df_features['split'] == 'train'
-    df_train_feats = df_features[train_mask]
-    X_train = df_train_feats[FEAT_COLS_FILTERED].values
-    y_train = df_train_feats['label_depresi'].values
-    
-    f_scores, p_values = f_classif(X_train, y_train)
-    mi_scores = mutual_info_classif(X_train, y_train, random_state=42)
-    
-    df_selection = pd.DataFrame({
-        'feature': FEAT_COLS_FILTERED,
-        'p_value': p_values,
-        'mi_score': mi_scores,
-        'significant': p_values < 0.05
-    })
-    
-    sig_feats = df_selection[df_selection['significant']]['feature'].tolist()
-    top_mi_feats = df_selection.sort_values('mi_score', ascending=False).head(80)['feature'].tolist()
-    
-    final_feats = list(set(sig_feats) | set(top_mi_feats))
-    final_feats = [f for f in FEAT_COLS_FILTERED if f in final_feats]
-    
-    feat_list_path = os.path.join(output_dir, "daic_feature_list_segmented_v7.txt")
-    with open(feat_list_path, 'w') as f:
-        f.write('\n'.join(final_feats))
-        
-    df_final = df_features[META_COLS + final_feats]
-    final_csv_path = os.path.join(output_dir, "daic_features_segmented_final_v7.csv")
-    df_final.to_csv(final_csv_path, index=False)
-
-# %% [markdown]
-# ## 1. Load Data & Scaling (Lazy Run Logic)
-
-# %%
-if FORCE_EXTRACT or not os.path.exists(FINAL_FEATURES_PATH):
-    # Salin dari v6 untuk mempercepat eksekusi jika ada
-    v6_features = os.path.join(FEATURES_DIR, "daic_features_segmented_final_v6.csv")
-    v6_list = os.path.join(FEATURES_DIR, "daic_feature_list_segmented_v6.txt")
-    if os.path.exists(v6_features) and os.path.exists(v6_list):
-        import shutil
-        shutil.copy(v6_features, FINAL_FEATURES_PATH)
-        shutil.copy(v6_list, FEATURE_LIST_PATH)
-        print("[INFO] Menyalin matriks fitur v6 ke v7 untuk menghemat waktu.")
-    else:
-        print("\n[INFO] Memulai ekstraksi fitur akustik segmen (10s + Delta) secara otomatis...")
-        build_segmented_dataset_and_extract_features(CLEANED_DIR, FEATURES_DIR)
-else:
-    print(f"\n[INFO] Menggunakan matriks fitur segmen yang sudah ada di: {FINAL_FEATURES_PATH}")
-
-df = pd.read_csv(FINAL_FEATURES_PATH)
-
-with open(FEATURE_LIST_PATH, 'r') as f:
-    FEAT_COLS = [line.strip() for line in f.readlines() if line.strip()]
-
-FEAT_COLS = [f for f in FEAT_COLS if f in df.columns]
-META_COLS = ['participant_id', 'segment_id', 'phq8_score', 'label_depresi', 'split', 'gender']
-
-print(f"Shape dataset segmen final: {df.shape}")
-print(f"Jumlah fitur final: {len(FEAT_COLS)}")
-
-# %%
-# Menerapkan Cepstral Mean and Variance Normalization (CMVN) per speaker (anti-leakage speaker traits)
-print("[INFO] Menerapkan Cepstral Mean and Variance Normalization (CMVN) per speaker...")
-for pid in df['participant_id'].unique():
-    mask = df['participant_id'] == pid
-    means = df.loc[mask, FEAT_COLS].mean()
-    stds = df.loc[mask, FEAT_COLS].std().fillna(1.0)
-    stds[stds < 1e-8] = 1.0
-    df.loc[mask, FEAT_COLS] = (df.loc[mask, FEAT_COLS] - means) / stds
-print("[INFO] CMVN per speaker berhasil diselesaikan.")
-
-# Split data based on split column
-df_train = df[df['split'] == 'train'].reset_index(drop=True)
-df_dev = df[df['split'] == 'dev'].reset_index(drop=True)
-df_test = df[df['split'] == 'test'].reset_index(drop=True)
-
-print(f"\nJumlah Baris Segmen Latih:")
-print(f"  Train: {len(df_train)}")
-print(f"  Dev  : {len(df_dev)}")
-print(f"  Test : {len(df_test)}")
-
-# %%
-X_train = df_train[FEAT_COLS].values
-y_train = df_train['label_depresi'].values
-groups_train = df_train['participant_id'].values
-
-# Fit scaler ONLY on train segments
-scaler = StandardScaler()
-scaler.fit(X_train)
-
-# Save scaler
-scaler_path = os.path.join(MODELS_DIR, "scaler_v7.pkl")
-with open(scaler_path, 'wb') as f:
-    pickle.dump(scaler, f)
-print(f"Scaler berhasil di-fit dan disimpan di: {scaler_path}")
-
-# Scale train segments
-X_train_scaled = scaler.transform(X_train)
-
-# Fit Selector (SelectKBest) ONLY on train segments to prevent leakage
 RANDOM_SEED = 42
-selector = SelectKBest(score_func=f_classif, k=25)
-X_train_scaled_selected = selector.fit_transform(X_train_scaled, y_train)
+np.random.seed(RANDOM_SEED)
 
-# Save selector
-selector_path = os.path.join(MODELS_DIR, "selector_v7.pkl")
-with open(selector_path, 'wb') as f:
-    pickle.dump(selector, f)
-print(f"Feature selector (SelectKBest, k=25) berhasil di-fit dan disimpan di: {selector_path}")
+# ─── Path ────────────────────────────────────────────────────────────────────
+PROJECT_ROOT = (
+    os.path.abspath(os.path.join(os.getcwd(), ".."))
+    if "notebooks" in os.getcwd()
+    else os.getcwd()
+)
+V6_FEAT_DIR = os.path.join(PROJECT_ROOT, "data", "features", "v6")
+RAW_DIR     = os.path.join(PROJECT_ROOT, "data", "raw", "DAIC-WOZ")
+MODELS_DIR  = os.path.join(PROJECT_ROOT, "models", "ml_v7")
+RESULTS_DIR = os.path.join(PROJECT_ROOT, "results", "v7")
 
-# Dapatkan nama fitur terpilih untuk interpretasi XAI
-selected_indices = selector.get_support(indices=True)
-SELECTED_FEAT_COLS = [FEAT_COLS[i] for i in selected_indices]
-print(f"Fitur terpilih untuk klasifikasi (v7): {SELECTED_FEAT_COLS}")
+for d in [MODELS_DIR,
+          os.path.join(RESULTS_DIR, "metrics"),
+          os.path.join(RESULTS_DIR, "plots"),
+          os.path.join(RESULTS_DIR, "confusion_matrix")]:
+    os.makedirs(d, exist_ok=True)
 
-# Precompute lookup dictionary untuk mapping baris scaled_selected ke participant_id
-row_to_group = {}
-for i, row in enumerate(X_train_scaled_selected):
-    row_to_group[tuple(row)] = groups_train[i]
+print(f"Project root : {PROJECT_ROOT}")
+print(f"V6 features  : {V6_FEAT_DIR}")
+print(f"Results      : {RESULTS_DIR}")
 
 # %% [markdown]
-# ## 2. Definisi Model & Hyperparameter Grid
+# ## 1. Load Fitur v6 + Build Feature Fusion
 
 # %%
-MODELS = {
-    'Logistic Regression': {
-        'model': ImbPipeline([
-            ('smote_tomek', SMOTETomek(random_state=RANDOM_SEED)),
-            ('model', LogisticRegression(max_iter=2000, random_state=RANDOM_SEED, class_weight='balanced'))
-        ]),
-        'param_grid': {
-            'model__C': [0.01, 0.1, 1.0, 10.0],
-            'model__solver': ['lbfgs', 'liblinear']
-        }
-    },
-    'SVM (RBF)': {
-        'model': ImbPipeline([
-            ('smote_tomek', SMOTETomek(random_state=RANDOM_SEED)),
-            ('model', SVC(kernel='rbf', probability=True, random_state=RANDOM_SEED, class_weight='balanced', decision_function_shape='ovr'))
-        ]),
-        'param_grid': {
-            'model__C': [0.1, 1.0, 10.0, 100.0],
-            'model__gamma': ['scale', 'auto']
-        }
-    },
-    'Random Forest': {
-        'model': ImbPipeline([
-            ('smote_tomek', SMOTETomek(random_state=RANDOM_SEED)),
-            ('model', RandomForestClassifier(random_state=RANDOM_SEED, class_weight='balanced', n_jobs=-1))
-        ]),
-        'param_grid': {
-            'model__n_estimators': [50, 100, 150],
-            'model__max_depth': [2, 3, 4],
-            'model__min_samples_split': [5, 10],
-            'model__min_samples_leaf': [2, 4],
-            'model__max_features': ['sqrt', 0.2]
-        }
-    },
-    'XGBoost': {
-        'model': ImbPipeline([
-            ('smote_tomek', SMOTETomek(random_state=RANDOM_SEED)),
-            ('model', xgb.XGBClassifier(random_state=RANDOM_SEED, eval_metric='logloss', objective='binary:logistic', n_jobs=-1))
-        ]),
-        'param_grid': {
-            'model__n_estimators': [30, 50],
-            'model__max_depth': [2, 3],
-            'model__learning_rate': [0.01, 0.05, 0.1],
-            'model__reg_alpha': [0.1, 1.0, 10.0],
-            'model__reg_lambda': [0.1, 1.0, 10.0],
-            'model__subsample': [0.6, 0.8],
-            'model__colsample_bytree': [0.6, 0.8]
-        }
-    },
-    'Ensemble Voting': {
-        'model': ImbPipeline([
-            ('smote_tomek', SMOTETomek(random_state=RANDOM_SEED)),
-            ('model', VotingClassifier(
-                estimators=[
-                    ('lr', LogisticRegression(max_iter=2000, random_state=RANDOM_SEED, class_weight='balanced')),
-                    ('svm', SVC(kernel='rbf', probability=True, random_state=RANDOM_SEED, class_weight='balanced')),
-                    ('rf', RandomForestClassifier(random_state=RANDOM_SEED, class_weight='balanced', n_jobs=-1))
-                ],
-                voting='soft'
-            ))
-        ]),
-        'param_grid': {
-            'model__lr__C': [0.01, 0.1, 1.0],
-            'model__svm__C': [0.1, 1.0, 10.0],
-            'model__rf__max_depth': [2, 3, 4]
-        }
-    }
+META_COLS = ['participant_id', 'phq8_score', 'label_depresi', 'gender']
+
+def load_clean(csv_path, feat_name):
+    df = pd.read_csv(csv_path)
+    feat_cols = [c for c in df.columns if c not in META_COLS]
+    df[feat_cols] = df[feat_cols].fillna(0)
+    # Hapus fitur konstan
+    std_vals = df[feat_cols].std()
+    const = std_vals[std_vals < 1e-8].index.tolist()
+    feat_cols = [f for f in feat_cols if f not in const]
+    print(f"  [{feat_name}] {len(df)} participants, {len(feat_cols)} fitur")
+    return df, feat_cols
+
+# Load individual
+df_mfcc, cols_mfcc = load_clean(os.path.join(V6_FEAT_DIR, "daic_v6_mfcc.csv"), "MFCC")
+df_spec, cols_spec = load_clean(os.path.join(V6_FEAT_DIR, "daic_v6_spectrogram.csv"), "Spectrogram")
+df_w2v,  cols_w2v  = load_clean(os.path.join(V6_FEAT_DIR, "daic_v6_wav2vec.csv"), "Wav2Vec")
+
+# Build Fused: merge on participant_id
+df_fused = df_mfcc[META_COLS + cols_mfcc].copy()
+# Rename cols agar tidak tabrakan
+spec_renamed = {c: f'spec_{c}' for c in cols_spec}
+w2v_renamed  = {c: f'w2v_{c}'  for c in cols_w2v}
+
+df_spec_r = df_spec[['participant_id'] + cols_spec].rename(columns=spec_renamed)
+df_w2v_r  = df_w2v[['participant_id']  + cols_w2v].rename(columns=w2v_renamed)
+
+df_fused = df_fused.merge(df_spec_r, on='participant_id', how='inner')
+df_fused = df_fused.merge(df_w2v_r, on='participant_id', how='inner')
+cols_fused = cols_mfcc + list(spec_renamed.values()) + list(w2v_renamed.values())
+
+# Remove constant in fused
+std_f = df_fused[cols_fused].std()
+const_f = std_f[std_f < 1e-8].index.tolist()
+cols_fused = [c for c in cols_fused if c not in const_f]
+
+print(f"  [Fused] {len(df_fused)} participants, {len(cols_fused)} fitur (sebelum PCA)")
+
+# Store all datasets
+datasets = {
+    'MFCC':        (df_mfcc, cols_mfcc),
+    'Spectrogram': (df_spec, cols_spec),
+    'Wav2Vec':     (df_w2v,  cols_w2v),
+    'Fused':       (df_fused, cols_fused),
 }
 
-print("Model dan grid hyperparameter v7 berhasil didefinisikan:")
-for model_name in MODELS.keys():
-    print(f"  - {model_name}")
+FEAT_NAMES  = list(datasets.keys())
 
 # %% [markdown]
-# ## 3. Evaluasi Tingkat Partisipan (Top-K Segment Probability Voting)
+# ## 2. Model Config
 
 # %%
-def evaluate_participant_level(model, df_split, FEAT_COLS, scaler, selector, prefix=''):
-    """
-    Melakukan evaluasi pada tingkat partisipan menggunakan Top-K Segment Probability Voting.
-    Menerapkan rata-rata probabilitas top K segmen (K=5) dari masing-masing partisipan untuk diagnosis.
-    """
-    X_split = df_split[FEAT_COLS].values
-    X_split_scaled = scaler.transform(X_split)
-    X_split_selected = selector.transform(X_split_scaled)
-    
+def get_models():
+    return {
+        'Logistic Regression': LogisticRegression(
+            max_iter=5000, random_state=RANDOM_SEED, class_weight='balanced',
+            C=1.0, solver='lbfgs',
+        ),
+        'SVM': SVC(
+            kernel='rbf', probability=True, C=10.0, gamma='scale',
+            random_state=RANDOM_SEED, class_weight='balanced',
+        ),
+        'XGBoost': xgb.XGBClassifier(
+            random_state=RANDOM_SEED, eval_metric='logloss',
+            objective='binary:logistic', n_jobs=1,
+            scale_pos_weight=2, n_estimators=200, max_depth=5,
+            learning_rate=0.05, subsample=0.8,
+        ),
+        'Random Forest': RandomForestClassifier(
+            random_state=RANDOM_SEED, class_weight='balanced', n_jobs=1,
+            n_estimators=300, max_depth=10, min_samples_split=5,
+            max_features='sqrt',
+        ),
+    }
+
+MODEL_NAMES = list(get_models().keys())
+print(f"Model: {MODEL_NAMES}")
+print(f"Feature: {FEAT_NAMES}")
+print(f"Total: {len(MODEL_NAMES)} x {len(FEAT_NAMES)} = {len(MODEL_NAMES)*len(FEAT_NAMES)} model per split mode")
+
+# %% [markdown]
+# ## 3. Preprocessing & Evaluation Utils
+
+# %%
+def preprocess(X_tr, X_va, X_te, use_pca=False, pca_components=100):
+    """NaN fill, clip outlier, scale, optional PCA."""
+    # NaN -> median
+    medians = np.nanmedian(X_tr, axis=0)
+    for X in [X_tr, X_va, X_te]:
+        for col_i in range(X.shape[1]):
+            mask = np.isnan(X[:, col_i])
+            X[mask, col_i] = medians[col_i]
+
+    # Clip IQR x 10
+    Q1 = np.percentile(X_tr, 25, axis=0)
+    Q3 = np.percentile(X_tr, 75, axis=0)
+    IQR = Q3 - Q1
+    lo, hi = Q1 - 10 * IQR, Q3 + 10 * IQR
+    for X in [X_tr, X_va, X_te]:
+        np.clip(X, lo, hi, out=X)
+
+    # Scale
+    scaler = StandardScaler()
+    X_tr = scaler.fit_transform(X_tr)
+    X_va = scaler.transform(X_va)
+    X_te = scaler.transform(X_te)
+
+    # PCA (hanya untuk Fused) — n_components dinamis agar tidak melebihi n_samples
+    pca = None
+    if use_pca and X_tr.shape[1] > pca_components:
+        max_comp = min(pca_components, X_tr.shape[0] - 1, X_tr.shape[1])
+        pca = PCA(n_components=max_comp, random_state=RANDOM_SEED)
+        X_tr = pca.fit_transform(X_tr)
+        X_va = pca.transform(X_va)
+        X_te = pca.transform(X_te)
+
+    return X_tr, X_va, X_te, scaler, pca
+
+
+def calc_metrics(y_true, y_pred, y_prob=None):
     try:
-        probs = model.predict_proba(X_split_selected)[:, 1]
-    except Exception:
-        probs = model.predict(X_split_selected)
-        
-    df_temp = df_split[['participant_id', 'label_depresi']].copy()
-    df_temp['pred_prob'] = probs
-    
-    # Fungsi agregasi top-k (K=5) segmen probabilitas depresi
-    def get_top_k_mean(group, k=5):
-        vals = group['pred_prob'].values
-        if len(vals) <= k:
-            return np.mean(vals)
-        return np.mean(np.sort(vals)[-k:])
-        
-    df_grouped = df_temp.groupby('participant_id').agg({
-        'label_depresi': 'first'
-    }).reset_index()
-    
-    top_k_probs = []
-    for pid in df_grouped['participant_id']:
-        p_group = df_temp[df_temp['participant_id'] == pid]
-        top_k_probs.append(get_top_k_mean(p_group, k=5))
-    df_grouped['pred_prob'] = top_k_probs
-    df_grouped['pred_class'] = (df_grouped['pred_prob'] >= 0.5).astype(int)
-    
-    y_true = df_grouped['label_depresi'].values
-    y_pred = df_grouped['pred_class'].values
-    y_prob = df_grouped['pred_prob'].values
-    
-    try:
-        auc = float(roc_auc_score(y_true, y_prob))
+        auc = float(roc_auc_score(y_true, y_prob)) if y_prob is not None else 0.0
     except Exception:
         auc = 0.0
-        
     return {
-        f'{prefix}accuracy': float(accuracy_score(y_true, y_pred)),
-        f'{prefix}f1_macro': float(f1_score(y_true, y_pred, average='macro', zero_division=0)),
-        f'{prefix}f1_weighted': float(f1_score(y_true, y_pred, average='weighted', zero_division=0)),
-        f'{prefix}precision_macro': float(precision_score(y_true, y_pred, average='macro', zero_division=0)),
-        f'{prefix}recall_macro': float(recall_score(y_true, y_pred, average='macro', zero_division=0)),
-        f'{prefix}roc_auc': auc
-    }, y_true, y_pred
-
-# %%
-# Definisi Custom Scorer untuk optimasi GridSearchCV pada tingkat partisipan (Top-5 Segmen)
-def participant_level_f1_scorer(estimator, X, y):
-    try:
-        probs = estimator.predict_proba(X)[:, 1]
-    except Exception:
-        probs = estimator.predict(X)
-        
-    # Mapping baris X kembali ke groups/participant_id
-    groups_fold = [row_to_group.get(tuple(row), -1) for row in X]
-    
-    df_temp = pd.DataFrame({
-        'participant_id': groups_fold,
-        'label_depresi': y,
-        'pred_prob': probs
-    })
-    
-    def get_top_k_mean(group, k=5):
-        vals = group['pred_prob'].values
-        if len(vals) <= k:
-            return np.mean(vals)
-        return np.mean(np.sort(vals)[-k:])
-        
-    df_grouped = df_temp.groupby('participant_id').agg({
-        'label_depresi': 'first'
-    }).reset_index()
-    
-    top_k_probs = []
-    for pid in df_grouped['participant_id']:
-        p_group = df_temp[df_temp['participant_id'] == pid]
-        top_k_probs.append(get_top_k_mean(p_group, k=5))
-    df_grouped['pred_prob'] = top_k_probs
-    df_grouped['pred_class'] = (df_grouped['pred_prob'] >= 0.5).astype(int)
-    
-    y_true_part = df_grouped['label_depresi'].values
-    y_pred_part = df_grouped['pred_class'].values
-    
-    return f1_score(y_true_part, y_pred_part, average='macro', zero_division=0)
-
-# %% [markdown]
-# ## 4. Pelatihan dengan GroupKFold Cross-Validation
-
-# %%
-cv_splitter = GroupKFold(n_splits=5)
-
-results = {}
-best_models = {}
-best_predictions = {}
-
-print("="*65)
-print(f"{'MULAI TRAINING MODEL BERBASIS SEGMEN (Optimasi Partisipan v7)':^65}")
-print("="*65)
-
-for model_name, config in MODELS.items():
-    print(f"\nTraining {model_name}...")
-    
-    grid_search = GridSearchCV(
-        estimator=config['model'],
-        param_grid=config['param_grid'],
-        cv=cv_splitter,
-        scoring=participant_level_f1_scorer,  # Menggunakan custom participant-level F1 scorer!
-        n_jobs=-1,
-        refit=True
-    )
-    
-    grid_search.fit(X_train_scaled_selected, y_train, groups=groups_train)
-    best_model = grid_search.best_estimator_
-    
-    train_metrics, _, _ = evaluate_participant_level(best_model, df_train, FEAT_COLS, scaler, selector, 'train_')
-    dev_metrics, _, _ = evaluate_participant_level(best_model, df_dev, FEAT_COLS, scaler, selector, 'val_')
-    test_metrics, y_true_test, y_pred_test = evaluate_participant_level(best_model, df_test, FEAT_COLS, scaler, selector, 'test_')
-    
-    print(f"  Parameter Terbaik: {grid_search.best_params_}")
-    print(f"  Best CV Partisipan Macro F1 : {grid_search.best_score_:.4f}")
-    print(f"  Val Macro F1 (Top-5)     : {dev_metrics['val_f1_macro']:.4f} (Acc: {dev_metrics['val_accuracy']:.4f})")
-    print(f"  Test Macro F1 (Top-5)    : {test_metrics['test_f1_macro']:.4f} (Acc: {test_metrics['test_accuracy']:.4f})")
-    
-    results[model_name] = {
-        'best_params': grid_search.best_params_,
-        'best_cv_f1': float(grid_search.best_score_),
-        **train_metrics,
-        **dev_metrics,
-        **test_metrics
+        'accuracy':  float(accuracy_score(y_true, y_pred)),
+        'f1_macro':  float(f1_score(y_true, y_pred, average='macro', zero_division=0)),
+        'precision': float(precision_score(y_true, y_pred, average='macro', zero_division=0)),
+        'recall':    float(recall_score(y_true, y_pred, average='macro', zero_division=0)),
+        'roc_auc':   auc,
     }
-    best_models[model_name] = best_model
-    best_predictions[model_name] = (y_true_test, y_pred_test)
 
-print("\n[INFO] Pelatihan seluruh model selesai.")
+
+def train_eval(model, X_tr, y_tr, X_te, y_te):
+    model.fit(X_tr, y_tr)
+    try:
+        y_prob = model.predict_proba(X_te)[:, 1]
+        y_pred = (y_prob >= 0.5).astype(int)
+    except Exception:
+        y_pred = model.predict(X_te)
+        y_prob = y_pred.astype(float)
+    return calc_metrics(y_te, y_pred, y_prob), y_pred, y_prob
 
 # %% [markdown]
-# ## 5. Perbandingan Model & Evaluasi Akhir (Tingkat Partisipan)
+# ## 4. Split Definitions
 
 # %%
-comparison_rows = []
-for name, res in results.items():
-    comparison_rows.append({
-        'Model': name,
-        'CV Macro F1': res['best_cv_f1'],
-        'Val Accuracy': res['val_accuracy'],
-        'Val Macro F1': res['val_f1_macro'],
-        'Test Accuracy': res['test_accuracy'],
-        'Test Macro F1': res['test_f1_macro'],
-        'Test Weighted F1': res['test_f1_weighted'],
-        'Test Precision': res['test_precision_macro'],
-        'Test Recall': res['test_recall_macro'],
-        'Test ROC-AUC': res['test_roc_auc']
+# ─── A: AVEC2017 Official ─────────────────────────────────────────────────
+def load_avec_pids():
+    """Return dict of split -> list of participant_ids."""
+    splits = {}
+    for fname, split in [
+        ("train_split_Depression_AVEC2017.csv", "train"),
+        ("dev_split_Depression_AVEC2017.csv",   "dev"),
+        ("full_test_split.csv",                  "test"),
+    ]:
+        df = pd.read_csv(os.path.join(RAW_DIR, fname))
+        df.columns = [c.strip() for c in df.columns]
+        pid_col = [c for c in df.columns if 'participant' in c.lower()][0]
+        splits[split] = df[pid_col].astype(int).tolist()
+    return splits
+
+avec_pids = load_avec_pids()
+print("AVEC2017 split:")
+for s, pids in avec_pids.items():
+    print(f"  {s}: {len(pids)} participants")
+
+
+# ─── B: 80/10/10 Repeated Stratified ──────────────────────────────────────
+N_REPEATS   = 5
+TRAIN_RATIO = 0.80
+
+def make_repeated_splits(df, n_repeats=5, seed=42):
+    labels = df['label_depresi'].values
+    splits = []
+    for r in range(n_repeats):
+        rng = np.random.RandomState(seed + r)
+        idx_all = np.arange(len(df))
+        idx_0, idx_1 = idx_all[labels == 0], idx_all[labels == 1]
+        rng.shuffle(idx_0); rng.shuffle(idx_1)
+        n0 = int(len(idx_0) * TRAIN_RATIO)
+        n1 = int(len(idx_1) * TRAIN_RATIO)
+        tr = np.concatenate([idx_0[:n0], idx_1[:n1]])
+        rest_0, rest_1 = idx_0[n0:], idx_1[n1:]
+        nv0, nv1 = len(rest_0) // 2, len(rest_1) // 2
+        va = np.concatenate([rest_0[:nv0], rest_1[:nv1]])
+        te = np.concatenate([rest_0[nv0:], rest_1[nv1:]])
+        splits.append((tr, va, te))
+    return splits
+
+print(f"\n80/10/10 x {N_REPEATS} repeated stratified splits")
+
+# %% [markdown]
+# ## 5A. Training — AVEC2017 Official Split
+
+# %%
+SEP = "=" * 95
+PCA_COMPONENTS = 100
+
+print(f"\n{'#' * 95}")
+print(f"{'MODE A: AVEC2017 OFFICIAL SPLIT (64/15/23)':^95}")
+print(f"{'#' * 95}")
+
+avec_results = {}
+avec_ys = {}
+
+for feat_name in FEAT_NAMES:
+    df, feat_cols = datasets[feat_name]
+    use_pca = (feat_name == 'Fused')
+
+    # Map PIDs to indices
+    pid_list = df['participant_id'].tolist()
+    pid2idx = {pid: i for i, pid in enumerate(pid_list)}
+
+    tr_idx = [pid2idx[p] for p in avec_pids['train'] if p in pid2idx]
+    va_idx = [pid2idx[p] for p in avec_pids['dev']   if p in pid2idx]
+    te_idx = [pid2idx[p] for p in avec_pids['test']  if p in pid2idx]
+
+    X_all = df[feat_cols].values
+    y_all = df['label_depresi'].values
+
+    X_tr, X_va, X_te = X_all[tr_idx], X_all[va_idx], X_all[te_idx]
+    y_tr, y_va, y_te = y_all[tr_idx], y_all[va_idx], y_all[te_idx]
+
+    X_tr, X_va, X_te, scaler, pca = preprocess(X_tr, X_va, X_te, use_pca=use_pca, pca_components=PCA_COMPONENTS)
+
+    pca_tag = f" (PCA {X_tr.shape[1]})" if pca else ""
+    print(f"\n{SEP}")
+    print(f"  FEATURE: {feat_name}  |  {X_tr.shape[1]} fitur{pca_tag}  "
+          f"|  Train={len(tr_idx)} Val={len(va_idx)} Test={len(te_idx)}")
+    print(SEP)
+
+    for model_name in MODEL_NAMES:
+        combo = f"{feat_name} + {model_name}"
+        model = get_models()[model_name]
+        metrics, y_pred, y_prob = train_eval(model, X_tr, y_tr, X_te, y_te)
+
+        # Val metrics too
+        _, y_va_pred, y_va_prob = train_eval(get_models()[model_name], X_tr, y_tr, X_va, y_va)
+        val_m = calc_metrics(y_va, y_va_pred, y_va_prob)
+
+        avec_results[combo] = {**metrics, 'val_f1': val_m['f1_macro']}
+        avec_ys[combo] = (y_te, y_pred)
+
+        print(f"\n  [{combo}]")
+        print(f"    Val  F1 : {val_m['f1_macro']:.4f}")
+        print(f"    Test F1 : {metrics['f1_macro']:.4f}  |  Acc: {metrics['accuracy']:.4f}  "
+              f"|  AUC: {metrics['roc_auc']:.4f}")
+
+        # Save model
+        sf = feat_name.lower().replace(' ', '_')
+        sm = model_name.lower().replace(' ', '_')
+        retrain_model = get_models()[model_name]
+        retrain_model.fit(X_tr, y_tr)
+        with open(os.path.join(MODELS_DIR, f"v7_avec_{sf}_{sm}.pkl"), 'wb') as fp:
+            pickle.dump({'model': retrain_model, 'scaler': scaler, 'pca': pca, 'feat_cols': feat_cols}, fp)
+
+print(f"\n{SEP}")
+print(f"  AVEC2017: 16 MODEL SELESAI")
+print(SEP)
+
+# %% [markdown]
+# ## 5B. Training — 80/10/10 × 5 Repeats
+
+# %%
+print(f"\n{'#' * 95}")
+print(f"{'MODE B: 80/10/10 x 5 REPEATED STRATIFIED':^95}")
+print(f"{'#' * 95}")
+
+repeat_results = {}  # combo -> list of metric dicts
+
+for feat_name in FEAT_NAMES:
+    df, feat_cols = datasets[feat_name]
+    use_pca = (feat_name == 'Fused')
+
+    splits = make_repeated_splits(df, n_repeats=N_REPEATS, seed=RANDOM_SEED)
+
+    print(f"\n{SEP}")
+    print(f"  FEATURE: {feat_name}  |  {len(feat_cols)} fitur  |  {len(df)} participants")
+    print(SEP)
+
+    for model_name in MODEL_NAMES:
+        combo = f"{feat_name} + {model_name}"
+        metrics_list = []
+
+        for r, (tr_idx, va_idx, te_idx) in enumerate(splits):
+            X_all = df[feat_cols].values
+            y_all = df['label_depresi'].values
+            X_tr, X_va, X_te = X_all[tr_idx], X_all[va_idx], X_all[te_idx]
+            y_tr, y_va, y_te = y_all[tr_idx], y_all[va_idx], y_all[te_idx]
+
+            X_tr, X_va, X_te, _, _ = preprocess(X_tr, X_va, X_te, use_pca=use_pca, pca_components=PCA_COMPONENTS)
+
+            model = get_models()[model_name]
+            m, _, _ = train_eval(model, X_tr, y_tr, X_te, y_te)
+            metrics_list.append(m)
+
+        repeat_results[combo] = metrics_list
+
+        f1s = [m['f1_macro'] for m in metrics_list]
+        accs = [m['accuracy'] for m in metrics_list]
+        aucs = [m['roc_auc'] for m in metrics_list]
+        print(f"\n  [{combo}]")
+        print(f"    Test F1: {np.mean(f1s):.4f} +/- {np.std(f1s):.4f}  "
+              f"(min={np.min(f1s):.4f}, max={np.max(f1s):.4f})")
+        print(f"    Acc:     {np.mean(accs):.4f}  |  AUC: {np.mean(aucs):.4f}")
+
+print(f"\n{SEP}")
+print(f"  80/10/10: 16 MODEL × 5 REPEATS SELESAI")
+print(SEP)
+
+# %% [markdown]
+# ## 6. Tabel Perbandingan Lengkap
+
+# %%
+# ─── A: AVEC2017 ──────────────────────────────────────────────────────────
+rows_a = []
+for combo, m in avec_results.items():
+    parts = combo.split(' + ')
+    rows_a.append({
+        'Feature': parts[0], 'Model': parts[1],
+        'Test F1': round(m['f1_macro'], 4),
+        'Test Acc': round(m['accuracy'], 4),
+        'Test AUC': round(m['roc_auc'], 4),
+        'Val F1': round(m['val_f1'], 4),
     })
 
-df_compare = pd.DataFrame(comparison_rows)
-comparison_csv = os.path.join(RESULTS_DIR, "metrics", "daic_model_comparison_v7.csv")
-df_compare.to_csv(comparison_csv, index=False)
+df_avec = (pd.DataFrame(rows_a)
+           .sort_values('Test F1', ascending=False)
+           .reset_index(drop=True))
+df_avec.index += 1
 
-print("\n" + "="*65)
-print(f"{'RINGKASAN HASIL PERBANDINGAN MODEL (TINGKAT PARTISIPAN - v7)':^65}")
-print("="*65)
-print(df_compare.round(4).to_string(index=False))
-print(f"\nPerbandingan metrik disimpan di: {comparison_csv}")
+print("\n" + "=" * 110)
+print(f"{'RINGKASAN v7 -- MODE A: AVEC2017 (64/15/23), 16 Model':^110}")
+print("=" * 110)
+print(df_avec.to_string())
+csv_a = os.path.join(RESULTS_DIR, "metrics", "v7_avec2017_results.csv")
+df_avec.to_csv(csv_a, index=False)
+print(f"\nDisimpan: {csv_a}")
+
+best_a = df_avec.iloc[0]
+print(f"\n  BEST AVEC: {best_a['Feature']} + {best_a['Model']}  |  Test F1: {best_a['Test F1']}")
+
+# ─── B: 80/10/10 ─────────────────────────────────────────────────────────
+rows_b = []
+for combo, mlist in repeat_results.items():
+    parts = combo.split(' + ')
+    f1s = [m['f1_macro'] for m in mlist]
+    accs = [m['accuracy'] for m in mlist]
+    aucs = [m['roc_auc'] for m in mlist]
+    rows_b.append({
+        'Feature': parts[0], 'Model': parts[1],
+        'F1 Mean': round(np.mean(f1s), 4),
+        'F1 Std': round(np.std(f1s), 4),
+        'F1 Max': round(np.max(f1s), 4),
+        'Acc Mean': round(np.mean(accs), 4),
+        'AUC Mean': round(np.mean(aucs), 4),
+    })
+
+df_repeat = (pd.DataFrame(rows_b)
+             .sort_values('F1 Mean', ascending=False)
+             .reset_index(drop=True))
+df_repeat.index += 1
+
+print("\n" + "=" * 110)
+print(f"{'RINGKASAN v7 -- MODE B: 80/10/10 x 5 Repeats, 16 Model':^110}")
+print("=" * 110)
+print(df_repeat.to_string())
+csv_b = os.path.join(RESULTS_DIR, "metrics", "v7_80_10_10_results.csv")
+df_repeat.to_csv(csv_b, index=False)
+print(f"\nDisimpan: {csv_b}")
+
+best_b = df_repeat.iloc[0]
+print(f"\n  BEST 80/10/10: {best_b['Feature']} + {best_b['Model']}  "
+      f"|  F1 Mean: {best_b['F1 Mean']} +/- {best_b['F1 Std']}  (max={best_b['F1 Max']})")
+
+# ─── Side-by-side best ───────────────────────────────────────────────────
+print("\n" + "=" * 110)
+print(f"{'PERBANDINGAN BEST MODEL — AVEC vs 80/10/10':^110}")
+print("=" * 110)
+print(f"  AVEC2017   : {best_a['Feature']} + {best_a['Model']}  →  Test F1 = {best_a['Test F1']}")
+print(f"  80/10/10   : {best_b['Feature']} + {best_b['Model']}  →  F1 Mean = {best_b['F1 Mean']}  (max={best_b['F1 Max']})")
+print("=" * 110)
+
+# %% [markdown]
+# ## 7. Visualisasi
 
 # %%
-# Visualisasi Perbandingan Model v7
-metrics_to_plot = {
-    'Test Macro F1': 'test_f1_macro',
-    'Test Accuracy': 'test_accuracy',
-    'Val Macro F1': 'val_f1_macro',
-    'Val Accuracy': 'val_accuracy'
-}
+COLORS_FEAT  = {'MFCC': '#3b82f6', 'Spectrogram': '#f59e0b', 'Wav2Vec': '#10b981', 'Fused': '#8b5cf6'}
+COLORS_MODEL = ['#6366f1', '#ef4444', '#f97316', '#22c55e']
 
-fig, axes = plt.subplots(2, 2, figsize=(14, 10))
-fig.suptitle('Perbandingan Performa Model ML (Segmentasi 10s - Optimasi v7) — DAIC-WOZ', fontsize=14, fontweight='bold')
+# ─── 7A. Grouped Bar — AVEC2017 ──────────────────────────────────────────
+fig, axes = plt.subplots(1, 4, figsize=(22, 6), sharey=True)
+fig.suptitle('v7 — AVEC2017 Test Macro F1 (16 Model, Threshold=0.5)',
+             fontsize=13, fontweight='bold', y=1.02)
 
-model_names = list(results.keys())
-colors = ['#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6']
-
-for idx, (title, col_name) in enumerate(metrics_to_plot.items()):
-    ax = axes[idx // 2, idx % 2]
-    values = [results[m][col_name] for m in model_names]
-    bars = ax.bar(model_names, values, color=colors[:len(model_names)], edgecolor='black', linewidth=0.8)
-    
-    ax.set_title(title, fontweight='bold', fontsize=11)
+x = np.arange(len(MODEL_NAMES))
+for ax_idx, fn in enumerate(FEAT_NAMES):
+    ax = axes[ax_idx]
+    vals = []
+    for mn in MODEL_NAMES:
+        combo = f"{fn} + {mn}"
+        vals.append(avec_results.get(combo, {}).get('f1_macro', 0.0))
+    bars = ax.bar(x, vals, width=0.6, color=COLORS_MODEL, edgecolor='white', linewidth=0.7)
+    ax.set_title(fn, fontweight='bold', fontsize=12, color=COLORS_FEAT[fn])
+    ax.set_xticks(x)
+    ax.set_xticklabels(MODEL_NAMES, rotation=20, ha='right', fontsize=8)
     ax.set_ylim(0, 1.05)
-    ax.set_ylabel('Skor')
-    ax.set_xticklabels(model_names, rotation=15, ha='right', fontsize=9)
-    ax.grid(axis='y', linestyle='--', alpha=0.5)
-    
-    for bar in bars:
-        height = bar.get_height()
-        ax.text(bar.get_x() + bar.get_width()/2.0, height + 0.01, f'{height:.3f}',
-                ha='center', va='bottom', fontsize=8, fontweight='bold')
-                
-plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-plot_compare_path = os.path.join(RESULTS_DIR, "plots", "daic_model_comparison_v7.png")
-fig.savefig(plot_compare_path, dpi=150, bbox_inches='tight')
-plt.show()
-print(f"Plot perbandingan model disimpan di: {plot_compare_path}")
+    ax.set_ylabel('Test Macro F1' if ax_idx == 0 else '')
+    ax.axhline(0.7, color='red', linestyle='--', linewidth=0.9, alpha=0.7)
+    ax.grid(axis='y', linestyle='--', alpha=0.3)
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    for bar, val in zip(bars, vals):
+        ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.02,
+                f'{val:.3f}', ha='center', va='bottom', fontsize=8, fontweight='bold')
+plt.tight_layout()
+p1 = os.path.join(RESULTS_DIR, "plots", "v7_avec_bar.png")
+fig.savefig(p1, dpi=150, bbox_inches='tight'); plt.show()
+print(f"Plot: {p1}")
+
+# ─── 7B. Box Plot — 80/10/10 ─────────────────────────────────────────────
+fig, ax = plt.subplots(figsize=(16, 6))
+box_data, box_labels = [], []
+for fn in FEAT_NAMES:
+    for mn in MODEL_NAMES:
+        combo = f"{fn} + {mn}"
+        f1s = [m['f1_macro'] for m in repeat_results.get(combo, [{'f1_macro': 0}])]
+        box_data.append(f1s)
+        box_labels.append(f"{fn[:4]}+{mn[:3]}")
+
+bp = ax.boxplot(box_data, patch_artist=True, labels=box_labels)
+colors_16 = [COLORS_FEAT[fn] for fn in FEAT_NAMES for _ in MODEL_NAMES]
+for patch, c in zip(bp['boxes'], colors_16):
+    patch.set_facecolor(c); patch.set_alpha(0.6)
+ax.axhline(0.7, color='red', linestyle='--', linewidth=1, alpha=0.7, label='Target 0.70')
+ax.set_ylabel('Test Macro F1')
+ax.set_title('v7 — F1 Distribution (80/10/10 x 5 Repeats, 16 Model)', fontweight='bold')
+ax.tick_params(axis='x', rotation=45)
+ax.grid(axis='y', linestyle='--', alpha=0.3)
+ax.legend()
+plt.tight_layout()
+p2 = os.path.join(RESULTS_DIR, "plots", "v7_boxplot.png")
+fig.savefig(p2, dpi=150, bbox_inches='tight'); plt.show()
+print(f"Boxplot: {p2}")
+
+# ─── 7C. Heatmap AVEC ────────────────────────────────────────────────────
+fig, axes = plt.subplots(1, 2, figsize=(18, 5))
+for ax, metric, title, cmap in zip(axes, ['f1_macro', 'roc_auc'],
+                                     ['Test Macro F1', 'Test ROC-AUC'], ['YlOrRd', 'Blues']):
+    data = {}
+    for fn in FEAT_NAMES:
+        data[fn] = [avec_results.get(f"{fn} + {mn}", {}).get(metric, 0) for mn in MODEL_NAMES]
+    hdf = pd.DataFrame(data, index=MODEL_NAMES).T
+    sns.heatmap(hdf, annot=True, fmt='.3f', cmap=cmap, linewidths=0.5,
+                cbar_kws={'label': title}, ax=ax, vmin=0.3, vmax=1.0)
+    ax.set_title(f'{title} — AVEC2017 (v7)', fontweight='bold')
+plt.tight_layout()
+p3 = os.path.join(RESULTS_DIR, "plots", "v7_heatmap_avec.png")
+fig.savefig(p3, dpi=150, bbox_inches='tight'); plt.show()
+print(f"Heatmap: {p3}")
+
+# ─── 7D. Heatmap 80/10/10 Mean ───────────────────────────────────────────
+fig, axes = plt.subplots(1, 2, figsize=(18, 5))
+for ax, metric, title, cmap in zip(axes, ['f1_macro', 'roc_auc'],
+                                     ['Mean Test F1', 'Mean Test AUC'], ['YlOrRd', 'Blues']):
+    data = {}
+    for fn in FEAT_NAMES:
+        vals = []
+        for mn in MODEL_NAMES:
+            combo = f"{fn} + {mn}"
+            ms = repeat_results.get(combo, [])
+            vals.append(np.mean([m[metric] for m in ms]) if ms else 0)
+        data[fn] = vals
+    hdf = pd.DataFrame(data, index=MODEL_NAMES).T
+    sns.heatmap(hdf, annot=True, fmt='.3f', cmap=cmap, linewidths=0.5,
+                cbar_kws={'label': title}, ax=ax, vmin=0.3, vmax=1.0)
+    ax.set_title(f'{title} — 80/10/10 (v7)', fontweight='bold')
+plt.tight_layout()
+p4 = os.path.join(RESULTS_DIR, "plots", "v7_heatmap_80_10_10.png")
+fig.savefig(p4, dpi=150, bbox_inches='tight'); plt.show()
+print(f"Heatmap: {p4}")
+
+# %% [markdown]
+# ## 8. Classification Report — AVEC2017
 
 # %%
-# Visualisasi Confusion Matrix tingkat partisipan untuk semua model v7
-fig, axes = plt.subplots(3, 2, figsize=(12, 16))
-fig.suptitle('Confusion Matrix Biner Tingkat Partisipan (v7)\n(0: Normal | 1: Depresi)', fontsize=13, fontweight='bold')
-
 class_labels = ['Normal (0)', 'Depresi (1)']
 
-for idx, model_name in enumerate(model_names):
-    ax = axes[idx // 2, idx % 2]
-    y_true_test, y_pred_test = best_predictions[model_name]
-    cm = confusion_matrix(y_true_test, y_pred_test, labels=[0, 1])
-    
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Oranges', ax=ax,
-                xticklabels=class_labels, yticklabels=class_labels,
-                linewidths=0.5, linecolor='gray', cbar=False)
-                
-    f1 = results[model_name]['test_f1_macro']
-    ax.set_title(f'{model_name}\n(Test Macro F1 = {f1:.3f})', fontweight='bold', fontsize=10)
-    ax.set_xlabel('Prediksi')
-    ax.set_ylabel('Aktual')
+print("\n" + "=" * 100)
+print(f"{'CLASSIFICATION REPORT v7 — AVEC2017 (16 Model)':^100}")
+print("=" * 100)
 
-fig.delaxes(axes[2, 1])
+for feat_name in FEAT_NAMES:
+    df, feat_cols = datasets[feat_name]
+    use_pca = (feat_name == 'Fused')
+    pid_list = df['participant_id'].tolist()
+    pid2idx = {pid: i for i, pid in enumerate(pid_list)}
 
-plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-cm_plot_path = os.path.join(RESULTS_DIR, "confusion_matrix", "daic_confusion_matrices_v7.png")
-fig.savefig(cm_plot_path, dpi=150, bbox_inches='tight')
-plt.show()
-print(f"Plot confusion matrices disimpan di: {cm_plot_path}")
+    tr_idx = [pid2idx[p] for p in avec_pids['train'] if p in pid2idx]
+    va_idx = [pid2idx[p] for p in avec_pids['dev']   if p in pid2idx]
+    te_idx = [pid2idx[p] for p in avec_pids['test']  if p in pid2idx]
+
+    X_all, y_all = df[feat_cols].values, df['label_depresi'].values
+    X_tr, X_va, X_te = X_all[tr_idx], X_all[va_idx], X_all[te_idx]
+    y_tr, y_va, y_te = y_all[tr_idx], y_all[va_idx], y_all[te_idx]
+    X_tr, X_va, X_te, _, _ = preprocess(X_tr, X_va, X_te, use_pca=use_pca, pca_components=PCA_COMPONENTS)
+
+    print(f"\n{'-'*100}\n  FEATURE: {feat_name}\n{'-'*100}")
+    for model_name in MODEL_NAMES:
+        combo = f"{feat_name} + {model_name}"
+        model = get_models()[model_name]
+        model.fit(X_tr, y_tr)
+        try:
+            y_prob = model.predict_proba(X_te)[:, 1]
+            y_pred = (y_prob >= 0.5).astype(int)
+        except Exception:
+            y_pred = model.predict(X_te)
+        m = avec_results[combo]
+        print(f"\n  [{model_name}]  Test F1={m['f1_macro']:.4f}")
+        print(classification_report(y_te, y_pred, labels=[0,1],
+                                    target_names=class_labels, zero_division=0))
+
+# ─── Confusion Matrix Grid — AVEC2017 ───────────────────────────────────
+CMAPS = {'MFCC': 'Blues', 'Spectrogram': 'Oranges', 'Wav2Vec': 'Greens', 'Fused': 'Purples'}
+fig, axes = plt.subplots(4, 4, figsize=(20, 20))
+fig.suptitle('v7 — Confusion Matrix (AVEC2017, Threshold=0.5)', fontsize=13, fontweight='bold')
+
+for fn_idx, feat_name in enumerate(FEAT_NAMES):
+    df, feat_cols = datasets[feat_name]
+    use_pca = (feat_name == 'Fused')
+    pid_list = df['participant_id'].tolist()
+    pid2idx = {pid: i for i, pid in enumerate(pid_list)}
+    tr_idx = [pid2idx[p] for p in avec_pids['train'] if p in pid2idx]
+    te_idx = [pid2idx[p] for p in avec_pids['test']  if p in pid2idx]
+    va_idx = [pid2idx[p] for p in avec_pids['dev']   if p in pid2idx]
+    X_all, y_all = df[feat_cols].values, df['label_depresi'].values
+    X_tr, X_va, X_te = X_all[tr_idx], X_all[va_idx], X_all[te_idx]
+    y_tr, y_te = y_all[tr_idx], y_all[te_idx]
+    X_tr, X_va, X_te, _, _ = preprocess(X_tr, X_va, X_te, use_pca=use_pca, pca_components=PCA_COMPONENTS)
+
+    for mn_idx, model_name in enumerate(MODEL_NAMES):
+        ax = axes[fn_idx, mn_idx]
+        model = get_models()[model_name]
+        model.fit(X_tr, y_tr)
+        try:
+            y_prob = model.predict_proba(X_te)[:, 1]
+            y_pred = (y_prob >= 0.5).astype(int)
+        except:
+            y_pred = model.predict(X_te)
+        cm = confusion_matrix(y_te, y_pred, labels=[0,1])
+        combo = f"{feat_name} + {model_name}"
+        f1 = avec_results[combo]['f1_macro']
+        sns.heatmap(cm, annot=True, fmt='d', cmap=CMAPS[feat_name],
+                    ax=ax, xticklabels=class_labels, yticklabels=class_labels,
+                    linewidths=0.5, cbar=False)
+        ax.set_title(f'{feat_name[:5]}+{model_name[:8]}\nF1={f1:.3f}', fontweight='bold', fontsize=8)
+        ax.set_xlabel('Pred', fontsize=7); ax.set_ylabel('True', fontsize=7)
+
+plt.tight_layout(rect=[0, 0, 1, 0.97])
+p5 = os.path.join(RESULTS_DIR, "confusion_matrix", "v7_avec_cm.png")
+fig.savefig(p5, dpi=150, bbox_inches='tight'); plt.show()
+print(f"CM: {p5}")
 
 # %% [markdown]
-# ## 6. Pilih & Ekspor Model Terbaik v7
+# ## 9. Ringkasan Final
 
 # %%
-# Choose best model based on Test Macro F1 score
-best_model_name_v7 = max(results, key=lambda m: results[m]['test_f1_macro'])
-best_model_obj_v7 = best_models[best_model_name_v7]
-best_metrics_v7 = results[best_model_name_v7]
-
-print("\n" + "="*65)
-print(f"  MODEL TERBAIK YANG DIPILIH (v7): {best_model_name_v7}")
-print(f"  Test Macro F1                  : {best_metrics_v7['test_f1_macro']:.4f}")
-print(f"  Test Accuracy                  : {best_metrics_v7['test_accuracy']:.4f}")
-print("="*65)
-
-print("\nClassification Report Model Terbaik (Tingkat Partisipan - v7):")
-y_true_best_v7, y_pred_best_v7 = best_predictions[best_model_name_v7]
-print(classification_report(y_true_best_v7, y_pred_best_v7, labels=[0, 1], target_names=class_labels, zero_division=0))
-
-# Save models with _v7 suffix
-for name, model in best_models.items():
-    safe_name = name.replace(' ', '_').replace('(', '').replace(')', '').lower()
-    
-    if 'svm' in safe_name:
-        path = os.path.join(MODELS_DIR, "svm", "svm_v7.pkl")
-    elif 'random_forest' in safe_name or 'forest' in safe_name:
-        path = os.path.join(MODELS_DIR, "random_forest", "random_forest_v7.pkl")
-    elif 'xgboost' in safe_name:
-        path = os.path.join(MODELS_DIR, "xgboost", "xgboost_v7.pkl")
-    elif 'voting' in safe_name or 'ensemble' in safe_name:
-        path = os.path.join(MODELS_DIR, "ensemble_voting_v7.pkl")
-    else:
-        path = os.path.join(MODELS_DIR, f"{safe_name}_v7.pkl")
-        
-    with open(path, 'wb') as f:
-        pickle.dump(model, f)
-    print(f"Model tersimpan di: {path}")
-
-# Save best model metadata v7
-best_info_v7 = {
-    'best_model_name': best_model_name_v7,
-    'best_params': best_metrics_v7['best_params'],
-    'best_cv_f1': best_metrics_v7['best_cv_f1'],
-    'test_f1_macro': best_metrics_v7['test_f1_macro'],
-    'test_accuracy': best_metrics_v7['test_accuracy'],
-    'feature_count': len(FEAT_COLS)
+summary = {
+    'version': 'v7',
+    'features': FEAT_NAMES,
+    'models': MODEL_NAMES,
+    'total_models': len(FEAT_NAMES) * len(MODEL_NAMES),
+    'pca_components': PCA_COMPONENTS,
+    'threshold': 0.5,
+    'smote': False, 'augmentation': False,
+    'avec2017': {
+        combo: {k: round(v, 4) for k, v in m.items()} for combo, m in avec_results.items()
+    },
+    'repeated_80_10_10': {
+        combo: {
+            'f1_mean': round(float(np.mean([m['f1_macro'] for m in mlist])), 4),
+            'f1_std':  round(float(np.std([m['f1_macro'] for m in mlist])), 4),
+            'f1_max':  round(float(np.max([m['f1_macro'] for m in mlist])), 4),
+        } for combo, mlist in repeat_results.items()
+    },
 }
 
-best_info_path_v7 = os.path.join(MODELS_DIR, "best_model_info_v7.json")
-with open(best_info_path_v7, 'w') as f:
-    json.dump(best_info_v7, f, indent=2)
-print(f"Metadata model terbaik v7 disimpan di: {best_info_path_v7}")
+# Best per mode
+best_avec_combo = max(avec_results, key=lambda k: avec_results[k]['f1_macro'])
+best_rep_combo  = max(repeat_results, key=lambda k: np.mean([m['f1_macro'] for m in repeat_results[k]]))
 
-# %% [markdown]
-# ## 7. Explainable AI (XAI) - SHAP & LIME (v7)
+summary['best_avec'] = {
+    'model': best_avec_combo,
+    'f1': round(avec_results[best_avec_combo]['f1_macro'], 4)
+}
+summary['best_repeated'] = {
+    'model': best_rep_combo,
+    'f1_mean': round(float(np.mean([m['f1_macro'] for m in repeat_results[best_rep_combo]])), 4),
+    'f1_max':  round(float(np.max([m['f1_macro'] for m in repeat_results[best_rep_combo]])), 4),
+}
 
-# %%
-import shap
-import lime
-import lime.lime_tabular
+with open(os.path.join(MODELS_DIR, "v7_summary.json"), 'w') as fp:
+    json.dump(summary, fp, indent=2)
 
-XAI_DIR = os.path.join(RESULTS_DIR, "plots", "xai")
-os.makedirs(XAI_DIR, exist_ok=True)
-
-print("\n" + "="*65)
-print(f"{'MEMULAI PENJELASAN MODEL v7 DENGAN XAI (INTERPRETABLE FEATURES)':^65}")
-print("="*65)
-
-# Setup data segmen test terpilih untuk visualisasi
-X_test_seg = df_test[FEAT_COLS].values
-X_test_seg_scaled = scaler.transform(X_test_seg)
-X_test_seg_scaled_selected = selector.transform(X_test_seg_scaled)
-
-# --- 1. SHAP untuk Random Forest v7 ---
-print("\n[SHAP] Memproses model Random Forest v7...")
-try:
-    rf_pipeline = best_models['Random Forest']
-    rf_model = rf_pipeline.named_steps['model']
-    explainer_rf = shap.TreeExplainer(rf_model)
-    shap_values_rf = explainer_rf.shap_values(X_test_seg_scaled_selected)
-    
-    if isinstance(shap_values_rf, list):
-        rf_shap_disp = shap_values_rf[1]
-    else:
-        if len(shap_values_rf.shape) == 3:
-            rf_shap_disp = shap_values_rf[:, :, 1]
-        else:
-            rf_shap_disp = shap_values_rf
-            
-    fig = plt.figure(figsize=(10, 6))
-    shap.summary_plot(rf_shap_disp, X_test_seg_scaled_selected, feature_names=SELECTED_FEAT_COLS, show=False)
-    rf_summary_path = os.path.join(XAI_DIR, "shap_summary_rf_v7.png")
-    plt.savefig(rf_summary_path, dpi=150, bbox_inches='tight')
-    plt.close(fig)
-    print(f"  - Plot SHAP Summary RF v7 disimpan di: {rf_summary_path}")
-    
-    fig = plt.figure(figsize=(10, 6))
-    shap.summary_plot(rf_shap_disp, X_test_seg_scaled_selected, feature_names=SELECTED_FEAT_COLS, plot_type="bar", show=False)
-    rf_bar_path = os.path.join(XAI_DIR, "shap_bar_rf_v7.png")
-    plt.savefig(rf_bar_path, dpi=150, bbox_inches='tight')
-    plt.close(fig)
-    print(f"  - Plot SHAP Bar (Feature Importance) RF v7 disimpan di: {rf_bar_path}")
-
-    # Waterfall Plot untuk segmen pertama test set
-    try:
-        base_val = explainer_rf.expected_value[1] if isinstance(explainer_rf.expected_value, (list, np.ndarray)) else explainer_rf.expected_value
-        rf_exp_disp = shap.Explanation(
-            values=rf_shap_disp[0],
-            base_values=base_val,
-            data=X_test_seg_scaled_selected[0],
-            feature_names=SELECTED_FEAT_COLS
-        )
-        fig = plt.figure(figsize=(10, 6))
-        shap.plots.waterfall(rf_exp_disp, show=False)
-        rf_waterfall_path = os.path.join(XAI_DIR, "shap_waterfall_rf_v7.png")
-        plt.savefig(rf_waterfall_path, dpi=150, bbox_inches='tight')
-        plt.close(fig)
-        print(f"  - Plot SHAP Waterfall RF v7 disimpan di: {rf_waterfall_path}")
-    except Exception as e_wf:
-        print(f"  - Bypass Waterfall RF v7: {e_wf}")
-        
-except Exception as e:
-    print(f"  - Gagal memproses SHAP untuk Random Forest v7: {e}")
-
-# --- 2. SHAP untuk XGBoost v7 ---
-print("\n[SHAP] Memproses model XGBoost v7...")
-try:
-    xgb_pipeline = best_models['XGBoost']
-    xgb_model = xgb_pipeline.named_steps['model']
-    explainer_xgb = shap.TreeExplainer(xgb_model)
-    shap_values_xgb = explainer_xgb.shap_values(X_test_seg_scaled_selected)
-    
-    fig = plt.figure(figsize=(10, 6))
-    shap.summary_plot(shap_values_xgb, X_test_seg_scaled_selected, feature_names=SELECTED_FEAT_COLS, show=False)
-    xgb_summary_path = os.path.join(XAI_DIR, "shap_summary_xgb_v7.png")
-    plt.savefig(xgb_summary_path, dpi=150, bbox_inches='tight')
-    plt.close(fig)
-    print(f"  - Plot SHAP Summary XGBoost v7 disimpan di: {xgb_summary_path}")
-    
-    fig = plt.figure(figsize=(10, 6))
-    shap.summary_plot(shap_values_xgb, X_test_seg_scaled_selected, feature_names=SELECTED_FEAT_COLS, plot_type="bar", show=False)
-    xgb_bar_path = os.path.join(XAI_DIR, "shap_bar_xgb_v7.png")
-    plt.savefig(xgb_bar_path, dpi=150, bbox_inches='tight')
-    plt.close(fig)
-    print(f"  - Plot SHAP Bar XGBoost v7 disimpan di: {xgb_bar_path}")
-        
-except Exception as e:
-    print(f"  - Gagal memproses SHAP untuk XGBoost v7: {e}")
-
-# --- 3. LIME untuk SVM (RBF) v7 ---
-print("\n[LIME] Memproses model SVM (RBF) v7...")
-try:
-    svm_pipeline = best_models['SVM (RBF)']
-    svm_model = svm_pipeline.named_steps['model']
-    
-    X_train_scaled = scaler.transform(X_train)
-    X_train_scaled_selected = selector.transform(X_train_scaled)
-    
-    explainer_lime = lime.lime_tabular.LimeTabularExplainer(
-        training_data=X_train_scaled_selected,
-        feature_names=SELECTED_FEAT_COLS,
-        class_names=['Normal', 'Depresi'],
-        mode='classification',
-        random_state=RANDOM_SEED
-    )
-    
-    y_test_seg = df_test['label_depresi'].values
-    test_idx = 0
-    for i in range(len(y_test_seg)):
-        if y_test_seg[i] == 1:
-            test_idx = i
-            break
-            
-    exp = explainer_lime.explain_instance(
-        data_row=X_test_seg_scaled_selected[test_idx],
-        predict_fn=svm_model.predict_proba,
-        num_features=10
-    )
-    
-    fig = exp.as_pyplot_figure()
-    lime_path = os.path.join(XAI_DIR, "lime_explanation_svm_v7.png")
-    fig.savefig(lime_path, dpi=150, bbox_inches='tight')
-    plt.close(fig)
-    print(f"  - Penjelasan LIME SVM v7 untuk Segmen ke-{test_idx} disimpan di: {lime_path}")
-    
-except Exception as e:
-    print(f"  - Gagal memproses LIME untuk SVM v7: {e}")
-
-# --- 4. SHAP untuk Logistic Regression v7 ---
-print("\n[SHAP] Memproses model Logistic Regression v7...")
-try:
-    lr_pipeline = best_models['Logistic Regression']
-    lr_model = lr_pipeline.named_steps['model']
-    
-    explainer_lr = shap.LinearExplainer(lr_model, X_train_scaled_selected, feature_names=SELECTED_FEAT_COLS)
-    shap_values_lr = explainer_lr(X_test_seg_scaled_selected)
-    
-    fig = plt.figure(figsize=(10, 6))
-    shap.summary_plot(shap_values_lr, X_test_seg_scaled_selected, feature_names=SELECTED_FEAT_COLS, show=False)
-    lr_summary_path = os.path.join(XAI_DIR, "shap_summary_lr_v7.png")
-    plt.savefig(lr_summary_path, dpi=150, bbox_inches='tight')
-    plt.close(fig)
-    print(f"  - Plot SHAP Summary Logistic Regression v7 disimpan di: {lr_summary_path}")
-    
-    fig = plt.figure(figsize=(10, 6))
-    shap.summary_plot(shap_values_lr, X_test_seg_scaled_selected, feature_names=SELECTED_FEAT_COLS, plot_type="bar", show=False)
-    lr_bar_path = os.path.join(XAI_DIR, "shap_bar_lr_v7.png")
-    plt.savefig(lr_bar_path, dpi=150, bbox_inches='tight')
-    plt.close(fig)
-    print(f"  - Plot SHAP Bar Logistic Regression v7 disimpan di: {lr_bar_path}")
-
-except Exception as e:
-    print(f"  - Gagal memproses SHAP untuk Logistic Regression v7: {e}")
-
-print("="*65)
-
-print("\n[OK] Pipeline ML v7 Selesai!")
+print(f"\n{'=' * 95}")
+print(f"{'PIPELINE v7 SELESAI':^95}")
+print(f"{'=' * 95}")
+print(f"\n  Mode A (AVEC2017):")
+print(f"    Best: {best_avec_combo}")
+print(f"    F1:   {summary['best_avec']['f1']}")
+print(f"\n  Mode B (80/10/10 x 5):")
+print(f"    Best: {best_rep_combo}")
+print(f"    F1:   {summary['best_repeated']['f1_mean']} +/- "
+      f"{round(float(np.std([m['f1_macro'] for m in repeat_results[best_rep_combo]])), 4)}  "
+      f"(max={summary['best_repeated']['f1_max']})")
+print(f"\n  Models : {MODELS_DIR}")
+print(f"  Results: {RESULTS_DIR}")

@@ -1,0 +1,6 @@
+{
+  "best_single": "MFCC + XGBoost",
+  "best_single_f1": 0.5068226120857701,
+  "ensemble_f1": 0.4559139784946237,
+  "ensemble_thr": 0.6500000000000004
+}

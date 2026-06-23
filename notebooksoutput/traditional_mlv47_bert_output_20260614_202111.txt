@@ -1,0 +1,79 @@
+================================================================================
+  NOTEBOOK OUTPUT EXTRACTOR
+  File   : traditional_mlv47_bert.ipynb
+  Path   : d:\repositories\menthealth-ai\notebooks\traditional_mlv47_bert.ipynb
+  Diambil: 2026-06-14 20:21:11
+  Total  : 11 cell
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+Dataset Overview: DAIC-WOZ (FULL 189 PARTICIPANTS)
+**Pipeline v47** — ADVANCED NLP WITH BERT EMBEDDINGS (Sentence Transformers)
+
+─────────────────────────────────────────────────────────────────────
+ Tujuan: Menghancurkan batas F1 > 0.70 pada 189 Partisipan.
+ Data: Transkrip percakapan 189 Partisipan (hanya teks partisipan).
+ Fitur: Sentence-Transformers (BERT embeddings). Model: `all-MiniLM-L6-v2`.
+ Metode: Stratified 5-Fold Cross Validation & Train/Test Eval.
+ Model: LR, SVM, Random Forest, XGBoost.
+─────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Setup & Imports
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Load Labels (189 Participants)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Process Transcripts and Encode via BERT
+
+────────────────────────────────────────────────────────────────────────────────
+In [3] (Code Cell #3)
+────────────────────────────────────────────────────────────────────────────────
+Extracting participant texts and encoding via BERT...
+Downloading/Loading SentenceTransformer Model...
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]
+Batches:   0%|          | 0/6 [00:00<?, ?it/s]
+BERT Embeddings Shape: (189, 384)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Modeling (5-Fold CV across ALL 189)
+
+────────────────────────────────────────────────────────────────────────────────
+In [4] (Code Cell #4)
+────────────────────────────────────────────────────────────────────────────────
+
+==================================================
+FINAL RESULTS (v47 BERT NLP) - 189 Participants (5-Fold CV)
+==================================================
+              Model  Macro_F1  Best_Thr      AUC
+Logistic Regression  0.619665      0.53 0.627014
+                SVM  0.593416      0.31 0.609694
+      Random Forest  0.572222      0.44 0.601235
+            XGBoost  0.556454      0.45 0.581633
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Evaluate Official Test Set
+
+────────────────────────────────────────────────────────────────────────────────
+In [5] (Code Cell #5)
+────────────────────────────────────────────────────────────────────────────────
+
+==================================================
+OFFICIAL TEST SPLIT EVALUATION (SVM BERT)
+==================================================
+Dev Macro F1 : 0.6182 (Thr: 0.50)
+Test Macro F1: 0.4919
+
+================================================================================
+  RINGKASAN
+  Code cells  : 5
+  Cells dengan output teks: 3
+================================================================================

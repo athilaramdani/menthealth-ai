@@ -1,0 +1,463 @@
+================================================================================
+  NOTEBOOK OUTPUT EXTRACTOR
+  File   : traditional_mlv8.ipynb
+  Path   : D:/repositories/menthealth-ai/notebooks/traditional_mlv8.ipynb
+  Diambil: 2026-06-13 12:46:07
+  Total  : 24 cell
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+Dataset Overview: DAIC-WOZ
+**Pipeline v8** — Klasifikasi Kesehatan Mental Berbasis Audio
+**Peran**: ML & Data Engineer — Athila Ramdani Saputra
+
+─────────────────────────────────────────────────────────────────────
+v8 = Push for 0.70+ Mean Macro F1
+
+[1] Wav2Vec 2.0 FULL 768-dim (bukan 72 kompresi dari v6)
+→ mean-pooled raw hidden states, setiap dimensi jadi fitur
+
+[2] Leave-One-Out CV (LOOCV)
+→ Train 101, test 1, ulangi 102 kali
+→ Evaluasi SEMUA participant, variance minimal
+→ Pakai maximum training data
+
+[3] Hyperparameter Tuning (fixed optimized params dari v6/v7)
+
+[4] Ensemble Soft Voting (top-3 model)
+
+[5] Threshold Tuning via inner CV
+
+Tetap: class_weight='balanced', NO SMOTE, NO augmentasi
+─────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+Setup
+
+────────────────────────────────────────────────────────────────────────────────
+In [1] (Code Cell #1)
+────────────────────────────────────────────────────────────────────────────────
+d:\repositories\menthealth-ai\.venv\Lib\site-packages\tqdm\auto.py:21: TqdmWarning: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
+  from .autonotebook import tqdm as notebook_tqdm
+[OK] Dependencies siap.
+
+────────────────────────────────────────────────────────────────────────────────
+In [2] (Code Cell #2)
+────────────────────────────────────────────────────────────────────────────────
+[OK] torch 2.12.0+cpu + transformers -> Wav2Vec AKTIF
+Project: d:\repositories\menthealth-ai
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+1. Extract Wav2Vec FULL 768-dim
+
+────────────────────────────────────────────────────────────────────────────────
+In [3] (Code Cell #3)
+────────────────────────────────────────────────────────────────────────────────
+[INFO] Loading Wav2Vec2 model...
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights: 100%|██████████| 211/211 [00:00<00:00, 27693.41it/s]
+[transformers] [1mWav2Vec2Model LOAD REPORT[0m from: facebook/wav2vec2-base
+Key                          | Status     |  | 
+-----------------------------+------------+--+-
+quantizer.weight_proj.bias   | UNEXPECTED |  | 
+project_hid.bias             | UNEXPECTED |  | 
+quantizer.weight_proj.weight | UNEXPECTED |  | 
+quantizer.codevectors        | UNEXPECTED |  | 
+project_hid.weight           | UNEXPECTED |  | 
+project_q.bias               | UNEXPECTED |  | 
+project_q.weight             | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+[OK] Wav2Vec2 loaded.
+
+  PID |  Label   | Status
+--------------------------------------------------
+   300 |  Normal  | OK (1536 feats)
+   301 |  Normal  | OK (1536 feats)
+   302 |  Normal  | OK (1536 feats)
+   303 |  Normal  | OK (1536 feats)
+   304 |  Normal  | OK (1536 feats)
+   305 |  Normal  | OK (1536 feats)
+   306 |  Normal  | OK (1536 feats)
+   307 |  Normal  | OK (1536 feats)
+   308 | Depresi  | OK (1536 feats)
+   309 | Depresi  | OK (1536 feats)
+   310 |  Normal  | OK (1536 feats)
+   311 | Depresi  | OK (1536 feats)
+   312 |  Normal  | OK (1536 feats)
+   313 |  Normal  | OK (1536 feats)
+   314 |  Normal  | OK (1536 feats)
+   315 |  Normal  | OK (1536 feats)
+   316 |  Normal  | OK (1536 feats)
+   317 |  Normal  | OK (1536 feats)
+   318 |  Normal  | OK (1536 feats)
+   319 | Depresi  | OK (1536 feats)
+   320 | Depresi  | OK (1536 feats)
+   321 | Depresi  | OK (1536 feats)
+   322 |  Normal  | OK (1536 feats)
+   323 |  Normal  | OK (1536 feats)
+   324 |  Normal  | OK (1536 feats)
+   325 | Depresi  | OK (1536 feats)
+   326 |  Normal  | OK (1536 feats)
+   327 |  Normal  | OK (1536 feats)
+   328 |  Normal  | OK (1536 feats)
+   329 |  Normal  | OK (1536 feats)
+   330 | Depresi  | OK (1536 feats)
+   331 |  Normal  | OK (1536 feats)
+   332 | Depresi  | OK (1536 feats)
+   333 |  Normal  | OK (1536 feats)
+   334 |  Normal  | OK (1536 feats)
+   335 | Depresi  | OK (1536 feats)
+   336 |  Normal  | OK (1536 feats)
+   337 | Depresi  | OK (1536 feats)
+   338 | Depresi  | OK (1536 feats)
+   339 | Depresi  | OK (1536 feats)
+   340 |  Normal  | OK (1536 feats)
+   341 |  Normal  | OK (1536 feats)
+   343 |  Normal  | OK (1536 feats)
+   344 | Depresi  | OK (1536 feats)
+   345 | Depresi  | OK (1536 feats)
+   346 | Depresi  | OK (1536 feats)
+   347 | Depresi  | OK (1536 feats)
+   348 | Depresi  | OK (1536 feats)
+   349 |  Normal  | OK (1536 feats)
+   350 | Depresi  | OK (1536 feats)
+   351 | Depresi  | OK (1536 feats)
+   352 | Depresi  | OK (1536 feats)
+   353 | Depresi  | OK (1536 feats)
+   354 | Depresi  | OK (1536 feats)
+   355 | Depresi  | OK (1536 feats)
+   356 | Depresi  | OK (1536 feats)
+   357 |  Normal  | OK (1536 feats)
+   358 |  Normal  | OK (1536 feats)
+   359 | Depresi  | OK (1536 feats)
+   360 |  Normal  | OK (1536 feats)
+   361 |  Normal  | OK (1536 feats)
+   362 | Depresi  | OK (1536 feats)
+   363 |  Normal  | OK (1536 feats)
+   364 |  Normal  | OK (1536 feats)
+   365 | Depresi  | OK (1536 feats)
+   366 |  Normal  | OK (1536 feats)
+   367 | Depresi  | OK (1536 feats)
+   368 |  Normal  | OK (1536 feats)
+   369 |  Normal  | OK (1536 feats)
+   370 |  Normal  | OK (1536 feats)
+   371 |  Normal  | OK (1536 feats)
+   372 | Depresi  | OK (1536 feats)
+   373 |  Normal  | OK (1536 feats)
+   374 |  Normal  | OK (1536 feats)
+   375 |  Normal  | OK (1536 feats)
+   376 | Depresi  | OK (1536 feats)
+   377 | Depresi  | OK (1536 feats)
+   378 |  Normal  | OK (1536 feats)
+   379 |  Normal  | OK (1536 feats)
+   380 | Depresi  | OK (1536 feats)
+   381 | Depresi  | OK (1536 feats)
+   382 |  Normal  | OK (1536 feats)
+   383 |  Normal  | OK (1536 feats)
+   384 | Depresi  | OK (1536 feats)
+   385 |  Normal  | OK (1536 feats)
+   386 | Depresi  | OK (1536 feats)
+   387 |  Normal  | OK (1536 feats)
+   388 | Depresi  | OK (1536 feats)
+   389 | Depresi  | OK (1536 feats)
+   390 |  Normal  | OK (1536 feats)
+   391 |  Normal  | OK (1536 feats)
+   392 |  Normal  | OK (1536 feats)
+   393 |  Normal  | OK (1536 feats)
+   395 |  Normal  | OK (1536 feats)
+   396 |  Normal  | OK (1536 feats)
+   397 |  Normal  | OK (1536 feats)
+   399 |  Normal  | OK (1536 feats)
+   400 |  Normal  | OK (1536 feats)
+   401 |  Normal  | OK (1536 feats)
+   402 | Depresi  | OK (1536 feats)
+   403 |  Normal  | OK (1536 feats)
+   404 |  Normal  | OK (1536 feats)
+
+[OK] Wav2Vec full extracted: 102 participants, 1538 cols, 2826s
+     Saved: d:\repositories\menthealth-ai\data\features\v8\daic_v8_wav2vec_full.csv
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+2. Load All Features
+
+────────────────────────────────────────────────────────────────────────────────
+In [4] (Code Cell #4)
+────────────────────────────────────────────────────────────────────────────────
+  [MFCC] 102 participants, 990 features
+  [Spectrogram] 102 participants, 687 features
+  [Wav2Vec Full] 102 participants, 1536 features
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+3. Model Configs (Optimized from v6/v7 insights)
+
+────────────────────────────────────────────────────────────────────────────────
+In [5] (Code Cell #5)
+────────────────────────────────────────────────────────────────────────────────
+Models: ['Logistic Regression', 'SVM', 'XGBoost', 'Random Forest']
+Features: ['MFCC', 'Spectrogram', 'Wav2Vec_Full']
+Total: 12 = 4 x 3
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+4. LOOCV — Leave-One-Out Cross-Validation
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+5. Training — LOOCV for All 12 Models
+
+────────────────────────────────────────────────────────────────────────────────
+In [7] (Code Cell #7)
+────────────────────────────────────────────────────────────────────────────────
+
+###############################################################################################
+                      LOOCV — Leave-One-Out Cross-Validation (102 folds)                       
+###############################################################################################
+
+===============================================================================================
+  FEATURE: MFCC  |  990 features  |  102 participants
+===============================================================================================
+
+  [MFCC + Logistic Regression] LOOCV running (102 folds) ...  (3.5s)
+    F1 (thr=0.5) : 0.4338  |  Acc: 0.4706
+    F1 (tuned)   : 0.4486  |  Acc: 0.4902  |  thr=0.51
+    AUC          : 0.3903
+
+  [MFCC + SVM] LOOCV running (102 folds) ...  (2.5s)
+    F1 (thr=0.5) : 0.4091  |  Acc: 0.6275
+    F1 (tuned)   : 0.5146  |  Acc: 0.5784  |  thr=0.40
+    AUC          : 0.3989
+
+  [MFCC + XGBoost] LOOCV running (102 folds) ...  (146.5s)
+    F1 (thr=0.5) : 0.5226  |  Acc: 0.5490
+    F1 (tuned)   : 0.5226  |  Acc: 0.5490  |  thr=0.50
+    AUC          : 0.4591
+
+  [MFCC + Random Forest] LOOCV running (102 folds) ...  (74.8s)
+    F1 (thr=0.5) : 0.6056  |  Acc: 0.6275
+    F1 (tuned)   : 0.6242  |  Acc: 0.6373  |  thr=0.46
+    AUC          : 0.5462
+
+===============================================================================================
+  FEATURE: Spectrogram  |  687 features  |  102 participants
+===============================================================================================
+
+  [Spectrogram + Logistic Regression] LOOCV running (102 folds) ...  (3.0s)
+    F1 (thr=0.5) : 0.4732  |  Acc: 0.5000
+    F1 (tuned)   : 0.4870  |  Acc: 0.4902  |  thr=0.36
+    AUC          : 0.4432
+
+  [Spectrogram + SVM] LOOCV running (102 folds) ...  (1.9s)
+    F1 (thr=0.5) : 0.3780  |  Acc: 0.6078
+    F1 (tuned)   : 0.3973  |  Acc: 0.4020  |  thr=0.37
+    AUC          : 0.2589
+
+  [Spectrogram + XGBoost] LOOCV running (102 folds) ...  (86.8s)
+    F1 (thr=0.5) : 0.4494  |  Acc: 0.4706
+    F1 (tuned)   : 0.5355  |  Acc: 0.5784  |  thr=0.59
+    AUC          : 0.4900
+
+  [Spectrogram + Random Forest] LOOCV running (102 folds) ...  (66.2s)
+    F1 (thr=0.5) : 0.4623  |  Acc: 0.5000
+    F1 (tuned)   : 0.5381  |  Acc: 0.5392  |  thr=0.41
+    AUC          : 0.4860
+
+===============================================================================================
+  FEATURE: Wav2Vec_Full  |  1536 features  |  102 participants
+===============================================================================================
+
+  [Wav2Vec_Full + Logistic Regression] LOOCV running (102 folds) ...  (4.2s)
+    F1 (thr=0.5) : 0.5045  |  Acc: 0.5392
+    F1 (tuned)   : 0.5345  |  Acc: 0.5490  |  thr=0.41
+    AUC          : 0.5010
+
+  [Wav2Vec_Full + SVM] LOOCV running (102 folds) ...  (3.2s)
+    F1 (thr=0.5) : 0.3780  |  Acc: 0.6078
+    F1 (tuned)   : 0.3818  |  Acc: 0.6176  |  thr=0.50
+    AUC          : 0.1510
+
+  [Wav2Vec_Full + XGBoost] LOOCV running (102 folds) ...  (205.4s)
+    F1 (thr=0.5) : 0.5476  |  Acc: 0.5686
+    F1 (tuned)   : 0.5598  |  Acc: 0.5784  |  thr=0.47
+    AUC          : 0.5295
+
+  [Wav2Vec_Full + Random Forest] LOOCV running (102 folds) ...  (76.0s)
+    F1 (thr=0.5) : 0.5547  |  Acc: 0.5882
+    F1 (tuned)   : 0.5868  |  Acc: 0.6275  |  thr=0.51
+    AUC          : 0.5438
+
+===============================================================================================
+  12 MODEL LOOCV SELESAI
+===============================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+6. Ensemble — Soft Voting Top-3
+
+────────────────────────────────────────────────────────────────────────────────
+In [8] (Code Cell #8)
+────────────────────────────────────────────────────────────────────────────────
+
+Top-3 model untuk Ensemble:
+  1. MFCC + Random Forest: F1=0.6242 (thr=0.46)
+  2. Wav2Vec_Full + Random Forest: F1=0.5868 (thr=0.51)
+  3. Wav2Vec_Full + XGBoost: F1=0.5598 (thr=0.47)
+
+  [Ensemble Top-3]
+    F1 (thr=0.5) : 0.5256  |  Acc: 0.5588
+    F1 (tuned)   : 0.5483  |  Acc: 0.5490  |  thr=0.40
+    AUC          : 0.5486
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+7. Tabel Perbandingan Lengkap
+
+────────────────────────────────────────────────────────────────────────────────
+In [9] (Code Cell #9)
+────────────────────────────────────────────────────────────────────────────────
+
+========================================================================================================================
+                                 RINGKASAN v8 — LOOCV (102 folds), 12 Model + Ensemble                                  
+========================================================================================================================
+         Feature                Model  F1 (thr=0.5)  F1 (tuned)  Best Thr  Acc (tuned)     AUC
+1           MFCC        Random Forest        0.6056      0.6242      0.46       0.6373  0.5462
+2   Wav2Vec_Full        Random Forest        0.5547      0.5868      0.51       0.6275  0.5438
+3   Wav2Vec_Full              XGBoost        0.5476      0.5598      0.47       0.5784  0.5295
+4       Ensemble     Ensemble (Top-3)        0.5256      0.5483      0.40       0.5490  0.5486
+5    Spectrogram        Random Forest        0.4623      0.5381      0.41       0.5392  0.4860
+6    Spectrogram              XGBoost        0.4494      0.5355      0.59       0.5784  0.4900
+7   Wav2Vec_Full  Logistic Regression        0.5045      0.5345      0.41       0.5490  0.5010
+8           MFCC              XGBoost        0.5226      0.5226      0.50       0.5490  0.4591
+9           MFCC                  SVM        0.4091      0.5146      0.40       0.5784  0.3989
+10   Spectrogram  Logistic Regression        0.4732      0.4870      0.36       0.4902  0.4432
+11          MFCC  Logistic Regression        0.4338      0.4486      0.51       0.4902  0.3903
+12   Spectrogram                  SVM        0.3780      0.3973      0.37       0.4020  0.2589
+13  Wav2Vec_Full                  SVM        0.3780      0.3818      0.50       0.6176  0.1510
+
+Disimpan: d:\repositories\menthealth-ai\results\v8\metrics\v8_loocv_results.csv
+
+  BEST: MFCC + Random Forest
+  F1 (tuned) = 0.6242  |  thr=0.46  |  AUC=0.5462
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+8. Visualisasi
+
+────────────────────────────────────────────────────────────────────────────────
+In [10] (Code Cell #10)
+────────────────────────────────────────────────────────────────────────────────
+Plot: d:\repositories\menthealth-ai\results\v8\plots\v8_bar_f1.png
+Heatmap: d:\repositories\menthealth-ai\results\v8\plots\v8_heatmap.png
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+9. Classification Report (Best Model)
+
+────────────────────────────────────────────────────────────────────────────────
+In [11] (Code Cell #11)
+────────────────────────────────────────────────────────────────────────────────
+
+====================================================================================================
+                                  CLASSIFICATION REPORT v8 — LOOCV                                  
+====================================================================================================
+
+----------------------------------------------------------------------------------------------------
+  [MFCC + Random Forest]  F1=0.6242  thr=0.46  AUC=0.5462
+----------------------------------------------------------------------------------------------------
+              precision    recall  f1-score   support
+
+  Normal (0)       0.72      0.67      0.69        63
+ Depresi (1)       0.52      0.59      0.55        39
+
+    accuracy                           0.64       102
+   macro avg       0.62      0.63      0.62       102
+weighted avg       0.65      0.64      0.64       102
+
+
+----------------------------------------------------------------------------------------------------
+  [Wav2Vec_Full + Random Forest]  F1=0.5868  thr=0.51  AUC=0.5438
+----------------------------------------------------------------------------------------------------
+              precision    recall  f1-score   support
+
+  Normal (0)       0.68      0.76      0.72        63
+ Depresi (1)       0.52      0.41      0.46        39
+
+    accuracy                           0.63       102
+   macro avg       0.60      0.59      0.59       102
+weighted avg       0.61      0.63      0.62       102
+
+
+----------------------------------------------------------------------------------------------------
+  [Wav2Vec_Full + XGBoost]  F1=0.5598  thr=0.47  AUC=0.5295
+----------------------------------------------------------------------------------------------------
+              precision    recall  f1-score   support
+
+  Normal (0)       0.67      0.63      0.65        63
+ Depresi (1)       0.45      0.49      0.47        39
+
+    accuracy                           0.58       102
+   macro avg       0.56      0.56      0.56       102
+weighted avg       0.58      0.58      0.58       102
+
+
+----------------------------------------------------------------------------------------------------
+  [Ensemble (Top-3)]  F1=0.5483  thr=0.40  AUC=0.5486
+----------------------------------------------------------------------------------------------------
+              precision    recall  f1-score   support
+
+  Normal (0)       0.70      0.48      0.57        63
+ Depresi (1)       0.44      0.67      0.53        39
+
+    accuracy                           0.55       102
+   macro avg       0.57      0.57      0.55       102
+weighted avg       0.60      0.55      0.55       102
+
+
+----------------------------------------------------------------------------------------------------
+  [Spectrogram + Random Forest]  F1=0.5381  thr=0.41  AUC=0.4860
+----------------------------------------------------------------------------------------------------
+              precision    recall  f1-score   support
+
+  Normal (0)       0.68      0.48      0.56        63
+ Depresi (1)       0.43      0.64      0.52        39
+
+    accuracy                           0.54       102
+   macro avg       0.56      0.56      0.54       102
+weighted avg       0.59      0.54      0.54       102
+
+CM: d:\repositories\menthealth-ai\results\v8\confusion_matrix\v8_top5_cm.png
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+10. Ringkasan Final
+
+────────────────────────────────────────────────────────────────────────────────
+In [12] (Code Cell #12)
+────────────────────────────────────────────────────────────────────────────────
+
+===============================================================================================
+                                      PIPELINE v8 SELESAI                                      
+===============================================================================================
+
+  Evaluation : LOOCV (102 folds)
+  Wav2Vec    : FULL 768-dim (mean + std = 1536 features)
+  Best Model : MFCC + Random Forest
+  F1 (tuned) : 0.6242
+  F1 (thr=0.5): 0.6056
+  AUC        : 0.5462
+  Threshold  : 0.46
+
+  Models : d:\repositories\menthealth-ai\models\ml_v8
+  Results: d:\repositories\menthealth-ai\results\v8
+
+================================================================================
+  RINGKASAN
+  Code cells  : 12
+  Cells dengan output teks: 11
+================================================================================

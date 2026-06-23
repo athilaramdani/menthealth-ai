@@ -1,0 +1,113 @@
+================================================================================
+  NOTEBOOK OUTPUT EXTRACTOR
+  File   : traditional_mlv26.ipynb
+  Path   : d:\repositories\menthealth-ai\notebooks\traditional_mlv26.ipynb
+  Diambil: 2026-06-14 12:32:23
+  Total  : 15 cell
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+Dataset Overview: DAIC-WOZ
+**Pipeline v26** — Klasifikasi Kesehatan Mental Berbasis Audio
+
+─────────────────────────────────────────────────────────────────────
+ v26 = LOOCV + SMOTE + SelectFromModel (Lasso) + MinMaxScaler + Early Fusion + Ensemble Top2,3,4
+
+ Tujuan: Menembus Macro F1 > 0.70
+ [1] 3 Ekstraksi Fitur (MFCC, Spectrogram, Wav2Vec 2.0 Full)
+ [2] Menggunakan keseluruhan data (102 partisipan) dengan LOOCV
+ [3] Terdapat 4 model dasar: LR, SVM, XGBoost, Random Forest
+ [4] Menggunakan L1-based Feature Selection (Lasso) di dalam LOOCV
+ [5] Menambahkan Soft Voting Ensemble di akhir
+─────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Setup
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Load Features
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Model Config
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## LOOCV Evaluation Loop
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Running
+
+────────────────────────────────────────────────────────────────────────────────
+In [5] (Code Cell #5)
+────────────────────────────────────────────────────────────────────────────────
+
+[MFCC]
+  Logistic Regression : F1_tuned=0.5952 (thr=0.50)
+  SVM                 : F1_tuned=0.6435 (thr=0.52)
+  XGBoost             : F1_tuned=0.5188 (thr=0.66)
+  Random Forest       : F1_tuned=0.6192 (thr=0.57)
+
+[Spectrogram]
+  Logistic Regression : F1_tuned=0.5023 (thr=0.50)
+  SVM                 : F1_tuned=0.5414 (thr=0.56)
+  XGBoost             : F1_tuned=0.5291 (thr=0.70)
+  Random Forest       : F1_tuned=0.5395 (thr=0.63)
+
+[Wav2Vec_Full]
+  Logistic Regression : F1_tuned=0.4974 (thr=0.50)
+  SVM                 : F1_tuned=0.5751 (thr=0.69)
+  XGBoost             : F1_tuned=0.5175 (thr=0.55)
+  Random Forest       : F1_tuned=0.5147 (thr=0.54)
+
+[Fusion_All]
+  Logistic Regression : F1_tuned=0.5674 (thr=0.51)
+  SVM                 : F1_tuned=0.6023 (thr=0.36)
+  XGBoost             : F1_tuned=0.5715 (thr=0.43)
+  Random Forest       : F1_tuned=0.5806 (thr=0.47)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Ensembles (Soft Voting Top-2, Top-3, Top-4)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Save Results
+
+────────────────────────────────────────────────────────────────────────────────
+In [7] (Code Cell #7)
+────────────────────────────────────────────────────────────────────────────────
+
+================================================================================
+RINGKASAN v26 — LOOCV (102 folds, SMOTE + Lasso FS + MinMaxScaler + Early Fusion + Ensemble)
+================================================================================
+         Feature                Model  F1 (tuned)  Best Thr       AUC
+1       Ensemble                 Top2    0.652093      0.51  0.582011
+2           MFCC                  SVM    0.643503      0.52  0.584860
+3       Ensemble                 Top3    0.639501      0.51  0.586081
+4       Ensemble                 Top4    0.639501      0.51  0.582418
+5           MFCC        Random Forest    0.619236      0.57  0.574685
+6     Fusion_All                  SVM    0.602339      0.36  0.598698
+7           MFCC  Logistic Regression    0.595238      0.50  0.483109
+8     Fusion_All        Random Forest    0.580592      0.47  0.565731
+9   Wav2Vec_Full                  SVM    0.575144      0.69  0.525031
+10    Fusion_All              XGBoost    0.571470      0.43  0.593000
+11    Fusion_All  Logistic Regression    0.567411      0.51  0.530322
+12   Spectrogram                  SVM    0.541357      0.56  0.436711
+13   Spectrogram        Random Forest    0.539475      0.63  0.472934
+14   Spectrogram              XGBoost    0.529147      0.70  0.479039
+15          MFCC              XGBoost    0.518820      0.66  0.460724
+16  Wav2Vec_Full              XGBoost    0.517540      0.55  0.477411
+17  Wav2Vec_Full        Random Forest    0.514706      0.54  0.474562
+18   Spectrogram  Logistic Regression    0.502340      0.50  0.462352
+19  Wav2Vec_Full  Logistic Regression    0.497438      0.50  0.459096
+
+================================================================================
+  RINGKASAN
+  Code cells  : 7
+  Cells dengan output teks: 2
+================================================================================

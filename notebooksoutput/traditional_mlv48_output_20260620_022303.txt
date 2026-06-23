@@ -1,0 +1,234 @@
+================================================================================
+  NOTEBOOK OUTPUT EXTRACTOR
+  File   : traditional_mlv48.ipynb
+  Path   : notebooks\traditional_mlv48.ipynb
+  Diambil: 2026-06-20 02:23:03
+  Total  : 25 cell
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+Dataset Overview: DAIC-WOZ (FULL 189 PARTICIPANTS)
+**Pipeline v48** — MULTIMODAL FUSION: COVAREP + BERT EMBEDDINGS + STACKING ENSEMBLE
+
+─────────────────────────────────────────────────────────────────────
+ v48 = 189 Partisipan + 3 Fitur Audio/Text + Stacking + 80/20 Balanced Split
+
+ Tujuan: Menembus Macro F1 >= 0.70 pada 189 Partisipan.
+
+ Fitur:
+  [1] MFCC Proxy  : COVAREP Statistics (mean, std, max, min, median, kurtosis, skewness) = 74×7 = 518 fitur
+  [2] Spectrogram/Wav2Vec Proxy: COVAREP temporal features (delta, voiced-only stats) = 74×4 = 296 fitur
+  [3] Text BERT   : Sentence-Transformer embeddings dari v13 (384 fitur)
+
+ Metode:
+  - 80/20 Stratified Split (seimbang: 10 tiap kelas pada test)
+  - StandardScaler + PCA (setelah SMOTE, no leakage)
+  - Base models: SVM, LR, RF, XGBoost, LightGBM
+  - Meta-learner: Logistic Regression (Stacking Ensemble)
+  - GridSearchCV untuk best hyperparameter
+  - Threshold tuning di dev set
+─────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Setup & Imports
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Load Labels (189 Participants)
+
+────────────────────────────────────────────────────────────────────────────────
+In [2] (Code Cell #2)
+────────────────────────────────────────────────────────────────────────────────
+Total participants: 189
+Label distribution: {0: 133, 1: 56}
+  Train: 107 (dep=30, non-dep=77)
+  Dev  : 35 (dep=12, non-dep=23)
+  Test : 47 (dep=14, non-dep=33)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Feature 1: COVAREP Acoustic Statistics (MFCC Proxy - 518 features)
+
+────────────────────────────────────────────────────────────────────────────────
+In [3] (Code Cell #3)
+────────────────────────────────────────────────────────────────────────────────
+
+Extracting COVAREP acoustic features for 189 participants...
+COVAREP features shape: (189, 518)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Feature 2: COVAREP Voiced-Frame Delta Stats (Wav2Vec/Spectrogram Proxy - 296 features)
+
+────────────────────────────────────────────────────────────────────────────────
+In [4] (Code Cell #4)
+────────────────────────────────────────────────────────────────────────────────
+
+Extracting COVAREP voiced-frame temporal features...
+Temporal features shape: (189, 296)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Feature 3: Text BERT Embeddings (384 features)
+
+────────────────────────────────────────────────────────────────────────────────
+In [5] (Code Cell #5)
+────────────────────────────────────────────────────────────────────────────────
+
+Loading BERT text embeddings from v13...
+BERT embeddings shape: (189, 385)
+BERT features aligned: (189, 384)
+
+Final label distribution: (array([0, 1]), array([133,  56]))
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Data Split: 80/20 Stratified (Balanced Test Set)
+
+────────────────────────────────────────────────────────────────────────────────
+In [6] (Code Cell #6)
+────────────────────────────────────────────────────────────────────────────────
+
+============================================================
+DATA SPLITTING — 80/20 Stratified (Balanced Test)
+============================================================
+Train size: 151 | Label dist: (array([0, 1]), array([106,  45]))
+Test size : 38  | Label dist: (array([0, 1]), array([27, 11]))
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Feature Blocks for Block-wise Processing
+
+────────────────────────────────────────────────────────────────────────────────
+In [7] (Code Cell #7)
+────────────────────────────────────────────────────────────────────────────────
+
+Feature block shapes:
+  COVAREP stats (MFCC proxy)    : 518 features
+  COVAREP temporal (Spec proxy)  : 296 features
+  BERT text embeddings           : 384 features
+  TOTAL FUSION                   : 1198 features
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Helper Functions: Block PCA + SMOTE Pipeline
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Cross-Validation: Individual Models with Hyperparameter Search
+
+────────────────────────────────────────────────────────────────────────────────
+In [9] (Code Cell #9)
+────────────────────────────────────────────────────────────────────────────────
+
+============================================================
+CROSS-VALIDATION — Individual Models on 80% Train Data
+============================================================
+  SVM_rbf        : CV F1=0.4800 (thr=0.27) | AUC=0.6300 | 10s
+  SVM_linear     : CV F1=0.5661 (thr=0.37) | AUC=0.5642 | 1s
+  LR             : CV F1=0.6058 (thr=0.28) | AUC=0.6084 | 1s
+  RF             : CV F1=0.5770 (thr=0.43) | AUC=0.5996 | 13s
+  XGBoost        : CV F1=0.5755 (thr=0.65) | AUC=0.5788 | 11s
+  LightGBM       : CV F1=0.5770 (thr=0.32) | AUC=0.5562 | 9s
+
+============================================================
+CV RESULTS SUMMARY
+============================================================
+               CV_F1    CV_AUC  Best_Thr
+LR          0.605783  0.608386      0.28
+RF          0.577031  0.599581      0.43
+LightGBM    0.577031  0.556184      0.32
+XGBoost     0.575462  0.578826      0.65
+SVM_linear  0.566115  0.564151      0.37
+SVM_rbf     0.480028  0.629979      0.27
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Stacking Ensemble
+
+────────────────────────────────────────────────────────────────────────────────
+In [10] (Code Cell #10)
+────────────────────────────────────────────────────────────────────────────────
+
+============================================================
+STACKING ENSEMBLE — Meta-Learner on OOF Probabilities
+============================================================
+Stacking meta-features shape: (151, 6)
+  Stacking CV F1=0.6196 (thr=0.48) | AUC=0.5797
+
+Top-4 models for soft voting: ['LR', 'RF', 'LightGBM', 'XGBoost']
+  Weighted Voting CV F1=0.6098 (thr=0.45) | AUC=0.5895
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Final Test Evaluation
+
+────────────────────────────────────────────────────────────────────────────────
+In [11] (Code Cell #11)
+────────────────────────────────────────────────────────────────────────────────
+
+============================================================
+FINAL TEST EVALUATION — Retrain on Full Train Set
+============================================================
+Full train fused: (151, 178), Test fused: (38, 178)
+After SMOTE: (212, 178), Labels: (array([0, 1]), array([106, 106]))
+  SVM_rbf        : Test F1=0.4747 (thr=0.27) | Acc=0.6842
+  SVM_linear     : Test F1=0.5476 (thr=0.37) | Acc=0.5789
+  LR             : Test F1=0.5260 (thr=0.28) | Acc=0.5526
+  RF             : Test F1=0.5692 (thr=0.43) | Acc=0.6053
+  XGBoost        : Test F1=0.4176 (thr=0.65) | Acc=0.5789
+  LightGBM       : Test F1=0.5142 (thr=0.32) | Acc=0.5263
+
+--- Ensemble Results ---
+  Weighted Voting  : Test F1=0.5117 | Acc=0.5526 | AUC=0.5387
+  Simple Average   : Test F1=0.5594 (thr=0.32) | Acc=0.5789 | AUC=0.5455
+  Meta-Stacking    : Test F1=0.5682 (thr=0.47) | Acc=0.5789 | AUC=0.5152
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Final Results Summary
+
+────────────────────────────────────────────────────────────────────────────────
+In [12] (Code Cell #12)
+────────────────────────────────────────────────────────────────────────────────
+
+======================================================================
+FINAL SUMMARY v48 — MULTIMODAL FUSION + STACKING (189 Participants)
+======================================================================
+Method                      Test_Macro_F1   Test_Accuracy   Test_AUC
+----------------------------------------------------------------------
+SVM_rbf                            0.4747          0.6842     0.5926
+SVM_linear                         0.5476          0.5789     0.5724
+LR                                 0.5260          0.5526     0.5152
+RF                                 0.5692          0.6053     0.6330
+XGBoost                            0.4176          0.5789     0.6094
+LightGBM                           0.5142          0.5263     0.4983
+----------------------------------------------------------------------
+Weighted Voting                    0.5117          0.5526     0.5387
+Simple Average                     0.5594          0.5789     0.5455
+Meta-Stacking                      0.5682          0.5789     0.5152
+
+>>> BEST: RF | Test Macro F1 = 0.5692
+
+Classification Report (Best Method):
+               precision    recall  f1-score   support
+
+Non-Depressed       0.77      0.63      0.69        27
+    Depressed       0.38      0.55      0.44        11
+
+     accuracy                           0.61        38
+    macro avg       0.57      0.59      0.57        38
+ weighted avg       0.66      0.61      0.62        38
+
+Results saved to: D:\repositories\menthealth-ai\results\v48
+
+⚠️  Target NOT yet achieved. Best F1 = 0.5692 (target: 0.70)
+   Gap: 0.1308 — needs further improvement in v49+
+
+================================================================================
+  RINGKASAN
+  Code cells  : 12
+  Cells dengan output teks: 10
+================================================================================

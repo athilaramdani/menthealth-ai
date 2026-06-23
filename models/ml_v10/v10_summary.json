@@ -1,0 +1,10 @@
+{
+  "version": "v10",
+  "evaluation": "LOOCV (102 folds) + Nested 5-fold GridSearchCV",
+  "approach": "Multimodal (Audio + Text Early Fusion)",
+  "best_model": "MFCC_AudioOnly + Random Forest",
+  "best_f1_tuned": 0.6219,
+  "best_f1_050": 0.5674,
+  "best_auc": 0.6099,
+  "best_threshold": 0.47
+}

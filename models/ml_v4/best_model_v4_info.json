@@ -1,0 +1,13 @@
+{
+  "combo_key": "Spectrogram + SVM",
+  "feature_type": "Spectrogram",
+  "model_name": "SVM",
+  "best_params": {
+    "C": 1.0,
+    "gamma": "auto"
+  },
+  "best_cv_f1": 0.566435998641881,
+  "test_f1_macro": 0.5436507936507937,
+  "test_accuracy": 0.5652173913043478,
+  "test_roc_auc": 0.5238095238095238
+}

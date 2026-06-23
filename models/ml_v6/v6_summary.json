@@ -1,0 +1,73 @@
+{
+  "version": "v6",
+  "split": "80/10/10 x 5 repeated stratified",
+  "threshold": 0.5,
+  "augmentation": false,
+  "smote": false,
+  "wav2vec_real": true,
+  "n_participants": 102,
+  "results": {
+    "MFCC + Logistic Regression": {
+      "f1_mean": 0.4158,
+      "f1_std": 0.1037,
+      "f1_max": 0.5299
+    },
+    "MFCC + SVM": {
+      "f1_mean": 0.4335,
+      "f1_std": 0.0892,
+      "f1_max": 0.6118
+    },
+    "MFCC + XGBoost": {
+      "f1_mean": 0.4601,
+      "f1_std": 0.1466,
+      "f1_max": 0.6857
+    },
+    "MFCC + Random Forest": {
+      "f1_mean": 0.5835,
+      "f1_std": 0.1388,
+      "f1_max": 0.7708
+    },
+    "Spectrogram + Logistic Regression": {
+      "f1_mean": 0.4558,
+      "f1_std": 0.0976,
+      "f1_max": 0.5299
+    },
+    "Spectrogram + SVM": {
+      "f1_mean": 0.3889,
+      "f1_std": 0.0,
+      "f1_max": 0.3889
+    },
+    "Spectrogram + XGBoost": {
+      "f1_mean": 0.5141,
+      "f1_std": 0.0673,
+      "f1_max": 0.6118
+    },
+    "Spectrogram + Random Forest": {
+      "f1_mean": 0.455,
+      "f1_std": 0.0855,
+      "f1_max": 0.5455
+    },
+    "Wav2Vec + Logistic Regression": {
+      "f1_mean": 0.4562,
+      "f1_std": 0.1721,
+      "f1_max": 0.6333
+    },
+    "Wav2Vec + SVM": {
+      "f1_mean": 0.3889,
+      "f1_std": 0.0,
+      "f1_max": 0.3889
+    },
+    "Wav2Vec + XGBoost": {
+      "f1_mean": 0.6293,
+      "f1_std": 0.1182,
+      "f1_max": 0.8036
+    },
+    "Wav2Vec + Random Forest": {
+      "f1_mean": 0.5409,
+      "f1_std": 0.1474,
+      "f1_max": 0.8036
+    }
+  },
+  "best_model": "Wav2Vec + XGBoost",
+  "best_f1": 0.6293
+}

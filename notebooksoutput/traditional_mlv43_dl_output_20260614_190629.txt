@@ -1,0 +1,56 @@
+================================================================================
+  NOTEBOOK OUTPUT EXTRACTOR
+  File   : traditional_mlv43_dl.ipynb
+  Path   : d:\repositories\menthealth-ai\notebooks\traditional_mlv43_dl.ipynb
+  Diambil: 2026-06-14 19:06:29
+  Total  : 15 cell
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+Dataset Overview: DAIC-WOZ (FULL 189 PARTICIPANTS)
+**Pipeline v43** — DEEP LEARNING (CNN on RAW COVAREP)
+
+─────────────────────────────────────────────────────────────────────
+ v43 = PyTorch 1D-CNN + 189 Participants + RAW COVAREP Matrices
+
+ Tujuan: Menembus F1 > 0.80 sesuai referensi State-of-the-Art (MDPI).
+ Data: Menggabungkan 107 Train + 35 Dev + 47 Test (Total 189).
+ Fitur: Raw COVAREP (74 features/frame, 10ms frame).
+ Metode: Segmentasi audio menjadi jendela 4 detik (400 frames).
+ Arsitektur: 1D Convolutional Neural Network (PyTorch).
+─────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Setup & Imports
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Load Labels (189 Participants)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Data Processing (Segmenting COVAREP)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Scaler and Dataset
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Model Architecture (1D CNN)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Training Loop
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Inference and Patient-Level Aggregation
+
+================================================================================
+  RINGKASAN
+  Code cells  : 7
+  Cells dengan output teks: 0
+================================================================================

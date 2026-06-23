@@ -1,0 +1,133 @@
+================================================================================
+  NOTEBOOK OUTPUT EXTRACTOR
+  File   : traditional_mlv42.ipynb
+  Path   : d:\repositories\menthealth-ai\notebooks\traditional_mlv42.ipynb
+  Diambil: 2026-06-14 19:43:25
+  Total  : 15 cell
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+Dataset Overview: DAIC-WOZ
+**Pipeline v42** — THE ULTIMATE UNCHAINED MULTIMODAL (PCA + CatBoost + LightGBM)
+
+─────────────────────────────────────────────────────────────────────
+ v42 = LOOCV + SMOTE + Block-wise PCA (95% Variance) + 5 Fitur + Top-Tier Boosting
+
+ Tujuan: Menembus Macro F1 > 0.70 secara Absolut.
+ Karena aturan telah dilonggarkan 100%, kita mengerahkan Segenap Kekuatan:
+ [1] 5 Fitur Sekaligus: MFCC, Spectrogram, Wav2Vec, Text (v13), eGeMAPS (v15).
+ [2] Feature Selection: Block-wise PCA (menyimpan 95% varians). 
+     Ini mencegah "Curse of Dimensionality" tanpa membuang pola berharga.
+ [3] 5 Model Tabular Tertinggi di Dunia: LR, SVM, XGBoost, LightGBM, CatBoost.
+─────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Setup
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Load All Features (The Exodia Assembly)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Model Config (The S-Tier)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## LOOCV Evaluation Loop with Block-wise PCA
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Running
+
+────────────────────────────────────────────────────────────────────────────────
+In [5] (Code Cell #5)
+────────────────────────────────────────────────────────────────────────────────
+
+[MFCC]
+  Logistic Regression : F1_tuned=0.4848 (thr=0.65)
+  SVM                 : F1_tuned=0.6298 (thr=0.45)
+  XGBoost             : F1_tuned=0.4604 (thr=0.64)
+  LightGBM            : F1_tuned=0.4560 (thr=0.62)
+  Random Forest       : F1_tuned=0.4560 (thr=0.54)
+
+[Wav2Vec_Full]
+  Logistic Regression : F1_tuned=0.5256 (thr=0.50)
+  SVM                 : F1_tuned=0.5759 (thr=0.51)
+  XGBoost             : F1_tuned=0.5536 (thr=0.52)
+  LightGBM            : F1_tuned=0.5627 (thr=0.57)
+  Random Forest       : F1_tuned=0.5492 (thr=0.51)
+
+[Text_Only]
+  Logistic Regression : F1_tuned=0.6225 (thr=0.52)
+  SVM                 : F1_tuned=0.5922 (thr=0.44)
+  XGBoost             : F1_tuned=0.5404 (thr=0.55)
+  LightGBM            : F1_tuned=0.5641 (thr=0.47)
+  Random Forest       : F1_tuned=0.5146 (thr=0.52)
+
+[eGeMAPS]
+  Logistic Regression : F1_tuned=0.5177 (thr=0.56)
+  SVM                 : F1_tuned=0.5467 (thr=0.60)
+  XGBoost             : F1_tuned=0.5206 (thr=0.69)
+  LightGBM            : F1_tuned=0.5488 (thr=0.30)
+  Random Forest       : F1_tuned=0.5392 (thr=0.39)
+
+[Fusion_Ultimate]
+  Logistic Regression : F1_tuned=0.5204 (thr=0.31)
+  SVM                 : F1_tuned=0.6183 (thr=0.47)
+  XGBoost             : F1_tuned=0.5139 (thr=0.69)
+  LightGBM            : F1_tuned=0.5143 (thr=0.50)
+  Random Forest       : F1_tuned=0.4983 (thr=0.49)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Ensembles (Soft Voting Top-3, Top-5, Top-7)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Save Results
+
+────────────────────────────────────────────────────────────────────────────────
+In [7] (Code Cell #7)
+────────────────────────────────────────────────────────────────────────────────
+
+================================================================================
+RINGKASAN v42 — THE UNCHAINED (PCA 95% + 5 Fitur + CatBoost/LightGBM)
+================================================================================
+            Feature                Model  F1 (tuned)  Best Thr       AUC
+1              MFCC                  SVM    0.629839      0.45  0.541718
+2         Text_Only  Logistic Regression    0.622533      0.52  0.592593
+3   Fusion_Ultimate                  SVM    0.618295      0.47  0.525031
+4         Text_Only                  SVM    0.592163      0.44  0.554335
+5          Ensemble                 Top3    0.589154      0.41  0.602768
+6          Ensemble                 Top7    0.582917      0.54  0.571022
+7          Ensemble                 Top5    0.578066      0.37  0.577127
+8      Wav2Vec_Full                  SVM    0.575884      0.51  0.474969
+9         Text_Only             LightGBM    0.564103      0.47  0.541311
+10     Wav2Vec_Full             LightGBM    0.562690      0.57  0.514042
+11     Wav2Vec_Full              XGBoost    0.553632      0.52  0.545381
+12     Wav2Vec_Full        Random Forest    0.549242      0.51  0.536020
+13          eGeMAPS             LightGBM    0.548846      0.30  0.543753
+14          eGeMAPS                  SVM    0.546667      0.60  0.482702
+15        Text_Only              XGBoost    0.540361      0.55  0.492470
+16          eGeMAPS        Random Forest    0.539171      0.39  0.542939
+17     Wav2Vec_Full  Logistic Regression    0.525581      0.50  0.472527
+18          eGeMAPS              XGBoost    0.520578      0.69  0.531136
+19  Fusion_Ultimate  Logistic Regression    0.520376      0.31  0.481888
+20          eGeMAPS  Logistic Regression    0.517681      0.56  0.488400
+21        Text_Only        Random Forest    0.514555      0.52  0.474562
+22  Fusion_Ultimate             LightGBM    0.514286      0.50  0.457468
+23  Fusion_Ultimate              XGBoost    0.513926      0.69  0.478225
+24  Fusion_Ultimate        Random Forest    0.498344      0.49  0.447293
+25             MFCC  Logistic Regression    0.484848      0.65  0.404965
+26             MFCC              XGBoost    0.460423      0.64  0.381766
+27             MFCC        Random Forest    0.456028      0.54  0.389092
+28             MFCC             LightGBM    0.456028      0.62  0.360195
+
+================================================================================
+  RINGKASAN
+  Code cells  : 7
+  Cells dengan output teks: 2
+================================================================================

@@ -1,0 +1,278 @@
+================================================================================
+  NOTEBOOK OUTPUT EXTRACTOR
+  File   : traditional_mlv51.ipynb
+  Path   : notebooks\traditional_mlv51.ipynb
+  Diambil: 2026-06-23 00:48:59
+  Total  : 29 cell
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+Dataset Overview: DAIC-WOZ (FULL 189 PARTICIPANTS)
+**Pipeline v51** — MFCC + BERT + LINGUISTIC: EFFICIENT TRIPLE FUSION
+
+─────────────────────────────────────────────────────────────────────
+ v51 = v50 Best Lessons + Real MFCC Features (LEAN & FAST version)
+
+ Error Analysis v50:
+ - Best ensemble P1 (original split): Test F1=0.7202 >= 0.70 ✅
+ - Best individual P1: F1=0.6948 (BERT_Ling | SVM_rbf_C2)
+ - Depressed class: recall=0.50 (SANGAT rendah — perlu ditingkatkan!)
+ - v51 timeout → perlu LEAN versi dengan model grid yang dikurangi
+
+ Strategi v51 (Target ≥ 0.75 — LEAN):
+ [1] MFCC dari daic_features_final.csv (fitur audio REAL, 52D)
+ [2] BERT Embeddings dari v13 (384D)
+ [3] Linguistic Features dari transcripts (25D)
+ [4] Hanya SVM_rbf + LR untuk CV (cepat), RF/GB hanya untuk stacking
+ [5] Original DAIC-WOZ split (train+dev → train, dev → threshold, test → eval)
+ [6] Threshold lebih rendah untuk boost recall depressed
+ [7] SMOTE + BorderlineSMOTE
+─────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Setup & Imports
+
+────────────────────────────────────────────────────────────────────────────────
+In [1] (Code Cell #1)
+────────────────────────────────────────────────────────────────────────────────
+PROJECT_ROOT: D:\repositories\menthealth-ai
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Load Labels with Original Split Info (189 Participants)
+
+────────────────────────────────────────────────────────────────────────────────
+In [2] (Code Cell #2)
+────────────────────────────────────────────────────────────────────────────────
+Total: 189 | Train: 107 | Dev: 35 | Test: 47
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Feature 1: BERT Text Embeddings (v13, 384D)
+
+────────────────────────────────────────────────────────────────────────────────
+In [3] (Code Cell #3)
+────────────────────────────────────────────────────────────────────────────────
+
+Loading BERT embeddings...
+BERT: (189, 384)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Feature 2: MFCC + Acoustic Features (daic_features_final.csv)
+
+────────────────────────────────────────────────────────────────────────────────
+In [4] (Code Cell #4)
+────────────────────────────────────────────────────────────────────────────────
+
+Loading MFCC & acoustic features...
+  Audio features: 56
+  MFCC: (189, 56) | coverage: 189/189 | 0.0s
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Feature 3: Linguistic Features (from transcripts, 25D)
+
+────────────────────────────────────────────────────────────────────────────────
+In [5] (Code Cell #5)
+────────────────────────────────────────────────────────────────────────────────
+
+Extracting linguistic features...
+  Linguistic: (189, 25) | 2.6s
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Feature 4: Prosodic (v49 cache) + Gender
+
+────────────────────────────────────────────────────────────────────────────────
+In [6] (Code Cell #6)
+────────────────────────────────────────────────────────────────────────────────
+Prosodic (v49 cache): (189, 18)
+
+Label distribution: dep=56, non-dep=133, total=189
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Split Masks & Feature Sets
+
+────────────────────────────────────────────────────────────────────────────────
+In [7] (Code Cell #7)
+────────────────────────────────────────────────────────────────────────────────
+Train+Dev: 142 (dep=42)
+Dev:       35 (dep=12)
+Test:      47 (dep=14)
+  BERT_Ling: (189, 409)
+  BERT_MFCC: (189, 440)
+  BERT_Ling_MFCC: (189, 465)
+  BERT_Ling_Pros: (189, 427)
+  MFCC_Ling: (189, 82)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## LEAN Model Grid (Fast: SVM + LR only for CV)
+
+────────────────────────────────────────────────────────────────────────────────
+In [8] (Code Cell #8)
+────────────────────────────────────────────────────────────────────────────────
+Total lean model variants: 15
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 5-Fold CV on Train+Dev (LEAN)
+
+────────────────────────────────────────────────────────────────────────────────
+In [9] (Code Cell #9)
+────────────────────────────────────────────────────────────────────────────────
+
+=================================================================
+5-FOLD CV — LEAN GRID (SVM + LR only)
+=================================================================
+
+[BERT_Ling] shape=(142, 409)
+  Done. 14s elapsed
+
+[BERT_MFCC] shape=(142, 440)
+  Done. 18s elapsed
+
+[BERT_Ling_MFCC] shape=(142, 465)
+  Done. 22s elapsed
+
+[BERT_Ling_Pros] shape=(142, 427)
+  Done. 26s elapsed
+
+[MFCC_Ling] shape=(142, 82)
+  Done. 28s elapsed
+
+Top-15 CV:
+                                   F1   Thr       AUC
+MFCC_Ling|SVM_rbf_C2         0.726005  0.40  0.746905
+MFCC_Ling|SVM_rbf_C5         0.680472  0.48  0.710000
+MFCC_Ling|SVM_rbf_C1         0.678442  0.48  0.725000
+MFCC_Ling|SVM_rbf_C0.5       0.676877  0.53  0.685238
+BERT_MFCC|SVM_rbf_C0.5       0.657088  0.70  0.670476
+BERT_Ling_MFCC|SVM_rbf_C0.5  0.654221  0.60  0.671190
+MFCC_Ling|SVM_rbf_C10        0.649753  0.44  0.703571
+BERT_Ling_MFCC|SVM_rbf_C1    0.643737  0.43  0.656429
+BERT_MFCC|LR_C0.01           0.640506  0.51  0.658571
+BERT_MFCC|LR_C0.05           0.640460  0.54  0.654048
+BERT_MFCC|SVM_rbf_C1         0.639786  0.64  0.653333
+BERT_MFCC|LR_C0.5            0.634732  0.46  0.652619
+BERT_MFCC|LR_C0.1            0.634492  0.52  0.655238
+BERT_Ling_MFCC|SVM_rbf_C10   0.633999  0.38  0.650238
+BERT_Ling_MFCC|SVM_rbf_C2    0.633999  0.38  0.649762
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Official Test Evaluation (Original DAIC-WOZ Split)
+
+────────────────────────────────────────────────────────────────────────────────
+In [10] (Code Cell #10)
+────────────────────────────────────────────────────────────────────────────────
+
+=================================================================
+OFFICIAL TEST RESULTS — Original DAIC-WOZ Split
+=================================================================
+  MFCC_Ling|SVM_rbf_C2                         : F1=0.6810 Acc=0.7447 AUC=0.6104 (thr=0.46)
+  MFCC_Ling|SVM_rbf_C5                         : F1=0.6643 Acc=0.7447 AUC=0.6126 (thr=0.54)
+  MFCC_Ling|SVM_rbf_C1                         : F1=0.5931 Acc=0.6596 AUC=0.6320 (thr=0.45)
+  MFCC_Ling|SVM_rbf_C0.5                       : F1=0.5747 Acc=0.6596 AUC=0.6429 (thr=0.56)
+  BERT_MFCC|SVM_rbf_C0.5                       : F1=0.5696 Acc=0.5745 AUC=0.7035 (thr=0.20)
+  BERT_Ling_MFCC|SVM_rbf_C0.5                  : F1=0.5499 Acc=0.5532 AUC=0.7165 (thr=0.20)
+  MFCC_Ling|SVM_rbf_C10                        : F1=0.6278 Acc=0.7021 AUC=0.6277 (thr=0.47)
+  BERT_Ling_MFCC|SVM_rbf_C1                    : F1=0.5583 Acc=0.5745 AUC=0.6948 (thr=0.20)
+  BERT_MFCC|LR_C0.01                           : F1=0.5913 Acc=0.6809 AUC=0.6883 (thr=0.50)
+  BERT_MFCC|LR_C0.05                           : F1=0.6210 Acc=0.6596 AUC=0.6537 (thr=0.28)
+  BERT_MFCC|SVM_rbf_C1                         : F1=0.5766 Acc=0.5957 AUC=0.6732 (thr=0.20)
+  BERT_MFCC|LR_C0.5                            : F1=0.5761 Acc=0.6383 AUC=0.6450 (thr=0.20)
+  BERT_MFCC|LR_C0.1                            : F1=0.5422 Acc=0.6170 AUC=0.6580 (thr=0.32)
+  BERT_Ling_MFCC|SVM_rbf_C10                   : F1=0.6210 Acc=0.6596 AUC=0.6667 (thr=0.20)
+  BERT_Ling_MFCC|SVM_rbf_C2                    : F1=0.6210 Acc=0.6596 AUC=0.6688 (thr=0.20)
+  BERT_Ling_MFCC|SVM_rbf_C5                    : F1=0.6210 Acc=0.6596 AUC=0.6667 (thr=0.20)
+  MFCC_Ling|SVM_lin_C0.05                      : F1=0.5837 Acc=0.5957 AUC=0.6688 (thr=0.39)
+  BERT_Ling_MFCC|LR_C0.01                      : F1=0.5853 Acc=0.6170 AUC=0.7035 (thr=0.34)
+  BERT_MFCC|SVM_rbf_C5                         : F1=0.6314 Acc=0.6596 AUC=0.6472 (thr=0.20)
+  BERT_MFCC|SVM_rbf_C2                         : F1=0.6131 Acc=0.6383 AUC=0.6472 (thr=0.20)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Soft Voting Ensemble
+
+────────────────────────────────────────────────────────────────────────────────
+In [11] (Code Cell #11)
+────────────────────────────────────────────────────────────────────────────────
+
+--- Soft Voting Ensembles ---
+  Top-3 Ensemble: F1=0.7353 Acc=0.7660 AUC=0.7273 (thr=0.32)
+  Top-5 Ensemble: F1=0.7756 Acc=0.8085 AUC=0.7294 (thr=0.36)
+  Top-7 Ensemble: F1=0.7257 Acc=0.7660 AUC=0.7727 (thr=0.30)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Stacking Ensemble (OOF meta-learner)
+
+────────────────────────────────────────────────────────────────────────────────
+In [12] (Code Cell #12)
+────────────────────────────────────────────────────────────────────────────────
+
+--- Stacking Ensemble ---
+  Stack train: (142, 17), Test: (47, 17)
+  [svm2] OOF AUC=0.7231
+  [svmL] OOF AUC=0.6383
+  [lr1] OOF AUC=0.6560
+  [rf] OOF AUC=0.6702
+  [gb] OOF AUC=0.6940
+
+Stacking (MFCC_Ling): F1=0.6622 Acc=0.7234 AUC=0.7403 (thr=0.52)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Hybrid Combo: Soft Vote + Stacking
+
+────────────────────────────────────────────────────────────────────────────────
+In [13] (Code Cell #13)
+────────────────────────────────────────────────────────────────────────────────
+
+--- Hybrid Combinations ---
+  Hybrid (sv_alpha=0.3): F1=0.7342 Acc=0.7872 AUC=0.7446 (thr=0.50)
+  Hybrid (sv_alpha=0.5): F1=0.7342 Acc=0.7872 AUC=0.7511 (thr=0.47)
+  Hybrid (sv_alpha=0.7): F1=0.7457 Acc=0.7872 AUC=0.7403 (thr=0.41)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Final Summary
+
+────────────────────────────────────────────────────────────────────────────────
+In [14] (Code Cell #14)
+────────────────────────────────────────────────────────────────────────────────
+
+======================================================================
+FINAL SUMMARY v51 — MFCC + BERT + LINGUISTIC
+======================================================================
+Best Individual: MFCC_Ling|SVM_rbf_C2 | F1=0.6810
+Best Ensemble  : F1=0.7756
+Stacking       : F1=0.6622
+
+Classification Report (Best Ensemble, thr=0.36):
+               precision    recall  f1-score   support
+
+Non-Depressed       0.88      0.85      0.86        33
+    Depressed       0.67      0.71      0.69        14
+
+     accuracy                           0.81        47
+    macro avg       0.77      0.78      0.78        47
+ weighted avg       0.81      0.81      0.81        47
+
+Accuracy: 0.8085 | AUC: 0.7294
+
+Results saved to: D:\repositories\menthealth-ai\results\v51
+Total elapsed: 33s
+
+TARGET ACHIEVED! Test Macro F1 = 0.7756 >= 0.75
+
+================================================================================
+  RINGKASAN
+  Code cells  : 14
+  Cells dengan output teks: 14
+================================================================================

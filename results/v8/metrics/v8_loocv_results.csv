@@ -1,0 +1,14 @@
+Feature,Model,F1 (thr=0.5),F1 (tuned),Best Thr,Acc (tuned),AUC
+MFCC,Random Forest,0.6056,0.6242,0.46,0.6373,0.5462
+Wav2Vec_Full,Random Forest,0.5547,0.5868,0.51,0.6275,0.5438
+Wav2Vec_Full,XGBoost,0.5476,0.5598,0.47,0.5784,0.5295
+Ensemble,Ensemble (Top-3),0.5256,0.5483,0.4,0.549,0.5486
+Spectrogram,Random Forest,0.4623,0.5381,0.41,0.5392,0.486
+Spectrogram,XGBoost,0.4494,0.5355,0.59,0.5784,0.49
+Wav2Vec_Full,Logistic Regression,0.5045,0.5345,0.41,0.549,0.501
+MFCC,XGBoost,0.5226,0.5226,0.5,0.549,0.4591
+MFCC,SVM,0.4091,0.5146,0.4,0.5784,0.3989
+Spectrogram,Logistic Regression,0.4732,0.487,0.36,0.4902,0.4432
+MFCC,Logistic Regression,0.4338,0.4486,0.51,0.4902,0.3903
+Spectrogram,SVM,0.378,0.3973,0.37,0.402,0.2589
+Wav2Vec_Full,SVM,0.378,0.3818,0.5,0.6176,0.151

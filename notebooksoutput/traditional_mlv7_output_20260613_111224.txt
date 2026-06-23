@@ -1,0 +1,594 @@
+================================================================================
+  NOTEBOOK OUTPUT EXTRACTOR
+  File   : traditional_mlv7.ipynb
+  Path   : D:/repositories/menthealth-ai/notebooks/traditional_mlv7.ipynb
+  Diambil: 2026-06-13 11:12:24
+  Total  : 24 cell
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+Dataset Overview: DAIC-WOZ
+**Pipeline v7** — Klasifikasi Kesehatan Mental Berbasis Audio
+**Peran**: ML & Data Engineer — Athila Ramdani Saputra
+
+─────────────────────────────────────────────────────────────────────
+v7 = v6 + Feature Fusion + Dual Split
+
+[1] Reuse fitur v6 (participant-level, Wav2Vec NYATA)
+→ MFCC (990 fitur) + Spectrogram (687) + Wav2Vec (72)
+
+[2] Feature Fusion BARU
+Gabungkan MFCC + Spectrogram + Wav2Vec → 1 vector per participant
+→ PCA dimensionality reduction → compact representation
+
+[3] Dual Split
+Mode A: AVEC2017 official (64 train / 15 val / 23 test)
+Mode B: 80/10/10 × 5 repeated stratified
+
+[4] 16 model = 4 Feature Type × 4 Classifier
+Feature: MFCC, Spectrogram, Wav2Vec, Fused
+Model:   LR, SVM, XGBoost, Random Forest
+
+[5] Tetap: class_weight='balanced', threshold 0.5, NO SMOTE
+─────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+Setup
+
+────────────────────────────────────────────────────────────────────────────────
+In [8] (Code Cell #1)
+────────────────────────────────────────────────────────────────────────────────
+[OK] Dependencies siap.
+
+────────────────────────────────────────────────────────────────────────────────
+In [9] (Code Cell #2)
+────────────────────────────────────────────────────────────────────────────────
+Project root : d:\repositories\menthealth-ai
+V6 features  : d:\repositories\menthealth-ai\data\features\v6
+Results      : d:\repositories\menthealth-ai\results\v7
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+1. Load Fitur v6 + Build Feature Fusion
+
+────────────────────────────────────────────────────────────────────────────────
+In [10] (Code Cell #3)
+────────────────────────────────────────────────────────────────────────────────
+  [MFCC] 102 participants, 990 fitur
+  [Spectrogram] 102 participants, 687 fitur
+  [Wav2Vec] 102 participants, 72 fitur
+  [Fused] 102 participants, 1749 fitur (sebelum PCA)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+2. Model Config
+
+────────────────────────────────────────────────────────────────────────────────
+In [11] (Code Cell #4)
+────────────────────────────────────────────────────────────────────────────────
+Model: ['Logistic Regression', 'SVM', 'XGBoost', 'Random Forest']
+Feature: ['MFCC', 'Spectrogram', 'Wav2Vec', 'Fused']
+Total: 4 x 4 = 16 model per split mode
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+3. Preprocessing & Evaluation Utils
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+4. Split Definitions
+
+────────────────────────────────────────────────────────────────────────────────
+In [13] (Code Cell #6)
+────────────────────────────────────────────────────────────────────────────────
+AVEC2017 split:
+  train: 107 participants
+  dev: 35 participants
+  test: 47 participants
+
+80/10/10 x 5 repeated stratified splits
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+5A. Training — AVEC2017 Official Split
+
+────────────────────────────────────────────────────────────────────────────────
+In [14] (Code Cell #7)
+────────────────────────────────────────────────────────────────────────────────
+
+###############################################################################################
+                          MODE A: AVEC2017 OFFICIAL SPLIT (64/15/23)                           
+###############################################################################################
+
+===============================================================================================
+  FEATURE: MFCC  |  990 fitur  |  Train=64 Val=15 Test=23
+===============================================================================================
+
+  [MFCC + Logistic Regression]
+    Val  F1 : 0.5500
+    Test F1 : 0.3611  |  Acc: 0.3913  |  AUC: 0.3651
+
+  [MFCC + SVM]
+    Val  F1 : 0.3478
+    Test F1 : 0.3784  |  Acc: 0.6087  |  AUC: 0.5317
+
+  [MFCC + XGBoost]
+    Val  F1 : 0.4976
+    Test F1 : 0.4559  |  Acc: 0.5217  |  AUC: 0.4603
+
+  [MFCC + Random Forest]
+    Val  F1 : 0.6606
+    Test F1 : 0.4559  |  Acc: 0.5217  |  AUC: 0.4444
+
+===============================================================================================
+  FEATURE: Spectrogram  |  687 fitur  |  Train=64 Val=15 Test=23
+===============================================================================================
+
+  [Spectrogram + Logistic Regression]
+    Val  F1 : 0.3541
+    Test F1 : 0.4524  |  Acc: 0.4783  |  AUC: 0.4603
+
+  [Spectrogram + SVM]
+    Val  F1 : 0.3478
+    Test F1 : 0.3784  |  Acc: 0.6087  |  AUC: 0.5635
+
+  [Spectrogram + XGBoost]
+    Val  F1 : 0.5500
+    Test F1 : 0.4866  |  Acc: 0.5652  |  AUC: 0.3968
+
+  [Spectrogram + Random Forest]
+    Val  F1 : 0.6411
+    Test F1 : 0.4103  |  Acc: 0.5217  |  AUC: 0.4921
+
+===============================================================================================
+  FEATURE: Wav2Vec  |  72 fitur  |  Train=64 Val=15 Test=23
+===============================================================================================
+
+  [Wav2Vec + Logistic Regression]
+    Val  F1 : 0.5982
+    Test F1 : 0.4559  |  Acc: 0.5217  |  AUC: 0.4841
+
+  [Wav2Vec + SVM]
+    Val  F1 : 0.3478
+    Test F1 : 0.3784  |  Acc: 0.6087  |  AUC: 0.4206
+
+  [Wav2Vec + XGBoost]
+    Val  F1 : 0.5833
+    Test F1 : 0.4866  |  Acc: 0.5652  |  AUC: 0.4127
+
+  [Wav2Vec + Random Forest]
+    Val  F1 : 0.6411
+    Test F1 : 0.3839  |  Acc: 0.4783  |  AUC: 0.3810
+
+===============================================================================================
+  FEATURE: Fused  |  63 fitur (PCA 63)  |  Train=64 Val=15 Test=23
+===============================================================================================
+
+  [Fused + Logistic Regression]
+    Val  F1 : 0.4976
+    Test F1 : 0.3611  |  Acc: 0.3913  |  AUC: 0.4286
+
+  [Fused + SVM]
+    Val  F1 : 0.3478
+    Test F1 : 0.3784  |  Acc: 0.6087  |  AUC: 0.5238
+
+  [Fused + XGBoost]
+    Val  F1 : 0.4000
+    Test F1 : 0.4868  |  Acc: 0.5217  |  AUC: 0.5714
+
+  [Fused + Random Forest]
+    Val  F1 : 0.5500
+    Test F1 : 0.4559  |  Acc: 0.5217  |  AUC: 0.4286
+
+===============================================================================================
+  AVEC2017: 16 MODEL SELESAI
+===============================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+5B. Training — 80/10/10 × 5 Repeats
+
+────────────────────────────────────────────────────────────────────────────────
+In [15] (Code Cell #8)
+────────────────────────────────────────────────────────────────────────────────
+
+###############################################################################################
+                           MODE B: 80/10/10 x 5 REPEATED STRATIFIED                            
+###############################################################################################
+
+===============================================================================================
+  FEATURE: MFCC  |  990 fitur  |  102 participants
+===============================================================================================
+
+  [MFCC + Logistic Regression]
+    Test F1: 0.4158 +/- 0.1037  (min=0.2667, max=0.5299)
+    Acc:     0.4545  |  AUC: 0.3714
+
+  [MFCC + SVM]
+    Test F1: 0.4335 +/- 0.0892  (min=0.3889, max=0.6118)
+    Acc:     0.6545  |  AUC: 0.5071
+
+  [MFCC + XGBoost]
+    Test F1: 0.4601 +/- 0.1466  (min=0.2667, max=0.6857)
+    Acc:     0.5091  |  AUC: 0.4571
+
+  [MFCC + Random Forest]
+    Test F1: 0.5835 +/- 0.1388  (min=0.4107, max=0.7708)
+    Acc:     0.6364  |  AUC: 0.5714
+
+===============================================================================================
+  FEATURE: Spectrogram  |  687 fitur  |  102 participants
+===============================================================================================
+
+  [Spectrogram + Logistic Regression]
+    Test F1: 0.4558 +/- 0.0976  (min=0.2667, max=0.5299)
+    Acc:     0.5091  |  AUC: 0.4786
+
+  [Spectrogram + SVM]
+    Test F1: 0.3889 +/- 0.0000  (min=0.3889, max=0.3889)
+    Acc:     0.6364  |  AUC: 0.5714
+
+  [Spectrogram + XGBoost]
+    Test F1: 0.5141 +/- 0.0673  (min=0.4107, max=0.6118)
+    Acc:     0.5818  |  AUC: 0.4857
+
+  [Spectrogram + Random Forest]
+    Test F1: 0.4550 +/- 0.0855  (min=0.3125, max=0.5455)
+    Acc:     0.5091  |  AUC: 0.4929
+
+===============================================================================================
+  FEATURE: Wav2Vec  |  72 fitur  |  102 participants
+===============================================================================================
+
+  [Wav2Vec + Logistic Regression]
+    Test F1: 0.4562 +/- 0.1721  (min=0.1538, max=0.6333)
+    Acc:     0.4909  |  AUC: 0.4929
+
+  [Wav2Vec + SVM]
+    Test F1: 0.3889 +/- 0.0000  (min=0.3889, max=0.3889)
+    Acc:     0.6364  |  AUC: 0.3786
+
+  [Wav2Vec + XGBoost]
+    Test F1: 0.6293 +/- 0.1182  (min=0.4762, max=0.8036)
+    Acc:     0.6727  |  AUC: 0.6000
+
+  [Wav2Vec + Random Forest]
+    Test F1: 0.5409 +/- 0.1474  (min=0.3529, max=0.8036)
+    Acc:     0.6182  |  AUC: 0.5857
+
+===============================================================================================
+  FEATURE: Fused  |  1749 fitur  |  102 participants
+===============================================================================================
+
+  [Fused + Logistic Regression]
+    Test F1: 0.4518 +/- 0.1446  (min=0.3125, max=0.7179)
+    Acc:     0.5091  |  AUC: 0.3643
+
+  [Fused + SVM]
+    Test F1: 0.4335 +/- 0.0892  (min=0.3889, max=0.6118)
+    Acc:     0.6545  |  AUC: 0.5071
+
+  [Fused + XGBoost]
+    Test F1: 0.3629 +/- 0.0896  (min=0.2667, max=0.5299)
+    Acc:     0.4182  |  AUC: 0.4000
+
+  [Fused + Random Forest]
+    Test F1: 0.4446 +/- 0.1462  (min=0.3125, max=0.6333)
+    Acc:     0.5636  |  AUC: 0.4929
+
+===============================================================================================
+  80/10/10: 16 MODEL × 5 REPEATS SELESAI
+===============================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+6. Tabel Perbandingan Lengkap
+
+────────────────────────────────────────────────────────────────────────────────
+In [16] (Code Cell #9)
+────────────────────────────────────────────────────────────────────────────────
+
+==============================================================================================================
+                            RINGKASAN v7 -- MODE A: AVEC2017 (64/15/23), 16 Model                             
+==============================================================================================================
+        Feature                Model  Test F1  Test Acc  Test AUC  Val F1
+1         Fused              XGBoost   0.4868    0.5217    0.5714  0.4000
+2   Spectrogram              XGBoost   0.4866    0.5652    0.3968  0.5500
+3       Wav2Vec              XGBoost   0.4866    0.5652    0.4127  0.5833
+4          MFCC              XGBoost   0.4559    0.5217    0.4603  0.4976
+5          MFCC        Random Forest   0.4559    0.5217    0.4444  0.6606
+6       Wav2Vec  Logistic Regression   0.4559    0.5217    0.4841  0.5982
+7         Fused        Random Forest   0.4559    0.5217    0.4286  0.5500
+8   Spectrogram  Logistic Regression   0.4524    0.4783    0.4603  0.3541
+9   Spectrogram        Random Forest   0.4103    0.5217    0.4921  0.6411
+10      Wav2Vec        Random Forest   0.3839    0.4783    0.3810  0.6411
+11         MFCC                  SVM   0.3784    0.6087    0.5317  0.3478
+12  Spectrogram                  SVM   0.3784    0.6087    0.5635  0.3478
+13      Wav2Vec                  SVM   0.3784    0.6087    0.4206  0.3478
+14        Fused                  SVM   0.3784    0.6087    0.5238  0.3478
+15         MFCC  Logistic Regression   0.3611    0.3913    0.3651  0.5500
+16        Fused  Logistic Regression   0.3611    0.3913    0.4286  0.4976
+
+Disimpan: d:\repositories\menthealth-ai\results\v7\metrics\v7_avec2017_results.csv
+
+  BEST AVEC: Fused + XGBoost  |  Test F1: 0.4868
+
+==============================================================================================================
+                            RINGKASAN v7 -- MODE B: 80/10/10 x 5 Repeats, 16 Model                            
+==============================================================================================================
+        Feature                Model  F1 Mean  F1 Std  F1 Max  Acc Mean  AUC Mean
+1       Wav2Vec              XGBoost   0.6293  0.1182  0.8036    0.6727    0.6000
+2          MFCC        Random Forest   0.5835  0.1388  0.7708    0.6364    0.5714
+3       Wav2Vec        Random Forest   0.5409  0.1474  0.8036    0.6182    0.5857
+4   Spectrogram              XGBoost   0.5141  0.0673  0.6118    0.5818    0.4857
+5          MFCC              XGBoost   0.4601  0.1466  0.6857    0.5091    0.4571
+6       Wav2Vec  Logistic Regression   0.4562  0.1721  0.6333    0.4909    0.4929
+7   Spectrogram  Logistic Regression   0.4558  0.0976  0.5299    0.5091    0.4786
+8   Spectrogram        Random Forest   0.4550  0.0855  0.5455    0.5091    0.4929
+9         Fused  Logistic Regression   0.4518  0.1446  0.7179    0.5091    0.3643
+10        Fused        Random Forest   0.4446  0.1462  0.6333    0.5636    0.4929
+11         MFCC                  SVM   0.4335  0.0892  0.6118    0.6545    0.5071
+12        Fused                  SVM   0.4335  0.0892  0.6118    0.6545    0.5071
+13         MFCC  Logistic Regression   0.4158  0.1037  0.5299    0.4545    0.3714
+14  Spectrogram                  SVM   0.3889  0.0000  0.3889    0.6364    0.5714
+15      Wav2Vec                  SVM   0.3889  0.0000  0.3889    0.6364    0.3786
+16        Fused              XGBoost   0.3629  0.0896  0.5299    0.4182    0.4000
+
+Disimpan: d:\repositories\menthealth-ai\results\v7\metrics\v7_80_10_10_results.csv
+
+  BEST 80/10/10: Wav2Vec + XGBoost  |  F1 Mean: 0.6293 +/- 0.1182  (max=0.8036)
+
+==============================================================================================================
+                                  PERBANDINGAN BEST MODEL — AVEC vs 80/10/10                                  
+==============================================================================================================
+  AVEC2017   : Fused + XGBoost  →  Test F1 = 0.4868
+  80/10/10   : Wav2Vec + XGBoost  →  F1 Mean = 0.6293  (max=0.8036)
+==============================================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+7. Visualisasi
+
+────────────────────────────────────────────────────────────────────────────────
+In [17] (Code Cell #10)
+────────────────────────────────────────────────────────────────────────────────
+Plot: d:\repositories\menthealth-ai\results\v7\plots\v7_avec_bar.png
+Boxplot: d:\repositories\menthealth-ai\results\v7\plots\v7_boxplot.png
+Heatmap: d:\repositories\menthealth-ai\results\v7\plots\v7_heatmap_avec.png
+Heatmap: d:\repositories\menthealth-ai\results\v7\plots\v7_heatmap_80_10_10.png
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+8. Classification Report — AVEC2017
+
+────────────────────────────────────────────────────────────────────────────────
+In [18] (Code Cell #11)
+────────────────────────────────────────────────────────────────────────────────
+
+====================================================================================================
+                           CLASSIFICATION REPORT v7 — AVEC2017 (16 Model)                           
+====================================================================================================
+
+----------------------------------------------------------------------------------------------------
+  FEATURE: MFCC
+----------------------------------------------------------------------------------------------------
+
+  [Logistic Regression]  Test F1=0.3611
+              precision    recall  f1-score   support
+
+  Normal (0)       0.50      0.50      0.50        14
+ Depresi (1)       0.22      0.22      0.22         9
+
+    accuracy                           0.39        23
+   macro avg       0.36      0.36      0.36        23
+weighted avg       0.39      0.39      0.39        23
+
+
+  [SVM]  Test F1=0.3784
+              precision    recall  f1-score   support
+
+  Normal (0)       0.61      1.00      0.76        14
+ Depresi (1)       0.00      0.00      0.00         9
+
+    accuracy                           0.61        23
+   macro avg       0.30      0.50      0.38        23
+weighted avg       0.37      0.61      0.46        23
+
+
+  [XGBoost]  Test F1=0.4559
+              precision    recall  f1-score   support
+
+  Normal (0)       0.59      0.71      0.65        14
+ Depresi (1)       0.33      0.22      0.27         9
+
+    accuracy                           0.52        23
+   macro avg       0.46      0.47      0.46        23
+weighted avg       0.49      0.52      0.50        23
+
+
+  [Random Forest]  Test F1=0.4559
+              precision    recall  f1-score   support
+
+  Normal (0)       0.59      0.71      0.65        14
+ Depresi (1)       0.33      0.22      0.27         9
+
+    accuracy                           0.52        23
+   macro avg       0.46      0.47      0.46        23
+weighted avg       0.49      0.52      0.50        23
+
+
+----------------------------------------------------------------------------------------------------
+  FEATURE: Spectrogram
+----------------------------------------------------------------------------------------------------
+
+  [Logistic Regression]  Test F1=0.4524
+              precision    recall  f1-score   support
+
+  Normal (0)       0.57      0.57      0.57        14
+ Depresi (1)       0.33      0.33      0.33         9
+
+    accuracy                           0.48        23
+   macro avg       0.45      0.45      0.45        23
+weighted avg       0.48      0.48      0.48        23
+
+
+  [SVM]  Test F1=0.3784
+              precision    recall  f1-score   support
+
+  Normal (0)       0.61      1.00      0.76        14
+ Depresi (1)       0.00      0.00      0.00         9
+
+    accuracy                           0.61        23
+   macro avg       0.30      0.50      0.38        23
+weighted avg       0.37      0.61      0.46        23
+
+
+  [XGBoost]  Test F1=0.4866
+              precision    recall  f1-score   support
+
+  Normal (0)       0.61      0.79      0.69        14
+ Depresi (1)       0.40      0.22      0.29         9
+
+    accuracy                           0.57        23
+   macro avg       0.51      0.50      0.49        23
+weighted avg       0.53      0.57      0.53        23
+
+
+  [Random Forest]  Test F1=0.4103
+              precision    recall  f1-score   support
+
+  Normal (0)       0.58      0.79      0.67        14
+ Depresi (1)       0.25      0.11      0.15         9
+
+    accuracy                           0.52        23
+   macro avg       0.41      0.45      0.41        23
+weighted avg       0.45      0.52      0.47        23
+
+
+----------------------------------------------------------------------------------------------------
+  FEATURE: Wav2Vec
+----------------------------------------------------------------------------------------------------
+
+  [Logistic Regression]  Test F1=0.4559
+              precision    recall  f1-score   support
+
+  Normal (0)       0.59      0.71      0.65        14
+ Depresi (1)       0.33      0.22      0.27         9
+
+    accuracy                           0.52        23
+   macro avg       0.46      0.47      0.46        23
+weighted avg       0.49      0.52      0.50        23
+
+
+  [SVM]  Test F1=0.3784
+              precision    recall  f1-score   support
+
+  Normal (0)       0.61      1.00      0.76        14
+ Depresi (1)       0.00      0.00      0.00         9
+
+    accuracy                           0.61        23
+   macro avg       0.30      0.50      0.38        23
+weighted avg       0.37      0.61      0.46        23
+
+
+  [XGBoost]  Test F1=0.4866
+              precision    recall  f1-score   support
+
+  Normal (0)       0.61      0.79      0.69        14
+ Depresi (1)       0.40      0.22      0.29         9
+
+    accuracy                           0.57        23
+   macro avg       0.51      0.50      0.49        23
+weighted avg       0.53      0.57      0.53        23
+
+
+  [Random Forest]  Test F1=0.3839
+              precision    recall  f1-score   support
+
+  Normal (0)       0.56      0.71      0.62        14
+ Depresi (1)       0.20      0.11      0.14         9
+
+    accuracy                           0.48        23
+   macro avg       0.38      0.41      0.38        23
+weighted avg       0.42      0.48      0.44        23
+
+
+----------------------------------------------------------------------------------------------------
+  FEATURE: Fused
+----------------------------------------------------------------------------------------------------
+
+  [Logistic Regression]  Test F1=0.3611
+              precision    recall  f1-score   support
+
+  Normal (0)       0.50      0.50      0.50        14
+ Depresi (1)       0.22      0.22      0.22         9
+
+    accuracy                           0.39        23
+   macro avg       0.36      0.36      0.36        23
+weighted avg       0.39      0.39      0.39        23
+
+
+  [SVM]  Test F1=0.3784
+              precision    recall  f1-score   support
+
+  Normal (0)       0.61      1.00      0.76        14
+ Depresi (1)       0.00      0.00      0.00         9
+
+    accuracy                           0.61        23
+   macro avg       0.30      0.50      0.38        23
+weighted avg       0.37      0.61      0.46        23
+
+
+  [XGBoost]  Test F1=0.4868
+              precision    recall  f1-score   support
+
+  Normal (0)       0.60      0.64      0.62        14
+ Depresi (1)       0.38      0.33      0.35         9
+
+    accuracy                           0.52        23
+   macro avg       0.49      0.49      0.49        23
+weighted avg       0.51      0.52      0.52        23
+
+
+  [Random Forest]  Test F1=0.4559
+              precision    recall  f1-score   support
+
+  Normal (0)       0.59      0.71      0.65        14
+ Depresi (1)       0.33      0.22      0.27         9
+
+    accuracy                           0.52        23
+   macro avg       0.46      0.47      0.46        23
+weighted avg       0.49      0.52      0.50        23
+
+CM: d:\repositories\menthealth-ai\results\v7\confusion_matrix\v7_avec_cm.png
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+9. Ringkasan Final
+
+────────────────────────────────────────────────────────────────────────────────
+In [19] (Code Cell #12)
+────────────────────────────────────────────────────────────────────────────────
+
+===============================================================================================
+                                      PIPELINE v7 SELESAI                                      
+===============================================================================================
+
+  Mode A (AVEC2017):
+    Best: Fused + XGBoost
+    F1:   0.4868
+
+  Mode B (80/10/10 x 5):
+    Best: Wav2Vec + XGBoost
+    F1:   0.6293 +/- 0.1182  (max=0.8036)
+
+  Models : d:\repositories\menthealth-ai\models\ml_v7
+  Results: d:\repositories\menthealth-ai\results\v7
+
+================================================================================
+  RINGKASAN
+  Code cells  : 12
+  Cells dengan output teks: 11
+================================================================================
