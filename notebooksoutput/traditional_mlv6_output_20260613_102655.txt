@@ -1,0 +1,566 @@
+================================================================================
+  NOTEBOOK OUTPUT EXTRACTOR
+  File   : traditional_mlv6.ipynb
+  Path   : D:/repositories/menthealth-ai/notebooks/traditional_mlv6.ipynb
+  Diambil: 2026-06-13 10:26:55
+  Total  : 26 cell
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+Dataset Overview: DAIC-WOZ
+**Pipeline v6** — Klasifikasi Kesehatan Mental Berbasis Audio
+**Peran**: ML & Data Engineer — Athila Ramdani Saputra
+
+─────────────────────────────────────────────────────────────────────
+v6 = v4 REFINED — Fix semua masalah v5
+
+[1] Kembali ke Participant-Level Features
+Aggregate fitur dari FULL audio per partisipan (bukan segment 10s)
+→ signal-to-noise ratio lebih baik, evaluasi langsung per orang
+
+[2] TANPA Augmentasi — tidak perlu untuk participant-level
+
+[3] TANPA SMOTE — pakai class_weight='balanced' saja
+→ hindari overfitting dari duplikasi sample
+
+[4] Fixed Threshold 0.5 — tanpa tuning
+→ v5 overfit karena threshold tune pada 15 orang dev
+
+[5] Split 80/10/10 × 5 Repeated Stratified
+→ lebih banyak data train (81 vs 64 participant)
+→ lapor mean ± std dari 5 repeat untuk stabilitas
+
+[6] Wav2Vec 2.0 NYATA (torch CPU-only)
+→ facebook/wav2vec2-base mean-pool 768-dim
+
+[7] Fitur Prosodik Diperkaya
+HNR, jitter, shimmer, spectral entropy, speaking rate
+
+Tetap 12 model = 4 Classifier × 3 Feature Type (apple-to-apple)
+─────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+Setup — Install Dependencies
+
+────────────────────────────────────────────────────────────────────────────────
+In [1] (Code Cell #1)
+────────────────────────────────────────────────────────────────────────────────
+d:\repositories\menthealth-ai\.venv\Lib\site-packages\tqdm\auto.py:21: TqdmWarning: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
+  from .autonotebook import tqdm as notebook_tqdm
+
+[OK] Dependencies siap.
+
+────────────────────────────────────────────────────────────────────────────────
+In [2] (Code Cell #2)
+────────────────────────────────────────────────────────────────────────────────
+[INFO] PyTorch + Transformers OK -> Wav2Vec 2.0 AKTIF.
+Library berhasil diimport.
+
+Project root : d:\repositories\menthealth-ai
+Feature dir  : d:\repositories\menthealth-ai\data\features\v6
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+0. Konfigurasi Audio
+
+────────────────────────────────────────────────────────────────────────────────
+In [3] (Code Cell #3)
+────────────────────────────────────────────────────────────────────────────────
+Split: 80% / 10% / 10% x 5 repeats
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+1. Feature Extraction — Participant-Level (Full Audio)
+
+────────────────────────────────────────────────────────────────────────────────
+In [4] (Code Cell #4)
+────────────────────────────────────────────────────────────────────────────────
+Feature extractors v6:
+  - MFCC
+  - Spectrogram
+  - Wav2Vec [NYATA (768-dim)]
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+2. Label Mapping & Metadata
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+3. Participant-Level Feature Extraction
+
+────────────────────────────────────────────────────────────────────────────────
+In [6] (Code Cell #6)
+────────────────────────────────────────────────────────────────────────────────
+
+[INFO] Menjalankan ekstraksi fitur v6 ...
+File audio bersih: 102
+
+=====================================================================================
+                 EKSTRAKSI FITUR v6 — Participant-Level (Full Audio)                 
+=====================================================================================
+  PID |   Label   |   Dur | Status
+-------------------------------------------------------------------------------------
+[INFO] Memuat Wav2Vec2 (facebook/wav2vec2-base) ...
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights: 100%|██████████| 211/211 [00:00<00:00, 34663.67it/s]
+[transformers] [1mWav2Vec2Model LOAD REPORT[0m from: facebook/wav2vec2-base
+Key                          | Status     |  | 
+-----------------------------+------------+--+-
+project_q.bias               | UNEXPECTED |  | 
+project_hid.bias             | UNEXPECTED |  | 
+quantizer.weight_proj.weight | UNEXPECTED |  | 
+project_hid.weight           | UNEXPECTED |  | 
+quantizer.weight_proj.bias   | UNEXPECTED |  | 
+project_q.weight             | UNEXPECTED |  | 
+quantizer.codevectors        | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+[INFO] Wav2Vec2 siap.
+   300  |  Normal   |  155s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   301  |  Normal   |  475s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   302  |  Normal   |  209s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   303  |  Normal   |  643s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   304  |  Normal   |  362s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   305  |  Normal   |  431s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   306  |  Normal   |  218s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   307  |  Normal   |  482s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   308  |  Depresi  |  104s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   309  |  Depresi  |   39s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   310  |  Normal   |   62s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   311  |  Depresi  |   57s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   312  |  Normal   |   86s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   313  |  Normal   |   71s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   314  |  Normal   |  493s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   315  |  Normal   |  136s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   316  |  Normal   |   35s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   317  |  Normal   |   70s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   318  |  Normal   |   59s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   319  |  Depresi  |   72s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   320  |  Depresi  |   76s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   321  |  Depresi  |  115s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   322  |  Normal   |  162s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   323  |  Normal   |  129s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   324  |  Normal   |   61s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   325  |  Depresi  |  245s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   326  |  Normal   |   47s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   327  |  Normal   |  103s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   328  |  Normal   |  267s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   329  |  Normal   |  130s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   330  |  Depresi  |   41s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   331  |  Normal   |  133s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   332  |  Depresi  |  114s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   333  |  Normal   |  118s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   334  |  Normal   |  178s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   335  |  Depresi  |  175s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   336  |  Normal   |  139s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   337  |  Depresi  |  652s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   338  |  Depresi  |   91s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   339  |  Depresi  |  114s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   340  |  Normal   |   40s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   341  |  Normal   |  139s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   343  |  Normal   |   46s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   344  |  Depresi  |  230s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   345  |  Depresi  |  240s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   346  |  Depresi  |  276s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   347  |  Depresi  |   33s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   348  |  Depresi  |  127s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   349  |  Normal   |  152s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   350  |  Depresi  |  218s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   351  |  Depresi  |  406s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   352  |  Depresi  |  493s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   353  |  Depresi  |  415s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   354  |  Depresi  |  146s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   355  |  Depresi  |  332s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   356  |  Depresi  |  528s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   357  |  Normal   |  134s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   358  |  Normal   |  238s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   359  |  Depresi  |  603s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   360  |  Normal   |  203s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   361  |  Normal   |  381s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   362  |  Depresi  |  264s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   363  |  Normal   |  708s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   364  |  Normal   | 1174s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   365  |  Depresi  |  606s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   366  |  Normal   |  781s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   367  |  Depresi  |  987s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   368  |  Normal   |  910s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   369  |  Normal   |  731s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   370  |  Normal   |  789s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   371  |  Normal   |  252s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   372  |  Depresi  |  706s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   373  |  Normal   |  846s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   374  |  Normal   |  760s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   375  |  Normal   |  134s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   376  |  Depresi  |  529s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   377  |  Depresi  |  804s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   378  |  Normal   |  412s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   379  |  Normal   |  612s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   380  |  Depresi  | 1213s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   381  |  Depresi  |  462s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   382  |  Normal   |  296s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   383  |  Normal   |  891s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   384  |  Depresi  |  430s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   385  |  Normal   |   62s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   386  |  Depresi  |  650s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   387  |  Normal   |  167s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   388  |  Depresi  |  150s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   389  |  Depresi  |  224s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   390  |  Normal   |  631s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   391  |  Normal   |  212s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   392  |  Normal   |  216s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   393  |  Normal   |  206s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   395  |  Normal   |  431s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   396  |  Normal   |  309s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   397  |  Normal   |  443s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   399  |  Normal   |  336s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   400  |  Normal   |  411s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   401  |  Normal   |  422s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   402  |  Depresi  |  446s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   403  |  Normal   |  441s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   404  |  Normal   |  480s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+=====================================================================================
+Ekstraksi selesai: 4621.3s
+
+  [MFCC] 102 participants, 994 cols, 39 depresi -> d:\repositories\menthealth-ai\data\features\v6\daic_v6_mfcc.csv
+  [Spectrogram] 102 participants, 726 cols, 39 depresi -> d:\repositories\menthealth-ai\data\features\v6\daic_v6_spectrogram.csv
+  [Wav2Vec] 102 participants, 76 cols, 39 depresi -> d:\repositories\menthealth-ai\data\features\v6\daic_v6_wav2vec.csv
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+4. Load Data + 80/10/10 Repeated Stratified Split
+
+────────────────────────────────────────────────────────────────────────────────
+In [7] (Code Cell #7)
+────────────────────────────────────────────────────────────────────────────────
+  [MFCC] 102 participants, 990 fitur
+  [Spectrogram] 102 participants, 687 fitur
+  [Wav2Vec] 102 participants, 72 fitur
+
+5 repeated stratified splits dibuat:
+  Split 1: train=81 (0:50/1:31)  val=10 (0:6/1:4)  test=11 (0:7/1:4)
+  Split 2: train=81 (0:50/1:31)  val=10 (0:6/1:4)  test=11 (0:7/1:4)
+  Split 3: train=81 (0:50/1:31)  val=10 (0:6/1:4)  test=11 (0:7/1:4)
+  Split 4: train=81 (0:50/1:31)  val=10 (0:6/1:4)  test=11 (0:7/1:4)
+  Split 5: train=81 (0:50/1:31)  val=10 (0:6/1:4)  test=11 (0:7/1:4)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+5. Definisi Model
+
+────────────────────────────────────────────────────────────────────────────────
+In [8] (Code Cell #8)
+────────────────────────────────────────────────────────────────────────────────
+Model v6 (class_weight='balanced', NO SMOTE):
+  - Logistic Regression
+  - SVM
+  - XGBoost
+  - Random Forest
+
+Total: 4 x 3 = 12 model
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+6. Training & Evaluation — 80/10/10 × 5 Repeats
+
+────────────────────────────────────────────────────────────────────────────────
+In [9] (Code Cell #9)
+────────────────────────────────────────────────────────────────────────────────
+
+==========================================================================================
+  FEATURE: MFCC  |  990 fitur  |  102 participants
+==========================================================================================
+
+  [MFCC + Logistic Regression]
+    Test F1 (5 repeats): 0.4158 +/- 0.1037  (min=0.2667, max=0.5299)
+    Test Acc:            0.4545 +/- 0.0813
+    Test AUC:            0.3714 +/- 0.0484
+
+  [MFCC + SVM]
+    Test F1 (5 repeats): 0.4335 +/- 0.0892  (min=0.3889, max=0.6118)
+    Test Acc:            0.6545 +/- 0.0364
+    Test AUC:            0.5071 +/- 0.1093
+
+  [MFCC + XGBoost]
+    Test F1 (5 repeats): 0.4601 +/- 0.1466  (min=0.2667, max=0.6857)
+    Test Acc:            0.5091 +/- 0.1361
+    Test AUC:            0.4571 +/- 0.1555
+
+  [MFCC + Random Forest]
+    Test F1 (5 repeats): 0.5835 +/- 0.1388  (min=0.4107, max=0.7708)
+    Test Acc:            0.6364 +/- 0.1286
+    Test AUC:            0.5714 +/- 0.0875
+
+==========================================================================================
+  FEATURE: Spectrogram  |  687 fitur  |  102 participants
+==========================================================================================
+
+  [Spectrogram + Logistic Regression]
+    Test F1 (5 repeats): 0.4558 +/- 0.0976  (min=0.2667, max=0.5299)
+    Test Acc:            0.5091 +/- 0.0727
+    Test AUC:            0.4786 +/- 0.1074
+
+  [Spectrogram + SVM]
+    Test F1 (5 repeats): 0.3889 +/- 0.0000  (min=0.3889, max=0.3889)
+    Test Acc:            0.6364 +/- 0.0000
+    Test AUC:            0.5714 +/- 0.1498
+
+  [Spectrogram + XGBoost]
+    Test F1 (5 repeats): 0.5141 +/- 0.0673  (min=0.4107, max=0.6118)
+    Test Acc:            0.5818 +/- 0.0927
+    Test AUC:            0.4857 +/- 0.0920
+
+  [Spectrogram + Random Forest]
+    Test F1 (5 repeats): 0.4550 +/- 0.0855  (min=0.3125, max=0.5455)
+    Test Acc:            0.5091 +/- 0.0445
+    Test AUC:            0.4929 +/- 0.0886
+
+==========================================================================================
+  FEATURE: Wav2Vec  |  72 fitur  |  102 participants
+==========================================================================================
+
+  [Wav2Vec + Logistic Regression]
+    Test F1 (5 repeats): 0.4562 +/- 0.1721  (min=0.1538, max=0.6333)
+    Test Acc:            0.4909 +/- 0.1686
+    Test AUC:            0.4929 +/- 0.1882
+
+  [Wav2Vec + SVM]
+    Test F1 (5 repeats): 0.3889 +/- 0.0000  (min=0.3889, max=0.3889)
+    Test Acc:            0.6364 +/- 0.0000
+    Test AUC:            0.3786 +/- 0.1439
+
+  [Wav2Vec + XGBoost]
+    Test F1 (5 repeats): 0.6293 +/- 0.1182  (min=0.4762, max=0.8036)
+    Test Acc:            0.6727 +/- 0.0927
+    Test AUC:            0.6000 +/- 0.1868
+
+  [Wav2Vec + Random Forest]
+    Test F1 (5 repeats): 0.5409 +/- 0.1474  (min=0.3529, max=0.8036)
+    Test Acc:            0.6182 +/- 0.1060
+    Test AUC:            0.5857 +/- 0.1270
+
+==========================================================================================
+  SEMUA 12 MODEL v6 SELESAI (5 repeats each)
+==========================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+7. Tabel Perbandingan Lengkap
+
+────────────────────────────────────────────────────────────────────────────────
+In [10] (Code Cell #10)
+────────────────────────────────────────────────────────────────────────────────
+
+========================================================================================================================
+                        RINGKASAN v6 -- 12 Model, 80/10/10 x 5 Repeats (diurutkan Test F1 Mean)                         
+========================================================================================================================
+   Feature Extraction                Model  Test F1 Mean  Test F1 Std  Test F1 Max  Test Acc Mean  Test AUC Mean
+1             Wav2Vec              XGBoost        0.6293       0.1182       0.8036         0.6727         0.6000
+2                MFCC        Random Forest        0.5835       0.1388       0.7708         0.6364         0.5714
+3             Wav2Vec        Random Forest        0.5409       0.1474       0.8036         0.6182         0.5857
+4         Spectrogram              XGBoost        0.5141       0.0673       0.6118         0.5818         0.4857
+5                MFCC              XGBoost        0.4601       0.1466       0.6857         0.5091         0.4571
+6             Wav2Vec  Logistic Regression        0.4562       0.1721       0.6333         0.4909         0.4929
+7         Spectrogram  Logistic Regression        0.4558       0.0976       0.5299         0.5091         0.4786
+8         Spectrogram        Random Forest        0.4550       0.0855       0.5455         0.5091         0.4929
+9                MFCC                  SVM        0.4335       0.0892       0.6118         0.6545         0.5071
+10               MFCC  Logistic Regression        0.4158       0.1037       0.5299         0.4545         0.3714
+11        Spectrogram                  SVM        0.3889       0.0000       0.3889         0.6364         0.5714
+12            Wav2Vec                  SVM        0.3889       0.0000       0.3889         0.6364         0.3786
+
+Disimpan: d:\repositories\menthealth-ai\results\v6\metrics\daic_v6_comparison_80_10_10.csv
+
+  BEST: Wav2Vec + XGBoost
+  Test F1: 0.6293 +/- 0.1182  (max=0.8036)
+  Test AUC: 0.6000
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+8. Visualisasi
+
+────────────────────────────────────────────────────────────────────────────────
+In [11] (Code Cell #11)
+────────────────────────────────────────────────────────────────────────────────
+Plot: d:\repositories\menthealth-ai\results\v6\plots\v6_grouped_bar_f1.png
+Heatmap: d:\repositories\menthealth-ai\results\v6\plots\v6_heatmap.png
+Boxplot: d:\repositories\menthealth-ai\results\v6\plots\v6_boxplot_f1.png
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+9. Classification Report (Best Repeat)
+
+────────────────────────────────────────────────────────────────────────────────
+In [12] (Code Cell #12)
+────────────────────────────────────────────────────────────────────────────────
+
+====================================================================================================
+                        CLASSIFICATION REPORT -- v6 (Best Repeat per Model)                         
+====================================================================================================
+
+----------------------------------------------------------------------------------------------------
+  FEATURE: MFCC
+----------------------------------------------------------------------------------------------------
+
+  [Logistic Regression]  (repeat 4/5, mean F1=0.4158 +/- 0.1037)
+              precision    recall  f1-score   support
+
+  Normal (0)       0.67      0.57      0.62         7
+ Depresi (1)       0.40      0.50      0.44         4
+
+    accuracy                           0.55        11
+   macro avg       0.53      0.54      0.53        11
+weighted avg       0.57      0.55      0.55        11
+
+
+  [SVM]  (repeat 4/5, mean F1=0.4335 +/- 0.0892)
+              precision    recall  f1-score   support
+
+  Normal (0)       0.70      1.00      0.82         7
+ Depresi (1)       1.00      0.25      0.40         4
+
+    accuracy                           0.73        11
+   macro avg       0.85      0.62      0.61        11
+weighted avg       0.81      0.73      0.67        11
+
+
+  [XGBoost]  (repeat 5/5, mean F1=0.4601 +/- 0.1466)
+              precision    recall  f1-score   support
+
+  Normal (0)       0.75      0.86      0.80         7
+ Depresi (1)       0.67      0.50      0.57         4
+
+    accuracy                           0.73        11
+   macro avg       0.71      0.68      0.69        11
+weighted avg       0.72      0.73      0.72        11
+
+
+  [Random Forest]  (repeat 2/5, mean F1=0.5835 +/- 0.1388)
+              precision    recall  f1-score   support
+
+  Normal (0)       0.78      1.00      0.88         7
+ Depresi (1)       1.00      0.50      0.67         4
+
+    accuracy                           0.82        11
+   macro avg       0.89      0.75      0.77        11
+weighted avg       0.86      0.82      0.80        11
+
+
+----------------------------------------------------------------------------------------------------
+  FEATURE: Spectrogram
+----------------------------------------------------------------------------------------------------
+
+  [Logistic Regression]  (repeat 3/5, mean F1=0.4558 +/- 0.0976)
+              precision    recall  f1-score   support
+
+  Normal (0)       0.67      0.57      0.62         7
+ Depresi (1)       0.40      0.50      0.44         4
+
+    accuracy                           0.55        11
+   macro avg       0.53      0.54      0.53        11
+weighted avg       0.57      0.55      0.55        11
+
+
+  [SVM]  (repeat 1/5, mean F1=0.3889 +/- 0.0000)
+              precision    recall  f1-score   support
+
+  Normal (0)       0.64      1.00      0.78         7
+ Depresi (1)       0.00      0.00      0.00         4
+
+    accuracy                           0.64        11
+   macro avg       0.32      0.50      0.39        11
+weighted avg       0.40      0.64      0.49        11
+
+
+  [XGBoost]  (repeat 2/5, mean F1=0.5141 +/- 0.0673)
+              precision    recall  f1-score   support
+
+  Normal (0)       0.70      1.00      0.82         7
+ Depresi (1)       1.00      0.25      0.40         4
+
+    accuracy                           0.73        11
+   macro avg       0.85      0.62      0.61        11
+weighted avg       0.81      0.73      0.67        11
+
+
+  [Random Forest]  (repeat 3/5, mean F1=0.4550 +/- 0.0855)
+              precision    recall  f1-score   support
+
+  Normal (0)       0.75      0.43      0.55         7
+ Depresi (1)       0.43      0.75      0.55         4
+
+    accuracy                           0.55        11
+   macro avg       0.59      0.59      0.55        11
+weighted avg       0.63      0.55      0.55        11
+
+
+----------------------------------------------------------------------------------------------------
+  FEATURE: Wav2Vec
+----------------------------------------------------------------------------------------------------
+
+  [Logistic Regression]  (repeat 4/5, mean F1=0.4562 +/- 0.1721)
+              precision    recall  f1-score   support
+
+  Normal (0)       0.80      0.57      0.67         7
+ Depresi (1)       0.50      0.75      0.60         4
+
+    accuracy                           0.64        11
+   macro avg       0.65      0.66      0.63        11
+weighted avg       0.69      0.64      0.64        11
+
+
+  [SVM]  (repeat 1/5, mean F1=0.3889 +/- 0.0000)
+              precision    recall  f1-score   support
+
+  Normal (0)       0.64      1.00      0.78         7
+ Depresi (1)       0.00      0.00      0.00         4
+
+    accuracy                           0.64        11
+   macro avg       0.32      0.50      0.39        11
+weighted avg       0.40      0.64      0.49        11
+
+
+  [XGBoost]  (repeat 4/5, mean F1=0.6293 +/- 0.1182)
+              precision    recall  f1-score   support
+
+  Normal (0)       0.86      0.86      0.86         7
+ Depresi (1)       0.75      0.75      0.75         4
+
+    accuracy                           0.82        11
+   macro avg       0.80      0.80      0.80        11
+weighted avg       0.82      0.82      0.82        11
+
+
+  [Random Forest]  (repeat 4/5, mean F1=0.5409 +/- 0.1474)
+              precision    recall  f1-score   support
+
+  Normal (0)       0.86      0.86      0.86         7
+ Depresi (1)       0.75      0.75      0.75         4
+
+    accuracy                           0.82        11
+   macro avg       0.80      0.80      0.80        11
+weighted avg       0.82      0.82      0.82        11
+
+CM: d:\repositories\menthealth-ai\results\v6\confusion_matrix\v6_all_cm.png
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+10. Simpan Metadata & Ringkasan
+
+────────────────────────────────────────────────────────────────────────────────
+In [13] (Code Cell #13)
+────────────────────────────────────────────────────────────────────────────────
+
+[OK] Pipeline v6 selesai!
+     Wav2Vec 2.0: NYATA
+     Best: Wav2Vec + XGBoost
+     F1:   0.6293
+     Models: d:\repositories\menthealth-ai\models\ml_v6
+     Results: d:\repositories\menthealth-ai\results\v6
+
+================================================================================
+  RINGKASAN
+  Code cells  : 13
+  Cells dengan output teks: 12
+================================================================================

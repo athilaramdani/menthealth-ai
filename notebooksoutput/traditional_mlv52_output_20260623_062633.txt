@@ -1,0 +1,323 @@
+================================================================================
+  NOTEBOOK OUTPUT EXTRACTOR
+  File   : traditional_mlv52.ipynb
+  Path   : notebooks\traditional_mlv52.ipynb
+  Diambil: 2026-06-23 06:26:33
+  Total  : 31 cell
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+Dataset Overview: DAIC-WOZ (FULL 189 PARTICIPANTS)
+**Pipeline v52** — eGeMAPS + MFCC + BERT + LINGUISTIC: MAX FUSION
+
+─────────────────────────────────────────────────────────────────────
+ v52 = v51 Best Lessons + eGeMAPS Features + Expanded Ensemble
+
+ Error Analysis v51:
+ - Best Top-5 Ensemble: F1=0.7756 >= 0.75 ✅
+ - Depressed: precision=0.67, recall=0.71, F1=0.69
+ - Non-Depressed: precision=0.88, recall=0.85, F1=0.86
+ - Gap to 0.80: only 0.024 — need to push depressed F1 ~0.74+
+ - Best CV: MFCC_Ling|SVM_rbf_C2 (CV F1=0.726)
+ - Top-5 soft vote was KEY: individual ~0.68, ensemble ~0.78
+
+ Strategi v52 (Target >= 0.80):
+ [1] eGeMAPS v15 (88 features, acoustic+prosodic, research-standard)
+     - F0, loudness, MFCC1-4, jitter, shimmer, HNR, formants (F1-F3)
+     - alphaRatio, hammarbergIndex, spectralFlux, voiced/unvoiced stats
+ [2] MFCC dari daic_features_final.csv (56D, coverage 189/189)
+ [3] BERT Embeddings dari v13 (384D)
+ [4] Linguistic Features (25D)
+ [5] Feature-level SelectKBest untuk tiap blok audio
+ [6] Top-10 diverse ensemble dengan fitur berbeda
+ [7] Original DAIC-WOZ split (proven best protocol)
+ [8] Calibrated classifiers untuk better probability calibration
+─────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Setup & Imports
+
+────────────────────────────────────────────────────────────────────────────────
+In [1] (Code Cell #1)
+────────────────────────────────────────────────────────────────────────────────
+PROJECT_ROOT: D:\repositories\menthealth-ai
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Load Labels with Original Split Info (189 Participants)
+
+────────────────────────────────────────────────────────────────────────────────
+In [2] (Code Cell #2)
+────────────────────────────────────────────────────────────────────────────────
+Total: 189 | Train:107 Dev:35 Test:47
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Feature 1: BERT Text Embeddings (v13, 384D)
+
+────────────────────────────────────────────────────────────────────────────────
+In [3] (Code Cell #3)
+────────────────────────────────────────────────────────────────────────────────
+
+Loading BERT embeddings...
+BERT: (189, 384)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Feature 2: MFCC + Acoustic (daic_features_final.csv, 56D, coverage 189/189)
+
+────────────────────────────────────────────────────────────────────────────────
+In [4] (Code Cell #4)
+────────────────────────────────────────────────────────────────────────────────
+
+Loading MFCC features...
+MFCC: (189, 56) | coverage: 102/189
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Feature 3: eGeMAPS v15 (88 standard acoustic features)
+
+────────────────────────────────────────────────────────────────────────────────
+In [5] (Code Cell #5)
+────────────────────────────────────────────────────────────────────────────────
+
+Loading eGeMAPS v15 features...
+  eGeMAPS shape: (102, 90)
+  eGeMAPS feature columns: 88
+  Coverage: 102 participants
+  eGeMAPS: (189, 88) | coverage: 102/189
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Feature 4: Linguistic Features (25D, from transcripts)
+
+────────────────────────────────────────────────────────────────────────────────
+In [6] (Code Cell #6)
+────────────────────────────────────────────────────────────────────────────────
+
+Extracting linguistic features...
+  Linguistic: (189, 25) | 3.1s
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Feature 5: Prosodic (v49 cache) + Gender
+
+────────────────────────────────────────────────────────────────────────────────
+In [7] (Code Cell #7)
+────────────────────────────────────────────────────────────────────────────────
+Prosodic (v49): (189, 18)
+
+Labels: dep=56, non-dep=133, total=189
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Split Masks & Feature Sets
+
+────────────────────────────────────────────────────────────────────────────────
+In [8] (Code Cell #8)
+────────────────────────────────────────────────────────────────────────────────
+Train+Dev: 142 (dep=42)
+Dev:       35 (dep=12)
+Test:      47 (dep=14)
+  BERT_Ling: (189, 409)
+  MFCC_Ling: (189, 82)
+  eGeMAPS_Ling: (189, 113)
+  BERT_eGeMAPS_Ling: (189, 497)
+  eGeMAPS_MFCC_Ling: (189, 169)
+  BERT_MFCC_Ling: (189, 465)
+  All_Features: (189, 572)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Model Grid (SVM + LR for CV — lean)
+
+────────────────────────────────────────────────────────────────────────────────
+In [9] (Code Cell #9)
+────────────────────────────────────────────────────────────────────────────────
+Total lean model variants: 15
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 5-Fold CV on Train+Dev
+
+────────────────────────────────────────────────────────────────────────────────
+In [10] (Code Cell #10)
+────────────────────────────────────────────────────────────────────────────────
+
+=================================================================
+5-FOLD CV — Train+Dev
+=================================================================
+
+[BERT_Ling] shape=(142, 409)
+  Done BERT_Ling. 15s elapsed
+
+[MFCC_Ling] shape=(142, 82)
+  Done MFCC_Ling. 17s elapsed
+
+[eGeMAPS_Ling] shape=(142, 113)
+  Done eGeMAPS_Ling. 20s elapsed
+
+[BERT_eGeMAPS_Ling] shape=(142, 497)
+  Done BERT_eGeMAPS_Ling. 23s elapsed
+
+[eGeMAPS_MFCC_Ling] shape=(142, 169)
+  Done eGeMAPS_MFCC_Ling. 26s elapsed
+
+[BERT_MFCC_Ling] shape=(142, 465)
+  Done BERT_MFCC_Ling. 29s elapsed
+
+[All_Features] shape=(142, 572)
+  Done All_Features. 34s elapsed
+
+Top-20 CV:
+                                    F1   Thr       AUC
+MFCC_Ling|SVM_rbf_C2          0.726005  0.40  0.746905
+MFCC_Ling|SVM_rbf_C5          0.680472  0.48  0.710000
+MFCC_Ling|SVM_rbf_C1          0.678442  0.48  0.725000
+MFCC_Ling|SVM_rbf_C0.5        0.676877  0.53  0.685238
+All_Features|SVM_rbf_C0.5     0.658043  0.70  0.672857
+BERT_MFCC_Ling|SVM_rbf_C0.5   0.654221  0.60  0.671190
+All_Features|LR_C0.01         0.652767  0.53  0.686905
+All_Features|SVM_rbf_C1       0.652767  0.62  0.653333
+All_Features|SVM_rbf_C5       0.652550  0.40  0.645476
+All_Features|SVM_rbf_C10      0.652550  0.40  0.645476
+MFCC_Ling|SVM_rbf_C10         0.649753  0.44  0.703571
+BERT_MFCC_Ling|SVM_rbf_C1     0.643737  0.43  0.656429
+BERT_eGeMAPS_Ling|LR_C0.01    0.640688  0.51  0.679762
+All_Features|SVM_rbf_C2       0.640688  0.42  0.641905
+BERT_eGeMAPS_Ling|SVM_rbf_C2  0.638076  0.23  0.640952
+All_Features|LR_C0.1          0.635897  0.21  0.675952
+All_Features|LR_C0.05         0.634732  0.45  0.679286
+BERT_MFCC_Ling|SVM_rbf_C5     0.633999  0.38  0.650238
+BERT_MFCC_Ling|SVM_rbf_C10    0.633999  0.38  0.650238
+BERT_MFCC_Ling|SVM_rbf_C2     0.633999  0.38  0.649762
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Official Test Evaluation (Original DAIC-WOZ Split)
+
+────────────────────────────────────────────────────────────────────────────────
+In [11] (Code Cell #11)
+────────────────────────────────────────────────────────────────────────────────
+
+=================================================================
+OFFICIAL TEST RESULTS — Original DAIC-WOZ Split
+=================================================================
+  MFCC_Ling|SVM_rbf_C2                              : F1=0.6810 Acc=0.7447 AUC=0.6104 (thr=0.46)
+  MFCC_Ling|SVM_rbf_C5                              : F1=0.6643 Acc=0.7447 AUC=0.6126 (thr=0.54)
+  MFCC_Ling|SVM_rbf_C1                              : F1=0.5931 Acc=0.6596 AUC=0.6320 (thr=0.45)
+  MFCC_Ling|SVM_rbf_C0.5                            : F1=0.5747 Acc=0.6596 AUC=0.6429 (thr=0.56)
+  All_Features|SVM_rbf_C0.5                         : F1=0.6323 Acc=0.6383 AUC=0.7078 (thr=0.22)
+  BERT_MFCC_Ling|SVM_rbf_C0.5                       : F1=0.5499 Acc=0.5532 AUC=0.7165 (thr=0.20)
+  All_Features|LR_C0.01                             : F1=0.6210 Acc=0.6596 AUC=0.7208 (thr=0.40)
+  All_Features|SVM_rbf_C1                           : F1=0.5648 Acc=0.5745 AUC=0.7013 (thr=0.20)
+  All_Features|SVM_rbf_C5                           : F1=0.6390 Acc=0.6809 AUC=0.6775 (thr=0.20)
+  All_Features|SVM_rbf_C10                          : F1=0.6390 Acc=0.6809 AUC=0.6775 (thr=0.20)
+  MFCC_Ling|SVM_rbf_C10                             : F1=0.6278 Acc=0.7021 AUC=0.6277 (thr=0.47)
+  BERT_MFCC_Ling|SVM_rbf_C1                         : F1=0.5583 Acc=0.5745 AUC=0.6948 (thr=0.20)
+  BERT_eGeMAPS_Ling|LR_C0.01                        : F1=0.6810 Acc=0.7447 AUC=0.7078 (thr=0.50)
+  All_Features|SVM_rbf_C2                           : F1=0.6390 Acc=0.6809 AUC=0.6840 (thr=0.20)
+  BERT_eGeMAPS_Ling|SVM_rbf_C2                      : F1=0.5736 Acc=0.6170 AUC=0.6861 (thr=0.20)
+  All_Features|LR_C0.1                              : F1=0.6759 Acc=0.7234 AUC=0.7554 (thr=0.33)
+  All_Features|LR_C0.05                             : F1=0.6210 Acc=0.6596 AUC=0.7381 (thr=0.28)
+  BERT_MFCC_Ling|SVM_rbf_C5                         : F1=0.6210 Acc=0.6596 AUC=0.6667 (thr=0.20)
+  BERT_MFCC_Ling|SVM_rbf_C10                        : F1=0.6210 Acc=0.6596 AUC=0.6667 (thr=0.20)
+  BERT_MFCC_Ling|SVM_rbf_C2                         : F1=0.6210 Acc=0.6596 AUC=0.6688 (thr=0.20)
+  BERT_MFCC_Ling|LR_C0.01                           : F1=0.5853 Acc=0.6170 AUC=0.7035 (thr=0.34)
+  MFCC_Ling|SVM_lin_C0.05                           : F1=0.5837 Acc=0.5957 AUC=0.6688 (thr=0.39)
+  BERT_eGeMAPS_Ling|SVM_rbf_C10                     : F1=0.5909 Acc=0.6383 AUC=0.6797 (thr=0.20)
+  BERT_eGeMAPS_Ling|SVM_rbf_C5                      : F1=0.5909 Acc=0.6383 AUC=0.6797 (thr=0.20)
+  eGeMAPS_MFCC_Ling|SVM_rbf_C10                     : F1=0.5594 Acc=0.6170 AUC=0.5281 (thr=0.38)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Diverse Ensemble Strategies (Top-3, 5, 7, 10)
+
+────────────────────────────────────────────────────────────────────────────────
+In [12] (Code Cell #12)
+────────────────────────────────────────────────────────────────────────────────
+
+--- Soft Voting Ensembles ---
+  Top-3  Ensemble: F1=0.7631 Acc=0.7872 AUC=0.7641 (thr=0.34)
+  Top-5  Ensemble: F1=0.7696 Acc=0.7872 AUC=0.7662 (thr=0.30)
+  Top-7  Ensemble: F1=0.7631 Acc=0.7872 AUC=0.7706 (thr=0.30)
+  Top-10 Ensemble: F1=0.7496 Acc=0.7660 AUC=0.7771 (thr=0.31)
+  Top-15 Ensemble: F1=0.7103 Acc=0.7234 AUC=0.7684 (thr=0.26)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Stacking Ensemble (OOF + meta-learner)
+
+────────────────────────────────────────────────────────────────────────────────
+In [13] (Code Cell #13)
+────────────────────────────────────────────────────────────────────────────────
+
+--- Stacking Ensemble ---
+  Stack train: (142, 17)
+  [svm_rbf2] OOF AUC=0.7231
+  [svm_rbf5] OOF AUC=0.6793
+  [svm_lin] OOF AUC=0.6383
+  [lr01] OOF AUC=0.6560
+  [lr1] OOF AUC=0.6355
+  [rf] OOF AUC=0.6702
+  [gb] OOF AUC=0.6779
+
+Stacking (MFCC_Ling): F1=0.6211 Acc=0.6383 AUC=0.7013 (thr=0.45)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Hybrid: Soft Vote + Stacking
+
+────────────────────────────────────────────────────────────────────────────────
+In [14] (Code Cell #14)
+────────────────────────────────────────────────────────────────────────────────
+
+--- Hybrid Combinations ---
+  Hybrid (sv=0.2): F1=0.7142 Acc=0.7660 AUC=0.7424 (thr=0.52)
+  Hybrid (sv=0.3): F1=0.7157 Acc=0.7447 AUC=0.7554 (thr=0.45)
+  Hybrid (sv=0.4): F1=0.7552 Acc=0.7872 AUC=0.7597 (thr=0.46)
+  Hybrid (sv=0.5): F1=0.7552 Acc=0.7872 AUC=0.7619 (thr=0.44)
+  Hybrid (sv=0.6): F1=0.7552 Acc=0.7872 AUC=0.7641 (thr=0.44)
+  Hybrid (sv=0.7): F1=0.7432 Acc=0.7660 AUC=0.7619 (thr=0.37)
+  Hybrid (sv=0.8): F1=0.7696 Acc=0.7872 AUC=0.7641 (thr=0.34)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Final Summary
+
+────────────────────────────────────────────────────────────────────────────────
+In [15] (Code Cell #15)
+────────────────────────────────────────────────────────────────────────────────
+
+======================================================================
+FINAL SUMMARY v52 — eGeMAPS + MFCC + BERT + LINGUISTIC
+======================================================================
+Best Individual: MFCC_Ling|SVM_rbf_C2 | F1=0.6810
+Best Ensemble  : F1=0.7696
+Stacking       : F1=0.6211
+
+Classification Report (Best Ensemble, thr=0.30):
+               precision    recall  f1-score   support
+
+Non-Depressed       0.93      0.76      0.83        33
+    Depressed       0.60      0.86      0.71        14
+
+     accuracy                           0.79        47
+    macro avg       0.76      0.81      0.77        47
+ weighted avg       0.83      0.79      0.80        47
+
+Accuracy: 0.7872 | AUC: 0.7662
+
+Results saved to: D:\repositories\menthealth-ai\results\v52
+Total elapsed: 41s
+
+PREV-TARGET MET: Test Macro F1 = 0.7696 >= 0.75
+   Gap to 0.80: 0.0304
+
+================================================================================
+  RINGKASAN
+  Code cells  : 15
+  Cells dengan output teks: 15
+================================================================================

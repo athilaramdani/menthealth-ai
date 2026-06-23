@@ -1,0 +1,502 @@
+================================================================================
+  NOTEBOOK OUTPUT EXTRACTOR
+  File   : traditional_mlv5.ipynb
+  Path   : D:/repositories/menthealth-ai/notebooks/traditional_mlv5.ipynb
+  Diambil: 2026-06-13 07:40:37
+  Total  : 28 cell
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+Dataset Overview: DAIC-WOZ
+**Pipeline v5** — Klasifikasi Kesehatan Mental Berbasis Audio
+**Peran**: ML & Data Engineer — Athila Ramdani Saputra
+
+─────────────────────────────────────────────────────────────────────
+UPGRADE dari v4 (target ≥ 0.70 Test Macro F1):
+
+[1] Segmentasi 10s + Participant-Level Evaluation
+Train pada ribuan segmen, evaluasi pada participant (mean-prob voting)
+
+[2] Audio Augmentation (train only)
+Pitch shift ±2st, time stretch 0.9/1.1×, gaussian noise
+→ 4× data latih efektif
+
+[3] Wav2Vec 2.0 NYATA (facebook/wav2vec2-base)
+Mean-pool hidden states → 768-dim rich representation
+Fallback otomatis jika transformers tidak tersedia
+
+[4] Fitur Prosodik Diperkaya
+HNR, speech rate, pause stats, jitter, shimmer, formant proxy,
+low-energy ratio, spectral entropy per-band
+
+[5] SMOTE oversampling (pada feature space, train only)
+
+[6] Optimal Threshold Tuning (per model, pada dev split)
+Cari threshold 0.30–0.70 yang maksimalkan Macro F1
+
+[7] Soft Voting Ensemble (top-N model)
+
+Tetap 12 model = 4 Classifier × 3 Feature Type (apple-to-apple)
++ 1 Ensemble gabungan di akhir
+─────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+Setup — Install Dependencies
+Cell ini memastikan semua package yang dibutuhkan sudah terinstall.
+Aman untuk dijalankan berulang kali (skip jika sudah ada).
+
+────────────────────────────────────────────────────────────────────────────────
+In [15] (Code Cell #1)
+────────────────────────────────────────────────────────────────────────────────
+[Installing] imbalanced-learn>=0.14.0 ...
+[OK] imbalanced-learn>=0.14.0 selesai.
+[WARN] torch gagal di-load (OSError / DLL issue). Fitur terkait akan pakai fallback.
+
+[✓] Semua dependensi siap.
+
+────────────────────────────────────────────────────────────────────────────────
+In [16] (Code Cell #2)
+────────────────────────────────────────────────────────────────────────────────
+[WARN] SMOTE tidak tersedia (cannot import name 'tarfile_extractall' from 'sklearn.utils.fixes' (d:\repositories\menthealth-ai\.venv\Lib\site-packages\sklearn\utils\fixes.py)). Akan pakai fallback oversampling manual.
+[WARN] torch gagal load DLL/SO (OSError: [WinError 1114] A dynamic link library (DLL) initialization routine failed. Error loading "d:\repositories\menthealth-ai).
+       Kemungkinan penyebab: versi torch tidak kompatibel dengan driver GPU/CPU di Windows.
+       Wav2Vec akan menggunakan fallback MFCC-embed (tidak ada akurasi yang hilang besar).
+Library berhasil diimport.
+
+Project root : d:\repositories\menthealth-ai
+Feature dir  : d:\repositories\menthealth-ai\data\features\v5
+Models dir   : d:\repositories\menthealth-ai\models\ml_v5
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+0. Konfigurasi Audio
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+1. Feature Extraction Functions
+
+────────────────────────────────────────────────────────────────────────────────
+In [18] (Code Cell #4)
+────────────────────────────────────────────────────────────────────────────────
+Feature extractor v5:
+  - MFCC
+  - Spectrogram
+  - Wav2Vec
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+2. Label Mapping
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+3. Multi-Feature Segmented Extraction Pipeline
+Satu pass → ekstrak 3 fitur × augmentasi (train only) secara efisien.
+
+────────────────────────────────────────────────────────────────────────────────
+In [20] (Code Cell #6)
+────────────────────────────────────────────────────────────────────────────────
+
+[INFO] CSV v5 sudah tersedia:
+  MFCC: d:\repositories\menthealth-ai\data\features\v5\daic_v5_mfcc.csv
+  Spectrogram: d:\repositories\menthealth-ai\data\features\v5\daic_v5_spectrogram.csv
+  Wav2Vec: d:\repositories\menthealth-ai\data\features\v5\daic_v5_wav2vec.csv
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+4. Load & Prepare Dataset (Segment-level train, Participant-level eval)
+
+────────────────────────────────────────────────────────────────────────────────
+In [21] (Code Cell #7)
+────────────────────────────────────────────────────────────────────────────────
+  [MFCC] SMOTE: 12384 → 15816 rows
+
+  [MFCC] Dataset v5 siap:
+    Fitur final    : 670
+    Train (raw aug): (12384, 670)  |  (post-SMOTE): (15816, 670)
+    Dev            : (611, 670)  |  y_dist: {0: 307, 1: 304}
+    Test           : (700, 670)  |  y_dist: {0: 430, 1: 270}
+  [Spectrogram] SMOTE: 12384 → 15816 rows
+
+  [Spectrogram] Dataset v5 siap:
+    Fitur final    : 264
+    Train (raw aug): (12384, 264)  |  (post-SMOTE): (15816, 264)
+    Dev            : (611, 264)  |  y_dist: {0: 307, 1: 304}
+    Test           : (700, 264)  |  y_dist: {0: 430, 1: 270}
+  [Wav2Vec] SMOTE: 12384 → 15816 rows
+
+  [Wav2Vec] Dataset v5 siap:
+    Fitur final    : 95
+    Train (raw aug): (12384, 95)  |  (post-SMOTE): (15816, 95)
+    Dev            : (611, 95)  |  y_dist: {0: 307, 1: 304}
+    Test           : (700, 95)  |  y_dist: {0: 430, 1: 270}
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+5. Definisi Model (Identik untuk Semua Feature Types)
+
+────────────────────────────────────────────────────────────────────────────────
+In [22] (Code Cell #8)
+────────────────────────────────────────────────────────────────────────────────
+Konfigurasi model v5 (identik, apple-to-apple):
+  - Logistic Regression
+  - SVM
+  - XGBoost
+  - Random Forest
+
+Total: 4 model × 3 feature = 12 model + ensemble
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+6. Evaluasi Participant-Level (Mean-Probability Voting)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+7. Training — 12 Model Apple-to-Apple + Threshold Tuning
+
+────────────────────────────────────────────────────────────────────────────────
+In [24] (Code Cell #10)
+────────────────────────────────────────────────────────────────────────────────
+
+================================================================================
+  FEATURE: MFCC  |  670 fitur  |  Train (augmented): 15816 rows
+================================================================================
+
+  [MFCC + Logistic Regression] Tuning ...
+    Best params (CV): {'C': 10.0, 'solver': 'liblinear'}
+    Best CV F1       : 0.5786
+    Val  F1 (thr=.5) : 0.6411
+    Val  F1 (thr=0.25): 0.6606  ← tuned
+    Test F1 (thr=0.25): 0.3429  | Acc=0.3478  | AUC=0.4841
+
+  [MFCC + SVM] Tuning ...
+    Best params (CV): {'C': 0.1, 'gamma': 'auto'}
+    Best CV F1       : 0.6042
+    Val  F1 (thr=.5) : 0.6411
+    Val  F1 (thr=0.63): 0.7000  ← tuned
+    Test F1 (thr=0.63): 0.4250  | Acc=0.4783  | AUC=0.4841
+
+  [MFCC + XGBoost] Tuning ...
+    Best params (CV): {'learning_rate': 0.01, 'max_depth': 7, 'n_estimators': 100, 'subsample': 1.0}
+    Best CV F1       : 0.6086
+    Val  F1 (thr=.5) : 0.6411
+    Val  F1 (thr=0.50): 0.6411  ← tuned
+    Test F1 (thr=0.50): 0.5068  | Acc=0.5217  | AUC=0.5476
+
+  [MFCC + Random Forest] Tuning ...
+    Best params (CV): {'max_depth': 10, 'max_features': 'sqrt', 'min_samples_split': 2, 'n_estimators': 100}
+    Best CV F1       : 0.5829
+    Val  F1 (thr=.5) : 0.6411
+    Val  F1 (thr=0.53): 0.7000  ← tuned
+    Test F1 (thr=0.53): 0.4250  | Acc=0.4783  | AUC=0.4683
+
+================================================================================
+  FEATURE: Spectrogram  |  264 fitur  |  Train (augmented): 15816 rows
+================================================================================
+
+  [Spectrogram + Logistic Regression] Tuning ...
+    Best params (CV): {'C': 0.01, 'solver': 'lbfgs'}
+    Best CV F1       : 0.5813
+    Val  F1 (thr=.5) : 0.6411
+    Val  F1 (thr=0.43): 0.6411  ← tuned
+    Test F1 (thr=0.43): 0.4692  | Acc=0.4783  | AUC=0.4683
+
+  [Spectrogram + SVM] Tuning ...
+    Best params (CV): {'C': 0.1, 'gamma': 0.001}
+    Best CV F1       : 0.5836
+    Val  F1 (thr=.5) : 0.5833
+    Val  F1 (thr=0.58): 0.6411  ← tuned
+    Test F1 (thr=0.58): 0.4103  | Acc=0.5217  | AUC=0.4048
+
+  [Spectrogram + XGBoost] Tuning ...
+    Best params (CV): {'learning_rate': 0.05, 'max_depth': 7, 'n_estimators': 100, 'subsample': 0.8}
+    Best CV F1       : 0.5513
+    Val  F1 (thr=.5) : 0.5833
+    Val  F1 (thr=0.25): 0.5833  ← tuned
+    Test F1 (thr=0.25): 0.3275  | Acc=0.3478  | AUC=0.3492
+
+  [Spectrogram + Random Forest] Tuning ...
+    Best params (CV): {'max_depth': 10, 'max_features': 'log2', 'min_samples_split': 2, 'n_estimators': 200}
+    Best CV F1       : 0.5714
+    Val  F1 (thr=.5) : 0.6411
+    Val  F1 (thr=0.25): 0.7321  ← tuned
+    Test F1 (thr=0.25): 0.3902  | Acc=0.3913  | AUC=0.4444
+
+================================================================================
+  FEATURE: Wav2Vec  |  95 fitur  |  Train (augmented): 15816 rows
+================================================================================
+
+  [Wav2Vec + Logistic Regression] Tuning ...
+    Best params (CV): {'C': 0.001, 'solver': 'liblinear'}
+    Best CV F1       : 0.5984
+    Val  F1 (thr=.5) : 0.5833
+    Val  F1 (thr=0.68): 0.7000  ← tuned
+    Test F1 (thr=0.68): 0.4250  | Acc=0.4783  | AUC=0.3968
+
+  [Wav2Vec + SVM] Tuning ...
+    Best params (CV): {'C': 0.1, 'gamma': 'scale'}
+    Best CV F1       : 0.6120
+    Val  F1 (thr=.5) : 0.7000
+    Val  F1 (thr=0.50): 0.7000  ← tuned
+    Test F1 (thr=0.50): 0.4250  | Acc=0.4783  | AUC=0.4206
+
+  [Wav2Vec + XGBoost] Tuning ...
+    Best params (CV): {'learning_rate': 0.01, 'max_depth': 3, 'n_estimators': 100, 'subsample': 0.8}
+    Best CV F1       : 0.5711
+    Val  F1 (thr=.5) : 0.4000
+    Val  F1 (thr=0.73): 0.7000  ← tuned
+    Test F1 (thr=0.73): 0.4866  | Acc=0.5652  | AUC=0.4365
+
+  [Wav2Vec + Random Forest] Tuning ...
+    Best params (CV): {'max_depth': 5, 'max_features': 'log2', 'min_samples_split': 2, 'n_estimators': 200}
+    Best CV F1       : 0.6035
+    Val  F1 (thr=.5) : 0.5833
+    Val  F1 (thr=0.55): 0.6411  ← tuned
+    Test F1 (thr=0.55): 0.4559  | Acc=0.5217  | AUC=0.4603
+
+================================================================================
+  SEMUA 12 MODEL v5 SELESAI DILATIH
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+8. Soft Voting Ensemble
+
+────────────────────────────────────────────────────────────────────────────────
+In [25] (Code Cell #11)
+────────────────────────────────────────────────────────────────────────────────
+
+[ENSEMBLE] Membangun Soft Voting Ensemble dari semua 12 model ...
+  Ensemble best threshold: 0.650
+  Ensemble Val  Macro F1 : 0.7000
+  Ensemble Test Macro F1 : 0.4559
+  Ensemble Test Accuracy : 0.5217
+  Ensemble Test ROC-AUC  : 0.4286
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+9. Tabel Perbandingan Lengkap
+
+────────────────────────────────────────────────────────────────────────────────
+In [26] (Code Cell #12)
+────────────────────────────────────────────────────────────────────────────────
+
+==============================================================================================================
+                      RINGKASAN FINAL v5 — 12 Model + Ensemble (diurutkan Test Macro F1)                      
+==============================================================================================================
+   Feature Extraction                Model  Threshold  Test Macro F1  Test Accuracy  Test ROC-AUC
+1                MFCC              XGBoost      0.500         0.5068         0.5217        0.5476
+2             Wav2Vec              XGBoost      0.725         0.4866         0.5652        0.4365
+3         Spectrogram  Logistic Regression      0.425         0.4692         0.4783        0.4683
+4             Wav2Vec        Random Forest      0.550         0.4559         0.5217        0.4603
+5            Ensemble     Soft Voting (12)      0.650         0.4559         0.5217        0.4286
+6                MFCC                  SVM      0.625         0.4250         0.4783        0.4841
+7                MFCC        Random Forest      0.525         0.4250         0.4783        0.4683
+8             Wav2Vec  Logistic Regression      0.675         0.4250         0.4783        0.3968
+9             Wav2Vec                  SVM      0.500         0.4250         0.4783        0.4206
+10        Spectrogram                  SVM      0.575         0.4103         0.5217        0.4048
+11        Spectrogram        Random Forest      0.250         0.3902         0.3913        0.4444
+12               MFCC  Logistic Regression      0.250         0.3429         0.3478        0.4841
+13        Spectrogram              XGBoost      0.250         0.3275         0.3478        0.3492
+
+Tabel lengkap disimpan di: d:\repositories\menthealth-ai\results\v5\metrics\daic_v5_comparison.csv
+
+  BEST SINGLE : MFCC + XGBoost
+  Test F1     : 0.5068  | AUC: 0.5476
+  ENSEMBLE    : F1=0.4559  | AUC=0.4286
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+10. Visualisasi
+
+────────────────────────────────────────────────────────────────────────────────
+In [27] (Code Cell #13)
+────────────────────────────────────────────────────────────────────────────────
+<Figure size 2200x600 with 4 Axes>
+Plot disimpan: d:\repositories\menthealth-ai\results\v5\plots\v5_grouped_bar_f1.png
+<Figure size 1600x400 with 4 Axes>
+Heatmap disimpan: d:\repositories\menthealth-ai\results\v5\plots\v5_heatmap.png
+<Figure size 1200x600 with 1 Axes>
+Improvement plot disimpan: d:\repositories\menthealth-ai\results\v5\plots\v5_vs_v4_improvement.png
+<Figure size 2200x2000 with 16 Axes>
+Confusion matrices disimpan: d:\repositories\menthealth-ai\results\v5\confusion_matrix\v5_all_confusion_matrices.png
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+11. Classification Report Lengkap
+
+────────────────────────────────────────────────────────────────────────────────
+In [28] (Code Cell #14)
+────────────────────────────────────────────────────────────────────────────────
+
+====================================================================================================
+                      CLASSIFICATION REPORT LENGKAP — v5 (12 Model + Ensemble)                      
+====================================================================================================
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+  FEATURE: MFCC
+────────────────────────────────────────────────────────────────────────────────────────────────────
+
+  [Logistic Regression]  (threshold=0.250)
+              precision    recall  f1-score   support
+
+  Normal (0)       0.43      0.21      0.29        14
+ Depresi (1)       0.31      0.56      0.40         9
+
+    accuracy                           0.35        23
+   macro avg       0.37      0.38      0.34        23
+weighted avg       0.38      0.35      0.33        23
+
+
+  [SVM]  (threshold=0.625)
+              precision    recall  f1-score   support
+
+  Normal (0)       0.56      0.64      0.60        14
+ Depresi (1)       0.29      0.22      0.25         9
+
+    accuracy                           0.48        23
+   macro avg       0.42      0.43      0.43        23
+weighted avg       0.45      0.48      0.46        23
+
+
+  [XGBoost]  (threshold=0.500)
+              precision    recall  f1-score   support
+
+  Normal (0)       0.62      0.57      0.59        14
+ Depresi (1)       0.40      0.44      0.42         9
+
+    accuracy                           0.52        23
+   macro avg       0.51      0.51      0.51        23
+weighted avg       0.53      0.52      0.53        23
+
+
+  [Random Forest]  (threshold=0.525)
+              precision    recall  f1-score   support
+
+  Normal (0)       0.56      0.64      0.60        14
+ Depresi (1)       0.29      0.22      0.25         9
+
+    accuracy                           0.48        23
+   macro avg       0.42      0.43      0.43        23
+weighted avg       0.45      0.48      0.46        23
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+  FEATURE: Spectrogram
+────────────────────────────────────────────────────────────────────────────────────────────────────
+
+  [Logistic Regression]  (threshold=0.425)
+              precision    recall  f1-score   support
+
+  Normal (0)       0.58      0.50      0.54        14
+ Depresi (1)       0.36      0.44      0.40         9
+
+    accuracy                           0.48        23
+   macro avg       0.47      0.47      0.47        23
+weighted avg       0.50      0.48      0.48        23
+
+
+  [SVM]  (threshold=0.575)
+              precision    recall  f1-score   support
+
+  Normal (0)       0.58      0.79      0.67        14
+ Depresi (1)       0.25      0.11      0.15         9
+
+    accuracy                           0.52        23
+   macro avg       0.41      0.45      0.41        23
+weighted avg       0.45      0.52      0.47        23
+
+
+  [XGBoost]  (threshold=0.250)
+              precision    recall  f1-score   support
+
+  Normal (0)       0.46      0.43      0.44        14
+ Depresi (1)       0.20      0.22      0.21         9
+
+    accuracy                           0.35        23
+   macro avg       0.33      0.33      0.33        23
+weighted avg       0.36      0.35      0.35        23
+
+
+  [Random Forest]  (threshold=0.250)
+              precision    recall  f1-score   support
+
+  Normal (0)       0.50      0.36      0.42        14
+ Depresi (1)       0.31      0.44      0.36         9
+
+    accuracy                           0.39        23
+   macro avg       0.40      0.40      0.39        23
+weighted avg       0.42      0.39      0.40        23
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+  FEATURE: Wav2Vec
+────────────────────────────────────────────────────────────────────────────────────────────────────
+
+  [Logistic Regression]  (threshold=0.675)
+              precision    recall  f1-score   support
+
+  Normal (0)       0.56      0.64      0.60        14
+ Depresi (1)       0.29      0.22      0.25         9
+
+    accuracy                           0.48        23
+   macro avg       0.42      0.43      0.43        23
+weighted avg       0.45      0.48      0.46        23
+
+
+  [SVM]  (threshold=0.500)
+              precision    recall  f1-score   support
+
+  Normal (0)       0.56      0.64      0.60        14
+ Depresi (1)       0.29      0.22      0.25         9
+
+    accuracy                           0.48        23
+   macro avg       0.42      0.43      0.43        23
+weighted avg       0.45      0.48      0.46        23
+
+
+  [XGBoost]  (threshold=0.725)
+              precision    recall  f1-score   support
+
+  Normal (0)       0.61      0.79      0.69        14
+ Depresi (1)       0.40      0.22      0.29         9
+
+    accuracy                           0.57        23
+   macro avg       0.51      0.50      0.49        23
+weighted avg       0.53      0.57      0.53        23
+
+
+  [Random Forest]  (threshold=0.550)
+              precision    recall  f1-score   support
+
+  Normal (0)       0.59      0.71      0.65        14
+ Depresi (1)       0.33      0.22      0.27         9
+
+    accuracy                           0.52        23
+   macro avg       0.46      0.47      0.46        23
+weighted avg       0.49      0.52      0.50        23
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+  ENSEMBLE (Soft Voting — 12 Model)
+────────────────────────────────────────────────────────────────────────────────────────────────────
+              precision    recall  f1-score   support
+
+  Normal (0)       0.59      0.71      0.65        14
+ Depresi (1)       0.33      0.22      0.27         9
+
+    accuracy                           0.52        23
+   macro avg       0.46      0.47      0.46        23
+weighted avg       0.49      0.52      0.50        23
+
+
+[OK] Pipeline Traditional ML v5 selesai!
+     Models dir  : d:\repositories\menthealth-ai\models\ml_v5
+     Results dir : d:\repositories\menthealth-ai\results\v5
+
+================================================================================
+  RINGKASAN
+  Code cells  : 14
+  Cells dengan output teks: 11
+================================================================================

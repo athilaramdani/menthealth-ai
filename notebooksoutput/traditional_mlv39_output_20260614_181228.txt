@@ -1,0 +1,135 @@
+================================================================================
+  NOTEBOOK OUTPUT EXTRACTOR
+  File   : traditional_mlv39.ipynb
+  Path   : d:\repositories\menthealth-ai\notebooks\traditional_mlv39.ipynb
+  Diambil: 2026-06-14 18:12:28
+  Total  : 15 cell
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+Dataset Overview: DAIC-WOZ
+**Pipeline v39** — Klasifikasi Kesehatan Mental Berbasis Multimodal Stacking
+
+─────────────────────────────────────────────────────────────────────
+ v39 = LOOCV + SMOTE + Block-wise Lasso FS + Audio/Text + Stacking
+
+ Tujuan: Menembus Macro F1 > 0.70
+ [1] 4 Ekstraksi Fitur (MFCC, Spectrogram, Wav2Vec 2.0 Full, Text Embeddings v13)
+ [2] Menggunakan keseluruhan data (102 partisipan) dengan LOOCV
+ [3] Terdapat 4 model dasar: LR, SVM, XGBoost, Random Forest
+ [4] Model ke-5 adalah **StackingClassifier** yang menjadikan 4 model dasar sebagai
+     penggali fitur awal, lalu memprediksi final menggunakan LR Meta-Learner.
+ [5] Menggunakan Block-wise Lasso Feature Selection
+─────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Setup
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Load Features
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Model Config
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## LOOCV Evaluation Loop
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Running
+
+────────────────────────────────────────────────────────────────────────────────
+In [5] (Code Cell #5)
+────────────────────────────────────────────────────────────────────────────────
+
+[MFCC]
+  lr                  : F1_tuned=0.6609 (thr=0.57)
+  svm                 : F1_tuned=0.6781 (thr=0.70)
+  xgb                 : F1_tuned=0.5226 (thr=0.68)
+  rf                  : F1_tuned=0.6129 (thr=0.58)
+  Stacking            : F1_tuned=0.6416 (thr=0.53)
+
+[Spectrogram]
+  lr                  : F1_tuned=0.5866 (thr=0.50)
+  svm                 : F1_tuned=0.6029 (thr=0.55)
+  xgb                 : F1_tuned=0.5433 (thr=0.63)
+  rf                  : F1_tuned=0.5678 (thr=0.52)
+  Stacking            : F1_tuned=0.5597 (thr=0.53)
+
+[Wav2Vec_Full]
+  lr                  : F1_tuned=0.5256 (thr=0.55)
+  svm                 : F1_tuned=0.5068 (thr=0.33)
+  xgb                 : F1_tuned=0.5204 (thr=0.44)
+  rf                  : F1_tuned=0.5248 (thr=0.36)
+  Stacking            : F1_tuned=0.5376 (thr=0.46)
+
+[Text_Only]
+  lr                  : F1_tuned=0.5678 (thr=0.55)
+  svm                 : F1_tuned=0.5510 (thr=0.63)
+  xgb                 : F1_tuned=0.5306 (thr=0.66)
+  rf                  : F1_tuned=0.5641 (thr=0.50)
+  Stacking            : F1_tuned=0.5515 (thr=0.50)
+
+[Fusion_All]
+  lr                  : F1_tuned=0.5932 (thr=0.56)
+  svm                 : F1_tuned=0.6621 (thr=0.50)
+  xgb                 : F1_tuned=0.5952 (thr=0.52)
+  rf                  : F1_tuned=0.5881 (thr=0.39)
+  Stacking            : F1_tuned=0.5968 (thr=0.54)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Ensembles (Soft Voting Top-3, Top-4, Top-5, Top-6)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Save Results
+
+────────────────────────────────────────────────────────────────────────────────
+In [7] (Code Cell #7)
+────────────────────────────────────────────────────────────────────────────────
+
+================================================================================
+RINGKASAN v39 — LOOCV (Full Multimodal + Text + Audio + Stacking Classifier + Klasik)
+================================================================================
+         Feature     Model  F1 (tuned)  Best Thr       AUC
+1           MFCC       svm    0.678083      0.70  0.602157
+2       Ensemble      Top5    0.673774      0.54  0.598291
+3       Ensemble      Top3    0.669118      0.57  0.638584
+4       Ensemble      Top4    0.665149      0.53  0.615792
+5     Fusion_All       svm    0.662150      0.50  0.652422
+6           MFCC        lr    0.660896      0.57  0.601547
+7       Ensemble      Top6    0.660896      0.60  0.591372
+8           MFCC  Stacking    0.641634      0.53  0.515670
+9           MFCC        rf    0.612946      0.58  0.536834
+10   Spectrogram       svm    0.602941      0.55  0.499796
+11    Fusion_All  Stacking    0.596838      0.54  0.593407
+12    Fusion_All       xgb    0.595238      0.52  0.563289
+13    Fusion_All        lr    0.593210      0.56  0.606838
+14    Fusion_All        rf    0.588077      0.39  0.571429
+15   Spectrogram        lr    0.586555      0.50  0.522996
+16   Spectrogram        rf    0.567752      0.52  0.561254
+17     Text_Only        lr    0.567752      0.55  0.548230
+18     Text_Only        rf    0.564103      0.50  0.518926
+19   Spectrogram  Stacking    0.559746      0.53  0.512007
+20     Text_Only  Stacking    0.551488      0.50  0.523403
+21     Text_Only       svm    0.551047      0.63  0.522182
+22   Spectrogram       xgb    0.543346      0.63  0.537241
+23  Wav2Vec_Full  Stacking    0.537643      0.46  0.465201
+24     Text_Only       xgb    0.530627      0.66  0.513228
+25  Wav2Vec_Full        lr    0.525581      0.55  0.458689
+26  Wav2Vec_Full        rf    0.524845      0.36  0.493284
+27          MFCC       xgb    0.522589      0.68  0.470899
+28  Wav2Vec_Full       xgb    0.520376      0.44  0.459503
+29  Wav2Vec_Full       svm    0.506770      0.33  0.512007
+
+================================================================================
+  RINGKASAN
+  Code cells  : 7
+  Cells dengan output teks: 2
+================================================================================

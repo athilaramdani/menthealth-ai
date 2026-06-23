@@ -1,0 +1,108 @@
+================================================================================
+  NOTEBOOK OUTPUT EXTRACTOR
+  File   : traditional_mlv43_dl.ipynb
+  Path   : d:\repositories\menthealth-ai\notebooks\traditional_mlv43_dl.ipynb
+  Diambil: 2026-06-14 20:11:58
+  Total  : 15 cell
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+Dataset Overview: DAIC-WOZ (FULL 189 PARTICIPANTS)
+**Pipeline v43** — DEEP LEARNING (CNN on RAW COVAREP)
+
+─────────────────────────────────────────────────────────────────────
+ v43 = PyTorch 1D-CNN + 189 Participants + RAW COVAREP Matrices
+
+ Tujuan: Menembus F1 > 0.80 sesuai referensi State-of-the-Art (MDPI).
+ Data: Menggabungkan 107 Train + 35 Dev + 47 Test (Total 189).
+ Fitur: Raw COVAREP (74 features/frame, 10ms frame).
+ Metode: Segmentasi audio menjadi jendela 4 detik (400 frames).
+ Arsitektur: 1D Convolutional Neural Network (PyTorch).
+─────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Setup & Imports
+
+────────────────────────────────────────────────────────────────────────────────
+In [1] (Code Cell #1)
+────────────────────────────────────────────────────────────────────────────────
+Using device: cpu
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Load Labels (189 Participants)
+
+────────────────────────────────────────────────────────────────────────────────
+In [2] (Code Cell #2)
+────────────────────────────────────────────────────────────────────────────────
+Total Labels: 189
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Data Processing (Segmenting COVAREP)
+
+────────────────────────────────────────────────────────────────────────────────
+In [3] (Code Cell #3)
+────────────────────────────────────────────────────────────────────────────────
+Extracting overlapping windows from 189 participants...
+Total windows extracted: (90092, 400, 74)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Scaler and Dataset
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Model Architecture (1D CNN)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Training Loop
+
+────────────────────────────────────────────────────────────────────────────────
+In [6] (Code Cell #6)
+────────────────────────────────────────────────────────────────────────────────
+Starting Training...
+Epoch 1/20 | Train Loss: 0.6151 | Dev Loss: 2.9846
+Epoch 2/20 | Train Loss: 0.4414 | Dev Loss: 3.2350
+Epoch 3/20 | Train Loss: 0.3469 | Dev Loss: 3.2463
+Epoch 4/20 | Train Loss: 0.3334 | Dev Loss: 4.0365
+Epoch 5/20 | Train Loss: 0.2698 | Dev Loss: 4.2090
+Epoch 6/20 | Train Loss: 0.2113 | Dev Loss: 5.1086
+Epoch 7/20 | Train Loss: 0.1902 | Dev Loss: 5.4336
+Epoch 8/20 | Train Loss: 0.1951 | Dev Loss: 6.0039
+Epoch 9/20 | Train Loss: 0.1669 | Dev Loss: 5.5621
+Epoch 10/20 | Train Loss: 0.1279 | Dev Loss: 7.1114
+Epoch 11/20 | Train Loss: 0.1222 | Dev Loss: 8.8152
+Epoch 12/20 | Train Loss: 0.1140 | Dev Loss: 7.0807
+Epoch 13/20 | Train Loss: 0.1039 | Dev Loss: 8.4830
+Epoch 14/20 | Train Loss: 0.0953 | Dev Loss: 8.1572
+Epoch 15/20 | Train Loss: 0.0810 | Dev Loss: 8.4587
+Epoch 16/20 | Train Loss: 0.0772 | Dev Loss: 7.6750
+Epoch 17/20 | Train Loss: 0.0722 | Dev Loss: 8.4598
+Epoch 18/20 | Train Loss: 0.0628 | Dev Loss: 8.8964
+Epoch 19/20 | Train Loss: 0.0593 | Dev Loss: 9.2148
+Epoch 20/20 | Train Loss: 0.0562 | Dev Loss: 9.7049
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Inference and Patient-Level Aggregation
+
+────────────────────────────────────────────────────────────────────────────────
+In [7] (Code Cell #7)
+────────────────────────────────────────────────────────────────────────────────
+==================================================
+FINAL PATIENT-LEVEL RESULTS (189 PARTICIPANTS)
+==================================================
+DEV  SET -> Macro F1: 0.4804 | AUC: 0.3333 | Thr: 0.55
+TEST SET -> Macro F1: 0.5481 | AUC: 0.4719
+
+Metrics saved to results/v43/metrics/v43_results.csv
+
+================================================================================
+  RINGKASAN
+  Code cells  : 7
+  Cells dengan output teks: 5
+================================================================================

@@ -1,0 +1,11 @@
+Dataset,Model,F1 (0.5),F1 (tuned),Thr,Acc,AUC
+MFCC_AudioOnly,Random Forest,0.5674,0.6219,0.47,0.6569,0.6099
+Multimodal_MFCC,Random Forest,0.5674,0.6093,0.4,0.6275,0.6007
+TextOnly,Random Forest,0.4648,0.5972,0.42,0.6176,0.5906
+TextOnly,XGBoost,0.5806,0.5971,0.51,0.6275,0.6166
+MFCC_AudioOnly,XGBoost,0.5188,0.5784,0.34,0.5784,0.5836
+W2V_AudioOnly,Random Forest,0.4999,0.5691,0.38,0.5784,0.5134
+Multimodal_W2V,Random Forest,0.5134,0.5691,0.4,0.5784,0.5397
+W2V_AudioOnly,XGBoost,0.5387,0.5681,0.48,0.5882,0.5527
+Multimodal_MFCC,XGBoost,0.531,0.5368,0.56,0.5882,0.4896
+Multimodal_W2V,XGBoost,0.5345,0.5345,0.5,0.549,0.4961

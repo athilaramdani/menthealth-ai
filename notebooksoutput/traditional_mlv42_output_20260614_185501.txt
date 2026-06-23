@@ -1,0 +1,57 @@
+================================================================================
+  NOTEBOOK OUTPUT EXTRACTOR
+  File   : traditional_mlv42.ipynb
+  Path   : d:\repositories\menthealth-ai\notebooks\traditional_mlv42.ipynb
+  Diambil: 2026-06-14 18:55:01
+  Total  : 15 cell
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+Dataset Overview: DAIC-WOZ
+**Pipeline v42** — THE ULTIMATE UNCHAINED MULTIMODAL (PCA + CatBoost + LightGBM)
+
+─────────────────────────────────────────────────────────────────────
+ v42 = LOOCV + SMOTE + Block-wise PCA (95% Variance) + 5 Fitur + Top-Tier Boosting
+
+ Tujuan: Menembus Macro F1 > 0.70 secara Absolut.
+ Karena aturan telah dilonggarkan 100%, kita mengerahkan Segenap Kekuatan:
+ [1] 5 Fitur Sekaligus: MFCC, Spectrogram, Wav2Vec, Text (v13), eGeMAPS (v15).
+ [2] Feature Selection: Block-wise PCA (menyimpan 95% varians). 
+     Ini mencegah "Curse of Dimensionality" tanpa membuang pola berharga.
+ [3] 5 Model Tabular Tertinggi di Dunia: LR, SVM, XGBoost, LightGBM, CatBoost.
+─────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Setup
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Load All Features (The Exodia Assembly)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Model Config (The S-Tier)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## LOOCV Evaluation Loop with Block-wise PCA
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Running
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Ensembles (Soft Voting Top-3, Top-5, Top-7)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Save Results
+
+================================================================================
+  RINGKASAN
+  Code cells  : 7
+  Cells dengan output teks: 0
+================================================================================

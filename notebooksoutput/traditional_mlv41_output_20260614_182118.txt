@@ -1,0 +1,115 @@
+================================================================================
+  NOTEBOOK OUTPUT EXTRACTOR
+  File   : traditional_mlv41.ipynb
+  Path   : d:\repositories\menthealth-ai\notebooks\traditional_mlv41.ipynb
+  Diambil: 2026-06-14 18:21:18
+  Total  : 15 cell
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+Dataset Overview: DAIC-WOZ
+**Pipeline v41** — Klasifikasi Kesehatan Mental Berbasis REGRESI (PHQ-8)
+
+─────────────────────────────────────────────────────────────────────
+ v41 = LOOCV + Regression Models + Block-wise Lasso FS + Thresholding
+
+ Tujuan: Menembus Macro F1 > 0.70 melalui Paradigm Shift!
+ Karena klasifikasi biner tertahan di 0.684, kita ubah pendekatannya:
+ Model akan memprediksi skor kontinu PHQ-8 (0-24) melalui REGRESI.
+ Hasil prediksi regresi kemudian di-threshold (>= 10 = Depresi).
+ 
+ [1] 3 Ekstraksi Fitur (MFCC, Spectrogram, Wav2Vec 2.0 Full)
+ [2] Menggunakan keseluruhan data (102 partisipan) dengan LOOCV
+ [3] Terdapat 4 model regresi: Ridge, SVR, XGBRegressor, RandomForestRegressor
+ [4] Menggunakan Block-wise Lasso Feature Selection
+─────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Setup
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Load Features
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Model Config (REGRESSION)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## LOOCV Evaluation Loop (Regression to Classification)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Running
+
+────────────────────────────────────────────────────────────────────────────────
+In [5] (Code Cell #5)
+────────────────────────────────────────────────────────────────────────────────
+
+[MFCC]
+  Ridge Regression    : F1_tuned=0.4585 (thr PHQ8=14.5, RMSE=9.66)
+  SVR                 : F1_tuned=0.5440 (thr PHQ8=8.0, RMSE=6.14)
+  XGBRegressor        : F1_tuned=0.5433 (thr PHQ8=9.0, RMSE=6.32)
+  Random Forest       : F1_tuned=0.5143 (thr PHQ8=8.0, RMSE=6.20)
+
+[Spectrogram]
+  Ridge Regression    : F1_tuned=0.4698 (thr PHQ8=9.5, RMSE=11.31)
+  SVR                 : F1_tuned=0.4595 (thr PHQ8=7.0, RMSE=6.12)
+  XGBRegressor        : F1_tuned=0.5296 (thr PHQ8=9.5, RMSE=6.44)
+  Random Forest       : F1_tuned=0.5228 (thr PHQ8=8.0, RMSE=6.17)
+
+[Wav2Vec_Full]
+  Ridge Regression    : F1_tuned=0.5296 (thr PHQ8=11.5, RMSE=8.77)
+  SVR                 : F1_tuned=0.4834 (thr PHQ8=7.5, RMSE=6.16)
+  XGBRegressor        : F1_tuned=0.4987 (thr PHQ8=9.0, RMSE=6.45)
+  Random Forest       : F1_tuned=0.4763 (thr PHQ8=8.0, RMSE=6.25)
+
+[Fusion_All]
+  Ridge Regression    : F1_tuned=0.4838 (thr PHQ8=13.5, RMSE=8.51)
+  SVR                 : F1_tuned=0.4338 (thr PHQ8=7.5, RMSE=6.12)
+  XGBRegressor        : F1_tuned=0.5294 (thr PHQ8=7.5, RMSE=6.35)
+  Random Forest       : F1_tuned=0.5146 (thr PHQ8=9.0, RMSE=6.19)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Ensembles (Soft Voting Top-3, Top-4 dari Prediksi Regresi)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Save Results
+
+────────────────────────────────────────────────────────────────────────────────
+In [7] (Code Cell #7)
+────────────────────────────────────────────────────────────────────────────────
+
+================================================================================
+RINGKASAN v41 — LOOCV (Regresi ke PHQ-8 -> Binarization)
+================================================================================
+         Feature             Model  F1 (tuned)  Best Thr PHQ8       RMSE       AUC
+1           MFCC               SVR    0.543964            8.0   6.135273  0.461131
+2           MFCC      XGBRegressor    0.543284            9.0   6.316795  0.513635
+3   Wav2Vec_Full  Ridge Regression    0.529644           11.5   8.773662  0.491249
+4    Spectrogram      XGBRegressor    0.529644            9.5   6.441974  0.511193
+5     Fusion_All      XGBRegressor    0.529412            7.5   6.352033  0.527880
+6    Spectrogram     Random Forest    0.522807            8.0   6.170914  0.511600
+7       Ensemble              Top3    0.521535            8.5   6.161277  0.508751
+8       Ensemble              Top4    0.520025            9.0   6.493107  0.487586
+9     Fusion_All     Random Forest    0.514555            9.0   6.188881  0.481481
+10          MFCC     Random Forest    0.514286            8.0   6.200812  0.471713
+11  Wav2Vec_Full      XGBRegressor    0.498693            9.0   6.447135  0.480667
+12    Fusion_All  Ridge Regression    0.483806           13.5   8.513475  0.394383
+13  Wav2Vec_Full               SVR    0.483411            7.5   6.159571  0.428978
+14  Wav2Vec_Full     Random Forest    0.476315            8.0   6.249934  0.459096
+15   Spectrogram  Ridge Regression    0.469812            9.5  11.306034  0.457468
+16   Spectrogram               SVR    0.459485            7.0   6.121503  0.426943
+17          MFCC  Ridge Regression    0.458494           14.5   9.662954  0.367928
+18    Fusion_All               SVR    0.433799            7.5   6.118095  0.427350
+
+================================================================================
+  RINGKASAN
+  Code cells  : 7
+  Cells dengan output teks: 2
+================================================================================

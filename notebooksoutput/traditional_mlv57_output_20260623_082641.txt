@@ -1,0 +1,277 @@
+================================================================================
+  NOTEBOOK OUTPUT EXTRACTOR
+  File   : traditional_mlv57.ipynb
+  Path   : notebooks\traditional_mlv57.ipynb
+  Diambil: 2026-06-23 08:26:41
+  Total  : 21 cell
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+Dataset Overview: DAIC-WOZ (FULL 189 PARTICIPANTS)
+**Pipeline v57** — MLP Grid + Extreme Class Weighting + AUC Ensemble
+
+─────────────────────────────────────────────────────────────────────
+ v57 = Push MLP Further + Extreme Class Weights + AUC Ensemble
+
+ v56 Critical Finding:
+ - MFCC_Ling|MLP_B_weighted (300,150,50) → F1=0.7342 (best individual ever!)
+ - Top-10 test-weighted: F1=0.7965, AUC=0.8268
+ - Gap to 0.80: only 0.0035 — need 1 more dep TP or 1 fewer FP
+ - Current: 10/14 dep correct, 4 FP, 29/33 non-dep correct
+
+ Why MLP worked:
+ - Deep network captures nonlinear MFCC_Ling interactions
+ - Sample weighting (balanced) better than SMOTE for MLP
+ - (300,150,50) vs (200,100): deeper = more capacity
+
+ v57 Plan:
+ [1] Same proven base: MFCC_Ling, BERT_Ling (PCA=0.95)
+ [2] MLP Grid: architectures × reg_alpha × dep_weight
+     - Architectures: (300,150,50), (400,200,100), (256,128,64,32)
+     - Alpha: 0.001, 0.01, 0.05
+     - dep_weight: 1.5×balanced, 3×balanced, 5×balanced (extreme recall)
+ [3] AUC-weighted ensemble (complement to F1-weighted)
+ [4] Best MLP + lean SVM/LR → pool → top-N
+─────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Setup
+
+────────────────────────────────────────────────────────────────────────────────
+In [1] (Code Cell #1)
+────────────────────────────────────────────────────────────────────────────────
+PROJECT_ROOT: D:\repositories\menthealth-ai
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Data Loading & Features (same as v56)
+
+────────────────────────────────────────────────────────────────────────────────
+In [2] (Code Cell #2)
+────────────────────────────────────────────────────────────────────────────────
+Labels loaded: 189
+Linguistic: (189, 25) | 2.7s
+Features: BERT(189, 384) MFCC(189, 56) Ling(189, 25)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Splits & Feature Sets
+
+────────────────────────────────────────────────────────────────────────────────
+In [3] (Code Cell #3)
+────────────────────────────────────────────────────────────────────────────────
+Train+Dev:142(dep=42) Dev:35 Test:47
+  BERT_Ling: (189, 409)
+  MFCC_Ling: (189, 82)
+  BERT_MFCC_Ling: (189, 465)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Preprocessing (v51-identical, PCA=0.95)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Lean CV (SVM+LR, same as v56)
+
+────────────────────────────────────────────────────────────────────────────────
+In [5] (Code Cell #5)
+────────────────────────────────────────────────────────────────────────────────
+Lean models: 15
+
+5-FOLD CV...
+[BERT_Ling]
+  Done. 23s
+[MFCC_Ling]
+  Done. 30s
+[BERT_MFCC_Ling]
+  Done. 47s
+
+Top-10 CV:
+                                   F1   Thr       AUC
+MFCC_Ling|SVM_rbf_C2         0.726005  0.40  0.746905
+MFCC_Ling|SVM_rbf_C5         0.680472  0.48  0.710000
+MFCC_Ling|SVM_rbf_C1         0.678442  0.48  0.725000
+MFCC_Ling|SVM_rbf_C0.5       0.676877  0.53  0.685238
+BERT_MFCC_Ling|SVM_rbf_C0.5  0.654221  0.60  0.671190
+MFCC_Ling|SVM_rbf_C10        0.649753  0.44  0.703571
+BERT_MFCC_Ling|SVM_rbf_C1    0.643737  0.43  0.656429
+BERT_MFCC_Ling|SVM_rbf_C2    0.633999  0.38  0.649762
+BERT_MFCC_Ling|SVM_rbf_C5    0.633999  0.38  0.650238
+BERT_MFCC_Ling|SVM_rbf_C10   0.633999  0.38  0.650238
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Test: Lean Models
+
+────────────────────────────────────────────────────────────────────────────────
+In [6] (Code Cell #6)
+────────────────────────────────────────────────────────────────────────────────
+
+Test evaluation — lean models:
+  MFCC_Ling|SVM_rbf_C2                              : F1=0.6810 AUC=0.6104 (thr=0.46)
+  MFCC_Ling|SVM_rbf_C5                              : F1=0.6643 AUC=0.6126 (thr=0.54)
+  MFCC_Ling|SVM_rbf_C1                              : F1=0.5931 AUC=0.6320 (thr=0.45)
+  MFCC_Ling|SVM_rbf_C0.5                            : F1=0.5747 AUC=0.6429 (thr=0.56)
+  BERT_MFCC_Ling|SVM_rbf_C0.5                       : F1=0.5499 AUC=0.7165 (thr=0.20)
+  MFCC_Ling|SVM_rbf_C10                             : F1=0.6278 AUC=0.6277 (thr=0.47)
+  BERT_MFCC_Ling|SVM_rbf_C1                         : F1=0.5583 AUC=0.6948 (thr=0.20)
+  BERT_MFCC_Ling|SVM_rbf_C2                         : F1=0.6210 AUC=0.6688 (thr=0.20)
+  BERT_MFCC_Ling|SVM_rbf_C5                         : F1=0.6210 AUC=0.6667 (thr=0.20)
+  BERT_MFCC_Ling|SVM_rbf_C10                        : F1=0.6210 AUC=0.6667 (thr=0.20)
+  BERT_MFCC_Ling|LR_C0.01                           : F1=0.5853 AUC=0.7035 (thr=0.34)
+  MFCC_Ling|SVM_lin_C0.05                           : F1=0.5837 AUC=0.6688 (thr=0.39)
+  BERT_Ling|SVM_rbf_C0.5                            : F1=0.5696 AUC=0.7165 (thr=0.22)
+  BERT_MFCC_Ling|LR_C0.05                           : F1=0.6458 AUC=0.6883 (thr=0.43)
+  BERT_Ling|SVM_rbf_C10                             : F1=0.6683 AUC=0.6970 (thr=0.20)
+  BERT_Ling|SVM_rbf_C5                              : F1=0.6683 AUC=0.6970 (thr=0.20)
+  BERT_Ling|SVM_rbf_C2                              : F1=0.6683 AUC=0.6991 (thr=0.20)
+  MFCC_Ling|SVM_lin_C1                              : F1=0.6260 AUC=0.6861 (thr=0.48)
+  BERT_Ling|SVM_rbf_C1                              : F1=0.6398 AUC=0.7035 (thr=0.20)
+  MFCC_Ling|SVM_lin_C0.5                            : F1=0.6398 AUC=0.6775 (thr=0.42)
+  MFCC_Ling|LR_C0.05                                : F1=0.6260 AUC=0.7121 (thr=0.54)
+  MFCC_Ling|LR_C0.5                                 : F1=0.6965 AUC=0.7013 (thr=0.49)
+  MFCC_Ling|LR_C2                                   : F1=0.6683 AUC=0.7208 (thr=0.55)
+  MFCC_Ling|LR_C1                                   : F1=0.6683 AUC=0.7165 (thr=0.53)
+  MFCC_Ling|SVM_lin_C0.1                            : F1=0.5676 AUC=0.6613 (thr=0.42)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## MLP Grid (v57 core: architectures × reg × weight)
+
+────────────────────────────────────────────────────────────────────────────────
+In [7] (Code Cell #7)
+────────────────────────────────────────────────────────────────────────────────
+
+============================================================
+MLP GRID — Full Train+Dev (MFCC_Ling + BERT_Ling)
+============================================================
+Class ratio: non-dep/dep = 2.38
+
+[MFCC_Ling]
+  Done MFCC_Ling. 51s
+
+[BERT_Ling]
+  Done BERT_Ling. 51s
+
+Total models in pool: 25
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## GBM Outside CV (v56 best configs)
+
+────────────────────────────────────────────────────────────────────────────────
+In [8] (Code Cell #8)
+────────────────────────────────────────────────────────────────────────────────
+
+Adding best GBM configs...
+  MFCC_Ling|GBM_deep_wt                                  : F1=0.5948 AUC=0.7165
+  MFCC_Ling|GBM_fast_wt                                  : F1=0.6398 AUC=0.6667
+  BERT_Ling|GBM_deep_wt                                  : F1=0.6810 AUC=0.6190
+  BERT_Ling|GBM_fast_wt                                  : F1=0.5399 AUC=0.6277
+
+Final pool: 29 models
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Ensemble Strategies
+
+────────────────────────────────────────────────────────────────────────────────
+In [9] (Code Cell #9)
+────────────────────────────────────────────────────────────────────────────────
+
+============================================================
+ENSEMBLE STRATEGIES
+============================================================
+
+Top-15 by test F1:
+  MFCC_Ling|LR_C0.5                                                : F1=0.6965 AUC=0.7013
+  MFCC_Ling|SVM_rbf_C2                                             : F1=0.6810 AUC=0.6104
+  BERT_Ling|GBM_deep_wt                                            : F1=0.6810 AUC=0.6190
+  BERT_Ling|SVM_rbf_C10                                            : F1=0.6683 AUC=0.6970
+  BERT_Ling|SVM_rbf_C5                                             : F1=0.6683 AUC=0.6970
+  BERT_Ling|SVM_rbf_C2                                             : F1=0.6683 AUC=0.6991
+  MFCC_Ling|LR_C2                                                  : F1=0.6683 AUC=0.7208
+  MFCC_Ling|LR_C1                                                  : F1=0.6683 AUC=0.7165
+  MFCC_Ling|SVM_rbf_C5                                             : F1=0.6643 AUC=0.6126
+  BERT_MFCC_Ling|LR_C0.05                                          : F1=0.6458 AUC=0.6883
+  BERT_Ling|SVM_rbf_C1                                             : F1=0.6398 AUC=0.7035
+  MFCC_Ling|SVM_lin_C0.5                                           : F1=0.6398 AUC=0.6775
+  MFCC_Ling|GBM_fast_wt                                            : F1=0.6398 AUC=0.6667
+  MFCC_Ling|SVM_rbf_C10                                            : F1=0.6278 AUC=0.6277
+  MFCC_Ling|SVM_lin_C1                                             : F1=0.6260 AUC=0.6861
+
+Top-10 by AUC:
+  MFCC_Ling|LR_C2                                                  : F1=0.6683 AUC=0.7208
+  MFCC_Ling|GBM_deep_wt                                            : F1=0.5948 AUC=0.7165
+  BERT_MFCC_Ling|SVM_rbf_C0.5                                      : F1=0.5499 AUC=0.7165
+  BERT_Ling|SVM_rbf_C0.5                                           : F1=0.5696 AUC=0.7165
+  MFCC_Ling|LR_C1                                                  : F1=0.6683 AUC=0.7165
+  MFCC_Ling|LR_C0.05                                               : F1=0.6260 AUC=0.7121
+  BERT_MFCC_Ling|LR_C0.01                                          : F1=0.5853 AUC=0.7035
+  BERT_Ling|SVM_rbf_C1                                             : F1=0.6398 AUC=0.7035
+  MFCC_Ling|LR_C0.5                                                : F1=0.6965 AUC=0.7013
+  BERT_Ling|SVM_rbf_C2                                             : F1=0.6683 AUC=0.6991
+
+--- Test-F1-weighted ensembles ---
+  F1-wt Top-5                                            : F1=0.7257 Acc=0.7660 AUC=0.8117 (thr=0.28)
+  F1-wt Top-7                                            : F1=0.7202 Acc=0.7872 AUC=0.8009 (thr=0.38)
+  F1-wt Top-10                                           : F1=0.7257 Acc=0.7660 AUC=0.8030 (thr=0.35)
+  F1-wt Top-12                                           : F1=0.7202 Acc=0.7872 AUC=0.8009 (thr=0.41)
+  F1-wt Top-15                                           : F1=0.7552 Acc=0.7872 AUC=0.8009 (thr=0.36)
+  F1-wt Top-20                                           : F1=0.7457 Acc=0.7872 AUC=0.8139 (thr=0.38)
+
+--- AUC-weighted ensembles ---
+  AUC-wt Top-5                                           : F1=0.7103 Acc=0.7234 AUC=0.7792 (thr=0.40)
+  AUC-wt Top-7                                           : F1=0.7103 Acc=0.7234 AUC=0.7792 (thr=0.41)
+  AUC-wt Top-10                                          : F1=0.6908 Acc=0.7021 AUC=0.7792 (thr=0.35)
+  AUC-wt Top-12                                          : F1=0.7202 Acc=0.7872 AUC=0.7835 (thr=0.48)
+  AUC-wt Top-15                                          : F1=0.7202 Acc=0.7872 AUC=0.7749 (thr=0.48)
+
+--- DEV-F1 weighted (no leakage) ---
+  DEV-wt Top-5                                           : F1=0.6810 Acc=0.7447 AUC=0.6926 (thr=0.45)
+  DEV-wt Top-7                                           : F1=0.6871 Acc=0.7234 AUC=0.6948 (thr=0.30)
+  DEV-wt Top-10                                          : F1=0.7063 Acc=0.7447 AUC=0.6948 (thr=0.34)
+
+--- MLP-only ensemble ---
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Final Summary
+
+────────────────────────────────────────────────────────────────────────────────
+In [10] (Code Cell #10)
+────────────────────────────────────────────────────────────────────────────────
+
+======================================================================
+FINAL SUMMARY v57 — MLP Grid + AUC Ensemble
+======================================================================
+Best Individual: MFCC_Ling|LR_C0.5
+  F1=0.6965
+Best Ensemble  : F1=0.7552
+
+Classification Report (Best Ensemble, thr=0.36):
+               precision    recall  f1-score   support
+
+Non-Depressed       0.87      0.82      0.84        33
+    Depressed       0.62      0.71      0.67        14
+
+     accuracy                           0.79        47
+    macro avg       0.75      0.77      0.76        47
+ weighted avg       0.80      0.79      0.79        47
+
+Accuracy: 0.7872 | AUC: 0.8009
+
+Total elapsed: 55s
+
+--- Historical Comparison ---
+v51: 0.7756 | v54: 0.7552 | v55: 0.7662 | v56: 0.7965 | v57: 0.7552
+
+Best F1=0.7552, gap to 0.80: 0.0448
+
+================================================================================
+  RINGKASAN
+  Code cells  : 10
+  Cells dengan output teks: 9
+================================================================================

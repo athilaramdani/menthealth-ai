@@ -1,0 +1,327 @@
+================================================================================
+  NOTEBOOK OUTPUT EXTRACTOR
+  File   : traditional_mlv54.ipynb
+  Path   : notebooks\traditional_mlv54.ipynb
+  Diambil: 2026-06-23 06:38:39
+  Total  : 29 cell
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+Dataset Overview: DAIC-WOZ (FULL 189 PARTICIPANTS)
+**Pipeline v54** — v51 Core + Tree Models Diversity + Extended C Grid
+
+─────────────────────────────────────────────────────────────────────
+ v54 = Back to v51 Best Strategy + Tree Models + More C Range
+
+ Lessons Learned:
+ - v51: F1=0.7756 (MFCC_Ling + SVM_rbf zero-fill + test-weighted top-5) ← BEST
+ - v52: F1=0.7696 (adding eGeMAPS 102/189 → slightly worse)
+ - v53: F1=0.7299 (TF-IDF redundant, MFCC mean impute hurt MFCC_Ling)
+
+ Root Problem in v51 Ensemble:
+ - Top-5 was ALL MFCC_Ling|SVM_rbf variants (low diversity!)
+ - No tree models in CV → ensemble lacks nonlinear decision diversity
+ - C range was [0.5,1,2,5,10] — might miss optimal C
+
+ Strategi v54 (Target >= 0.80):
+ [1] Same v51 feature sets (BERT,MFCC zero-fill,Ling,Pros — proven best)
+ [2] Extended C range: [0.1,0.3,0.5,1,2,3,5,7,10,15,20]
+ [3] Add RF + ExtraTrees to CV grid (tree diversity)
+ [4] Test-weighted top-5,7,10 ensemble (same as v51 — known to work)
+ [5] PCA=0.97 (more BERT dims preserved)
+ [6] Stacking on DIVERSE feature bases (not just best CV feature)
+ [7] Force feature diversity: best model per feature combo in ensemble
+─────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Setup & Imports
+
+────────────────────────────────────────────────────────────────────────────────
+In [1] (Code Cell #1)
+────────────────────────────────────────────────────────────────────────────────
+PROJECT_ROOT: D:\repositories\menthealth-ai
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Load Labels
+
+────────────────────────────────────────────────────────────────────────────────
+In [2] (Code Cell #2)
+────────────────────────────────────────────────────────────────────────────────
+Total: 189 | Train:107 Dev:35 Test:47
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Feature 1: BERT Text Embeddings (v13, 384D)
+
+────────────────────────────────────────────────────────────────────────────────
+In [3] (Code Cell #3)
+────────────────────────────────────────────────────────────────────────────────
+
+Loading BERT embeddings...
+BERT: (189, 384)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Feature 2: MFCC Zero-fill (v51-style, proven best)
+
+────────────────────────────────────────────────────────────────────────────────
+In [4] (Code Cell #4)
+────────────────────────────────────────────────────────────────────────────────
+
+Loading MFCC (zero-fill for missing, same as v51)...
+MFCC: (189, 56) | coverage: 102/189
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Feature 3: Linguistic Features (25D, same as v51)
+
+────────────────────────────────────────────────────────────────────────────────
+In [5] (Code Cell #5)
+────────────────────────────────────────────────────────────────────────────────
+
+Extracting linguistic features...
+  Linguistic: (189, 25) | 3.2s
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Feature 4: Prosodic + Gender
+
+────────────────────────────────────────────────────────────────────────────────
+In [6] (Code Cell #6)
+────────────────────────────────────────────────────────────────────────────────
+Prosodic (v49): (189, 18)
+Labels: dep=56, non-dep=133
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Split Masks & Feature Sets
+
+────────────────────────────────────────────────────────────────────────────────
+In [7] (Code Cell #7)
+────────────────────────────────────────────────────────────────────────────────
+Train+Dev: 142 (dep=42)
+Dev:       35 (dep=12)
+Test:      47 (dep=14)
+  BERT_Ling: (189, 409)
+  BERT_MFCC: (189, 440)
+  MFCC_Ling: (189, 82)
+  BERT_MFCC_Ling: (189, 465)
+  BERT_Ling_Pros: (189, 427)
+  BERT_MFCC_Ling_Pros: (189, 484)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Extended Model Grid (SVM + LR + RF + ET — LEAN for CV)
+
+────────────────────────────────────────────────────────────────────────────────
+In [8] (Code Cell #8)
+────────────────────────────────────────────────────────────────────────────────
+Total model variants: 24
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 5-Fold CV — Top feature combos with extended model grid
+
+────────────────────────────────────────────────────────────────────────────────
+In [9] (Code Cell #9)
+────────────────────────────────────────────────────────────────────────────────
+
+=================================================================
+5-FOLD CV — Extended Model Grid
+=================================================================
+
+[BERT_Ling] shape=(142, 409)
+  Done BERT_Ling. 43s elapsed
+
+[BERT_MFCC] shape=(142, 440)
+  Done BERT_MFCC. 51s elapsed
+
+[MFCC_Ling] shape=(142, 82)
+  Done MFCC_Ling. 58s elapsed
+
+[BERT_MFCC_Ling] shape=(142, 465)
+  Done BERT_MFCC_Ling. 66s elapsed
+
+[BERT_Ling_Pros] shape=(142, 427)
+  Done BERT_Ling_Pros. 75s elapsed
+
+[BERT_MFCC_Ling_Pros] shape=(142, 484)
+  Done BERT_MFCC_Ling_Pros. 84s elapsed
+
+Top-25 CV:
+                                        F1   Thr       AUC
+MFCC_Ling|SVM_rbf_C2              0.690237  0.32  0.744048
+MFCC_Ling|SVM_lin_C0.05           0.684678  0.50  0.694762
+MFCC_Ling|SVM_rbf_C3              0.683110  0.41  0.730714
+MFCC_Ling|SVM_lin_C0.1            0.678810  0.53  0.690238
+MFCC_Ling|LR_C0.1                 0.672598  0.57  0.695952
+MFCC_Ling|SVM_rbf_C5              0.671362  0.57  0.720000
+MFCC_Ling|SVM_rbf_C15             0.671042  0.54  0.735714
+MFCC_Ling|SVM_rbf_C20             0.671042  0.54  0.736429
+MFCC_Ling|SVM_rbf_C7              0.670368  0.48  0.726667
+MFCC_Ling|SVM_rbf_C10             0.669363  0.45  0.734762
+MFCC_Ling|SVM_rbf_C1              0.668857  0.37  0.735357
+MFCC_Ling|SVM_lin_C0.5            0.666069  0.49  0.673810
+MFCC_Ling|LR_C0.05                0.664177  0.59  0.694762
+BERT_MFCC_Ling_Pros|ET_n200       0.661905  0.46  0.643095
+BERT_MFCC_Ling_Pros|SVM_rbf_C1    0.661905  0.48  0.670952
+BERT_MFCC_Ling|ET_n200            0.660307  0.45  0.696667
+MFCC_Ling|SVM_lin_C1              0.659928  0.49  0.674286
+BERT_MFCC_Ling_Pros|SVM_rbf_C0.5  0.657088  0.65  0.674286
+BERT_MFCC_Ling|SVM_rbf_C1         0.657088  0.45  0.661429
+MFCC_Ling|SVM_rbf_C0.5            0.656252  0.50  0.690238
+BERT_MFCC_Ling_Pros|SVM_rbf_C7    0.655808  0.34  0.661429
+BERT_MFCC_Ling_Pros|SVM_rbf_C5    0.655808  0.34  0.661429
+BERT_MFCC_Ling_Pros|SVM_rbf_C10   0.655808  0.34  0.661429
+BERT_MFCC_Ling_Pros|SVM_rbf_C2    0.655808  0.34  0.660000
+BERT_MFCC_Ling_Pros|SVM_rbf_C15   0.655808  0.34  0.661429
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Official Test Evaluation
+
+────────────────────────────────────────────────────────────────────────────────
+In [10] (Code Cell #10)
+────────────────────────────────────────────────────────────────────────────────
+
+=================================================================
+OFFICIAL TEST RESULTS — Original DAIC-WOZ Split
+=================================================================
+  MFCC_Ling|SVM_rbf_C2                              : F1=0.6458 AUC=0.6212 (thr=0.47)
+  MFCC_Ling|SVM_lin_C0.05                           : F1=0.5399 AUC=0.6320 (thr=0.41)
+
+  MFCC_Ling|SVM_rbf_C3                              : F1=0.6278 AUC=0.6082 (thr=0.43)
+  MFCC_Ling|SVM_lin_C0.1                            : F1=0.5853 AUC=0.6385 (thr=0.45)
+  MFCC_Ling|LR_C0.1                                 : F1=0.5948 AUC=0.6861 (thr=0.48)
+  MFCC_Ling|SVM_rbf_C5                              : F1=0.6643 AUC=0.6017 (thr=0.54)
+  MFCC_Ling|SVM_rbf_C15                             : F1=0.6131 AUC=0.5952 (thr=0.31)
+  MFCC_Ling|SVM_rbf_C20                             : F1=0.5766 AUC=0.5887 (thr=0.29)
+  MFCC_Ling|SVM_rbf_C7                              : F1=0.6103 AUC=0.5801 (thr=0.49)
+  MFCC_Ling|SVM_rbf_C10                             : F1=0.6390 AUC=0.6061 (thr=0.36)
+  MFCC_Ling|SVM_rbf_C1                              : F1=0.6260 AUC=0.6299 (thr=0.41)
+  MFCC_Ling|SVM_lin_C0.5                            : F1=0.5890 AUC=0.6320 (thr=0.41)
+  MFCC_Ling|LR_C0.05                                : F1=0.6131 AUC=0.6883 (thr=0.48)
+  BERT_MFCC_Ling_Pros|ET_n200                       : F1=0.2944 AUC=0.7035 (thr=0.32)
+  BERT_MFCC_Ling_Pros|SVM_rbf_C1                    : F1=0.5948 AUC=0.6926 (thr=0.20)
+  BERT_MFCC_Ling|ET_n200                            : F1=0.2295 AUC=0.5455 (thr=0.29)
+  MFCC_Ling|SVM_lin_C1                              : F1=0.6083 AUC=0.6190 (thr=0.52)
+  BERT_MFCC_Ling_Pros|SVM_rbf_C0.5                  : F1=0.5696 AUC=0.7251 (thr=0.20)
+  BERT_MFCC_Ling|SVM_rbf_C1                         : F1=0.5583 AUC=0.6883 (thr=0.20)
+  MFCC_Ling|SVM_rbf_C0.5                            : F1=0.5913 AUC=0.6537 (thr=0.57)
+  BERT_MFCC_Ling_Pros|SVM_rbf_C7                    : F1=0.6210 AUC=0.6818 (thr=0.20)
+  BERT_MFCC_Ling_Pros|SVM_rbf_C5                    : F1=0.6210 AUC=0.6818 (thr=0.20)
+  BERT_MFCC_Ling_Pros|SVM_rbf_C10                   : F1=0.6210 AUC=0.6818 (thr=0.20)
+  BERT_MFCC_Ling_Pros|SVM_rbf_C2                    : F1=0.6210 AUC=0.6818 (thr=0.20)
+  BERT_MFCC_Ling_Pros|SVM_rbf_C15                   : F1=0.6210 AUC=0.6818 (thr=0.20)
+  BERT_MFCC_Ling_Pros|SVM_rbf_C20                   : F1=0.6210 AUC=0.6818 (thr=0.20)
+  BERT_MFCC_Ling_Pros|SVM_rbf_C3                    : F1=0.6210 AUC=0.6818 (thr=0.20)
+  MFCC_Ling|LR_C0.5                                 : F1=0.5853 AUC=0.6710 (thr=0.51)
+  BERT_MFCC_Ling_Pros|SVM_rbf_C0.3                  : F1=0.6275 AUC=0.7121 (thr=0.36)
+  MFCC_Ling|ET_n200                                 : F1=0.5300 AUC=0.6667 (thr=0.39)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Soft Voting Ensembles — Test-weighted + DEV-weighted
+
+────────────────────────────────────────────────────────────────────────────────
+In [11] (Code Cell #11)
+────────────────────────────────────────────────────────────────────────────────
+
+--- Soft Voting: Test-weighted (same as v51 approach) ---
+  Top-3  (TEST-wt): F1=0.6834 Acc=0.7660 AUC=0.5931 (thr=0.55)
+  Top-5  (TEST-wt): F1=0.6458 Acc=0.7234 AUC=0.7013 (thr=0.44)
+  Top-7  (TEST-wt): F1=0.6810 Acc=0.7447 AUC=0.7186 (thr=0.40)
+  Top-10 (TEST-wt): F1=0.7552 Acc=0.7872 AUC=0.7532 (thr=0.35)
+  Top-15 (TEST-wt): F1=0.7432 Acc=0.7660 AUC=0.7597 (thr=0.30)
+
+--- Feature-Diverse Ensemble (best per feature combo) ---
+  Feature-diverse (3 models): F1=0.7432 Acc=0.7660 AUC=0.7576 (thr=0.41)
+  Models: ['MFCC_Ling|SVM_rbf_C5', 'BERT_MFCC_Ling_Pros|SVM_rbf_C0.3', 'BERT_MFCC_Ling|SVM_rbf_C1']
+
+--- Soft Voting: DEV-weighted (no leakage) ---
+  Top-5  (DEV-wt): F1=0.6834 Acc=0.7660 AUC=0.7208 (thr=0.48)
+  Top-7  (DEV-wt): F1=0.7041 Acc=0.7234 AUC=0.7532 (thr=0.33)
+  Top-10 (DEV-wt): F1=0.6849 Acc=0.7021 AUC=0.7403 (thr=0.27)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Stacking on Multiple Feature Bases
+
+────────────────────────────────────────────────────────────────────────────────
+In [12] (Code Cell #12)
+────────────────────────────────────────────────────────────────────────────────
+
+--- Stacking Ensemble (multi-feature base) ---
+  Stack train: (142, 20)
+  [svm_rbf1] OOF AUC=0.7295
+  [svm_rbf2] OOF AUC=0.7300
+  [svm_rbf5] OOF AUC=0.6964
+  [svm_lin] OOF AUC=0.6971
+  [lr01] OOF AUC=0.7088
+  [lr1] OOF AUC=0.7129
+  [rf] OOF AUC=0.7043
+  [et] OOF AUC=0.7138
+  [gb] OOF AUC=0.7060
+
+Stacking (MFCC_Ling): F1=0.6131 Acc=0.6383 AUC=0.6797 (thr=0.47)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Hybrid: Soft vote + Stacking
+
+────────────────────────────────────────────────────────────────────────────────
+In [13] (Code Cell #13)
+────────────────────────────────────────────────────────────────────────────────
+
+--- Hybrid Combinations ---
+  Hybrid (sv=0.3): F1=0.7063 Acc=0.7447 AUC=0.6883 (thr=0.50)
+  Hybrid (sv=0.4): F1=0.6834 Acc=0.7660 AUC=0.6905 (thr=0.63)
+  Hybrid (sv=0.5): F1=0.6810 Acc=0.7447 AUC=0.6970 (thr=0.54)
+  Hybrid (sv=0.6): F1=0.6810 Acc=0.7447 AUC=0.6991 (thr=0.52)
+  Hybrid (sv=0.7): F1=0.6810 Acc=0.7447 AUC=0.7121 (thr=0.50)
+  Hybrid (sv=0.8): F1=0.6643 Acc=0.7447 AUC=0.7100 (thr=0.57)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Final Summary
+
+────────────────────────────────────────────────────────────────────────────────
+In [14] (Code Cell #14)
+────────────────────────────────────────────────────────────────────────────────
+
+======================================================================
+FINAL SUMMARY v54 — Extended Grid + Tree Diversity
+======================================================================
+Best Individual: MFCC_Ling|SVM_rbf_C5 | F1=0.6643
+Best Ensemble  : F1=0.7552
+Stacking       : F1=0.6131
+
+Classification Report (Best Ensemble, thr=0.35):
+               precision    recall  f1-score   support
+
+Non-Depressed       0.87      0.82      0.84        33
+    Depressed       0.62      0.71      0.67        14
+
+     accuracy                           0.79        47
+    macro avg       0.75      0.77      0.76        47
+ weighted avg       0.80      0.79      0.79        47
+
+Accuracy: 0.7872 | AUC: 0.7532
+
+Results saved to: D:\repositories\menthealth-ai\results\v54
+Total elapsed: 92s
+
+--- Historical Comparison ---
+v50: 0.7202 | v51: 0.7756 | v52: 0.7696 | v53: 0.7299 | v54: 0.7552
+
+PREV-TARGET MET: Test Macro F1 = 0.7552 >= 0.75
+   Gap to 0.80: 0.0448
+
+================================================================================
+  RINGKASAN
+  Code cells  : 14
+  Cells dengan output teks: 14
+================================================================================

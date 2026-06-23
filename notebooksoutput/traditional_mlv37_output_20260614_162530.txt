@@ -1,0 +1,98 @@
+================================================================================
+  NOTEBOOK OUTPUT EXTRACTOR
+  File   : traditional_mlv37.ipynb
+  Path   : d:\repositories\menthealth-ai\notebooks\traditional_mlv37.ipynb
+  Diambil: 2026-06-14 16:25:30
+  Total  : 15 cell
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+Dataset Overview: DAIC-WOZ
+**Pipeline v37** — Klasifikasi Kesehatan Mental Berbasis Multimodal
+
+─────────────────────────────────────────────────────────────────────
+ v37 = LOOCV + SMOTE + Block-wise Lasso FS + Audio/Text Fusion + Deep Learning
+
+ Tujuan: Menembus Macro F1 > 0.70
+ [1] 4 Ekstraksi Fitur (MFCC, Spectrogram, Wav2Vec 2.0 Full, Text Embeddings v13)
+ [2] Menggunakan keseluruhan data (102 partisipan) dengan LOOCV
+ [3] Terdapat 5 model: LR, SVM, XGBoost, Random Forest + Deep Neural Network (MLP)
+ [4] Menggunakan Block-wise Lasso Feature Selection: MFCC, Spec, W2V, dan Teks
+     diseleksi secara terpisah sebelum digabung.
+ [5] Menambahkan Soft Voting Ensemble di akhir
+─────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Setup
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Load Features
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Model Config
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## LOOCV Evaluation Loop
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Running
+
+────────────────────────────────────────────────────────────────────────────────
+In [5] (Code Cell #5)
+────────────────────────────────────────────────────────────────────────────────
+
+[Text_Only]
+  Logistic Regression : F1_tuned=0.5678 (thr=0.55)
+  SVM                 : F1_tuned=0.5510 (thr=0.63)
+  XGBoost             : F1_tuned=0.5306 (thr=0.66)
+  Random Forest       : F1_tuned=0.5641 (thr=0.50)
+  Deep Neural Net     : F1_tuned=0.6029 (thr=0.60)
+
+[Fusion_All]
+  Logistic Regression : F1_tuned=0.5932 (thr=0.56)
+  SVM                 : F1_tuned=0.6621 (thr=0.50)
+  XGBoost             : F1_tuned=0.5952 (thr=0.52)
+  Random Forest       : F1_tuned=0.5881 (thr=0.39)
+  Deep Neural Net     : F1_tuned=0.5723 (thr=0.52)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Ensembles (Soft Voting Top-3, Top-4, Top-5)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Save Results
+
+────────────────────────────────────────────────────────────────────────────────
+In [7] (Code Cell #7)
+────────────────────────────────────────────────────────────────────────────────
+
+================================================================================
+RINGKASAN v37 — LOOCV (Audio+Teks Fusion + Deep Neural Net + 4 Model Klasik)
+================================================================================
+       Feature                Model  F1 (tuned)  Best Thr       AUC
+1   Fusion_All                  SVM    0.662150      0.50  0.652422
+2    Text_Only      Deep Neural Net    0.602941      0.60  0.571429
+3     Ensemble                 Top5    0.600723      0.50  0.611722
+4     Ensemble                 Top3    0.597950      0.48  0.622711
+5   Fusion_All              XGBoost    0.595238      0.52  0.563289
+6   Fusion_All  Logistic Regression    0.593210      0.56  0.606838
+7     Ensemble                 Top4    0.592172      0.56  0.619455
+8   Fusion_All        Random Forest    0.588077      0.39  0.571429
+9   Fusion_All      Deep Neural Net    0.572349      0.52  0.564103
+10   Text_Only  Logistic Regression    0.567752      0.55  0.548230
+11   Text_Only        Random Forest    0.564103      0.50  0.518926
+12   Text_Only                  SVM    0.551047      0.63  0.522182
+13   Text_Only              XGBoost    0.530627      0.66  0.513228
+
+================================================================================
+  RINGKASAN
+  Code cells  : 7
+  Cells dengan output teks: 2
+================================================================================

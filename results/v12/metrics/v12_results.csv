@@ -1,0 +1,3 @@
+Dataset,Model,F1,Thr,AUC
+Segment_Multimodal,Random Forest,0.5779914529914529,0.44,0.5802721088435374
+Segment_Multimodal,XGBoost,0.5599281221922732,0.72,0.4775510204081632

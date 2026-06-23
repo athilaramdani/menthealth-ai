@@ -1,0 +1,104 @@
+{
+  "version": "v9",
+  "evaluation": "LOOCV (102 folds) + Nested 5-fold GridSearchCV",
+  "feature_selection": "SelectKBest (f_classif), K in [30, 50, 80]",
+  "models": [
+    "Random Forest",
+    "XGBoost"
+  ],
+  "features": [
+    "MFCC",
+    "Wav2Vec"
+  ],
+  "best_model": "MFCC + XGBoost",
+  "best_f1_tuned": 0.6471,
+  "best_f1_050": 0.5922,
+  "best_auc": 0.6211,
+  "best_threshold": 0.46,
+  "all_results": {
+    "MFCC + Random Forest": {
+      "f1_050": 0.6056,
+      "acc_050": 0.6275,
+      "auc": 0.6121,
+      "f1_tuned": 0.6212,
+      "thr": 0.48,
+      "acc_tuned": 0.6373,
+      "prec_tuned": 0.6202,
+      "recall_tuned": 0.6233,
+      "k_distribution": {
+        "80": 29,
+        "30": 25,
+        "50": 48
+      },
+      "k_most_common": 50
+    },
+    "MFCC + XGBoost": {
+      "f1_050": 0.5922,
+      "acc_050": 0.6275,
+      "auc": 0.6211,
+      "f1_tuned": 0.6471,
+      "thr": 0.46,
+      "acc_tuned": 0.6667,
+      "prec_tuned": 0.6471,
+      "recall_tuned": 0.6471,
+      "k_distribution": {
+        "80": 57,
+        "50": 42,
+        "30": 3
+      },
+      "k_most_common": 80
+    },
+    "Wav2Vec + Random Forest": {
+      "f1_050": 0.5433,
+      "acc_050": 0.5686,
+      "auc": 0.5299,
+      "f1_tuned": 0.5515,
+      "thr": 0.43,
+      "acc_tuned": 0.5588,
+      "prec_tuned": 0.5565,
+      "recall_tuned": 0.5598,
+      "k_distribution": {
+        "50": 45,
+        "30": 32,
+        "80": 25
+      },
+      "k_most_common": 50
+    },
+    "Wav2Vec + XGBoost": {
+      "f1_050": 0.5596,
+      "acc_050": 0.5882,
+      "auc": 0.5446,
+      "f1_tuned": 0.5596,
+      "thr": 0.5,
+      "acc_tuned": 0.5882,
+      "prec_tuned": 0.5605,
+      "recall_tuned": 0.5592,
+      "k_distribution": {
+        "30": 29,
+        "50": 39,
+        "80": 34
+      },
+      "k_most_common": 50
+    },
+    "Stacking": {
+      "f1_050": 0.6264,
+      "acc_050": 0.6471,
+      "f1_tuned": 0.6264,
+      "thr": 0.5,
+      "acc_tuned": 0.6471,
+      "auc": 0.5629,
+      "prec_tuned": 0.6264,
+      "recall_tuned": 0.6264
+    },
+    "Avg Ensemble": {
+      "f1_050": 0.5922,
+      "acc_050": 0.6275,
+      "f1_tuned": 0.6093,
+      "thr": 0.45,
+      "acc_tuned": 0.6275,
+      "auc": 0.5861,
+      "prec_tuned": 0.6086,
+      "recall_tuned": 0.6105
+    }
+  }
+}

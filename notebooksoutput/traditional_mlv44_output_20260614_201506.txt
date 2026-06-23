@@ -1,0 +1,62 @@
+================================================================================
+  NOTEBOOK OUTPUT EXTRACTOR
+  File   : traditional_mlv44.ipynb
+  Path   : d:\repositories\menthealth-ai\notebooks\traditional_mlv44.ipynb
+  Diambil: 2026-06-14 20:15:06
+  Total  : 9 cell
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+Dataset Overview: DAIC-WOZ (FULL 189 PARTICIPANTS)
+**Pipeline v44** — STATISTICAL AGGREGATION ON RAW COVAREP (5-Fold CV)
+
+─────────────────────────────────────────────────────────────────────
+ Tujuan: Menembus F1 > 0.70 secara absolut dengan 189 Partisipan utuh.
+ Data: 189 Partisipan dari file mentah `_COVAREP.csv`.
+ Fitur: Statistik Global (Mean, Std, Max, Min) dari 74 fitur COVAREP.
+        Menghasilkan 74 x 4 = 296 fitur tabular per pasien.
+ Metode: Stratified 5-Fold Cross Validation, SMOTE, dan PCA (95%).
+ Model: LR, SVM, Random Forest, XGBoost.
+─────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Setup & Imports
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Load Labels (189 Participants)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Feature Extraction (Statistical Aggregation)
+
+────────────────────────────────────────────────────────────────────────────────
+In [3] (Code Cell #3)
+────────────────────────────────────────────────────────────────────────────────
+Extracting statistical features from 189 COVAREP files...
+Extracted shape: (189, 296)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Modeling (Stratified 5-Fold CV)
+
+────────────────────────────────────────────────────────────────────────────────
+In [4] (Code Cell #4)
+────────────────────────────────────────────────────────────────────────────────
+
+==================================================
+FINAL RESULTS (v44) - 189 Participants (5-Fold CV)
+==================================================
+              Model  Macro_F1  Best_Thr      AUC
+      Random Forest  0.548256      0.43 0.553236
+                SVM  0.537698      0.54 0.522154
+Logistic Regression  0.522727      0.50 0.548201
+            XGBoost  0.515881      0.54 0.509398
+
+================================================================================
+  RINGKASAN
+  Code cells  : 4
+  Cells dengan output teks: 2
+================================================================================
