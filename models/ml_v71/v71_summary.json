@@ -1,0 +1,12 @@
+{
+  "version": "v71",
+  "method": "Nested 5-Fold CV (Inner=3, 8 configs, HistGBM+FeatEng)",
+  "n_participants": 102,
+  "n_experiments": 90,
+  "best_feat": "MFCC+W2V_Eng",
+  "best_model": "GBM_200",
+  "best_cv_f1": 0.6934,
+  "best_cv_std": 0.0504,
+  "target_075": false,
+  "target_070": false
+}

@@ -1,0 +1,80 @@
+{
+  "version": "v60",
+  "description": "Audio-only hybrid (MFCC+Spectrogram+Wav2Vec fusion), PCA+MLP/SVM/RF/XGB ensemble",
+  "features": [
+    "MFCC",
+    "Spectrogram",
+    "Wav2Vec"
+  ],
+  "feature_fusion": true,
+  "split": "80% train+dev / 20% test (stratified balanced)",
+  "pca_components": 44,
+  "best_model": "XGB_v2",
+  "best_threshold": 0.7700000000000005,
+  "best_f1_macro": 0.625,
+  "best_accuracy": 0.6667,
+  "best_auc": 0.6667,
+  "target_achieved": false,
+  "all_results": {
+    "MLP_seed76": {
+      "f1_macro": 0.55,
+      "accuracy": 0.5555555555555556,
+      "roc_auc": 0.5432098765432098
+    },
+    "SVM_C1": {
+      "f1_macro": 0.4109090909090909,
+      "accuracy": 0.5,
+      "roc_auc": 0.6049382716049383
+    },
+    "SVM_C10": {
+      "f1_macro": 0.3333333333333333,
+      "accuracy": 0.5,
+      "roc_auc": 0.25925925925925924
+    },
+    "SVM_C50": {
+      "f1_macro": 0.3333333333333333,
+      "accuracy": 0.5,
+      "roc_auc": 0.24691358024691357
+    },
+    "LR_C01": {
+      "f1_macro": 0.4984520123839009,
+      "accuracy": 0.5,
+      "roc_auc": 0.5432098765432098
+    },
+    "LR_C1": {
+      "f1_macro": 0.5555555555555556,
+      "accuracy": 0.5555555555555556,
+      "roc_auc": 0.5802469135802469
+    },
+    "LR_C10": {
+      "f1_macro": 0.4375,
+      "accuracy": 0.4444444444444444,
+      "roc_auc": 0.5555555555555556
+    },
+    "RF_300": {
+      "f1_macro": 0.3377926421404682,
+      "accuracy": 0.3888888888888889,
+      "roc_auc": 0.4320987654320988
+    },
+    "RF_500": {
+      "f1_macro": 0.375,
+      "accuracy": 0.4444444444444444,
+      "roc_auc": 0.4197530864197531
+    },
+    "XGB_v1": {
+      "f1_macro": 0.4857142857142857,
+      "accuracy": 0.5,
+      "roc_auc": 0.6049382716049383
+    },
+    "XGB_v2": {
+      "f1_macro": 0.625,
+      "accuracy": 0.6666666666666666,
+      "roc_auc": 0.6666666666666666
+    },
+    "GradientBoosting": {
+      "f1_macro": 0.4581939799331104,
+      "accuracy": 0.5,
+      "roc_auc": 0.6666666666666667
+    }
+  }
+}

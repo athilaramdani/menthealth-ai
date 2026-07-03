@@ -1,0 +1,12 @@
+{
+  "version": "v74",
+  "bug_fix": "SMOTEENN inside CV fold \u2014 no data leakage",
+  "best_cv_f1": 0.6948,
+  "best_cv_scenario": "S4_Fusion",
+  "best_cv_model": "RandomForest",
+  "best_test_f1": 0.697,
+  "best_test_scenario": "S2_MFCC",
+  "best_test_model": "LogisticRegression",
+  "target_075_cv": false,
+  "target_075_test": false
+}

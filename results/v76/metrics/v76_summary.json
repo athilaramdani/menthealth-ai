@@ -1,0 +1,19 @@
+{
+  "version": "v76",
+  "benchmark_v75": 0.7068,
+  "best_cv": {
+    "scenario": "S5_FusionEng",
+    "model": "RandomForest",
+    "cv_f1": 0.7149,
+    "test_f1": 0.6703,
+    "K": 30
+  },
+  "best_test": {
+    "scenario": "S3_Wav2Vec",
+    "model": "RandomForest",
+    "cv_f1": 0.6441,
+    "test_f1": 0.7442
+  },
+  "target_075_cv": false,
+  "target_075_test": false
+}

@@ -396,8 +396,16 @@ def run_dataset_preprocessing(raw_dir, cleaned_dir):
 
 # %%
 if __name__ == "__main__":
-    # Define absolute or relative paths aligned with directory structure
-    PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    try:
+        PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    except NameError:
+        # Menangani eksekusi di Jupyter Notebook (__file__ tidak didefinisikan)
+        import os
+        cwd = os.getcwd()
+        if cwd.endswith('preprocessing') or cwd.endswith('preprocessing\\') or cwd.endswith('preprocessing/'):
+            PROJECT_ROOT = os.path.abspath(os.path.join(cwd, ".."))
+        else:
+            PROJECT_ROOT = cwd
     
     RAW_DATA_DIR = os.path.join(PROJECT_ROOT, "data", "raw", "DAIC-WOZ")
     CLEANED_DATA_DIR = os.path.join(PROJECT_ROOT, "data", "cleaned")

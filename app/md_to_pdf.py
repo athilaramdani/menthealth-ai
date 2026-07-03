@@ -4,6 +4,10 @@ from tkinter import filedialog, messagebox
 import markdown
 from xhtml2pdf import pisa
 import sys
+import urllib.request
+import base64
+import re
+import hashlib
 
 def convert_md_to_pdf():
     # Setup Tkinter (hidden root window)
@@ -25,13 +29,42 @@ def convert_md_to_pdf():
         # 2. Baca isi file Markdown
         with open(file_path, 'r', encoding='utf-8') as f:
             md_text = f.read()
+            
+        # Buat folder sementara untuk menyimpan gambar mermaid jika belum ada
+        base_path = os.path.dirname(os.path.abspath(file_path))
+        mermaid_dir = os.path.join(base_path, "assets")
+        if not os.path.exists(mermaid_dir):
+            os.makedirs(mermaid_dir)
+            
+        def process_mermaid(match):
+            code = match.group(1).strip()
+            # Encode the mermaid code to base64
+            encoded = base64.b64encode(code.encode('utf-8')).decode('utf-8')
+            url = f"https://mermaid.ink/img/{encoded}"
+            
+            # Buat nama file unik untuk gambar ini
+            img_name = f"mermaid_{hashlib.md5(code.encode('utf-8')).hexdigest()[:8]}.png"
+            img_path = os.path.join(mermaid_dir, img_name)
+            
+            # Download image using urllib dengan User-Agent agar tidak kena 403 Forbidden
+            # Cek jika file sudah ada agar tidak perlu download ulang
+            if not os.path.exists(img_path):
+                req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+                try:
+                    with urllib.request.urlopen(req) as response, open(img_path, 'wb') as out_file:
+                        out_file.write(response.read())
+                except Exception as e:
+                    print(f"Gagal mendownload diagram mermaid: {e}")
+                    return f"*(Mermaid diagram failed to render: {e})*"
+            
+            # Return markdown image tag
+            return f"![Mermaid Diagram](assets/{img_name})"
+
+        # Cari dan ganti semua block mermaid
+        md_text = re.sub(r'```mermaid\n(.*?)```', process_mermaid, md_text, flags=re.DOTALL)
 
         # 3. Konversi MD ke HTML (dengan ekstensi tabel agar rapi)
-        # Menambahkan ekstensi untuk tabel dan fenced code
         html_text = markdown.markdown(md_text, extensions=['tables', 'fenced_code', 'nl2br'])
-
-        # Ambil path dasar untuk resolving gambar
-        base_path = os.path.dirname(os.path.abspath(file_path))
 
         # Tambahkan styling dasar CSS agar PDF tidak berantakan
         full_html = f"""
@@ -73,8 +106,8 @@ def convert_md_to_pdf():
         def link_callback(uri, rel):
             if uri.startswith('http'):
                 return uri
-            # Resolve relative paths
-            path = os.path.join(base_path, uri)
+            # Resolve relative paths dan pastikan pakai forward slash untuk xhtml2pdf
+            path = os.path.normpath(os.path.join(base_path, uri)).replace('\\\\', '/')
             return path
 
         with open(pdf_path, "wb") as pdf_file:

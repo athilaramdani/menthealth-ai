@@ -1,0 +1,38 @@
+{
+  "version": "v68",
+  "purpose": "Overfitting Check via K-Fold CV",
+  "v66_test_f1": 0.6349206349206349,
+  "v66_test_auc": 0.5793650793650793,
+  "5fold_cv": {
+    "f1_mean": 0.5333392546151167,
+    "f1_std": 0.11890575131400018,
+    "f1_min": 0.375,
+    "f1_max": 0.6266666666666667
+  },
+  "10fold_cv": {
+    "f1_mean": 0.6144816294816294,
+    "f1_std": 0.08321875674460823
+  },
+  "gap_test_vs_5fold": 0.10158138030551822,
+  "gap_test_vs_10fold": 0.020439005439005453,
+  "verdict": "OVERFITTING SEDANG",
+  "detail": "Ada gap yang cukup besar antara test set dan CV. Model mungkin sedikit menghafal 23 sampel test.",
+  "multi_model_cv": {
+    "v66_winner (400,150,75,25)": {
+      "f1_mean": 0.5938394124944468,
+      "f1_std": 0.10131845048502161
+    },
+    "v65_winner (300,150,75,25)": {
+      "f1_mean": 0.5418909229595729,
+      "f1_std": 0.12325713740976581
+    },
+    "simple_MLP (256,128,64)": {
+      "f1_mean": 0.6126617242406717,
+      "f1_std": 0.0991969552671802
+    },
+    "deep_MLP (512,256,128,64)": {
+      "f1_mean": 0.621228197090266,
+      "f1_std": 0.16300896781071944
+    }
+  }
+}

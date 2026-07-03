@@ -1,0 +1,10 @@
+{
+  "version": "v62",
+  "description": "Audio-only SMOTE+LightGBM+SelectKBest grid",
+  "best_exp": "Spectrogram|SMOTE|K100|MLP76",
+  "best_f1": 0.692,
+  "best_accuracy": 0.7391,
+  "best_auc": 0.6667,
+  "best_threshold": 0.47000000000000025,
+  "target_achieved": false
+}

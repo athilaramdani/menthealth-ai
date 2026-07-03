@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ML Model Comparison — Versi 95 | Handover Document</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --bg2: #0f1426;
+    --bg3: #141830;
+    --card: rgba(255,255,255,0.04);
+    --card-hover: rgba(255,255,255,0.08);
+    --border: rgba(255,255,255,0.08);
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --text-dim: #64748b;
+
+    --s1: #3b82f6;
+    --s2: #10b981;
+    --s3: #8b5cf6;
+    --s4: #f59e0b;
+    --best: #ef4444;
+
+    --s1-bg: rgba(59,130,246,0.12);
+    --s2-bg: rgba(16,185,129,0.12);
+    --s3-bg: rgba(139,92,246,0.12);
+    --s4-bg: rgba(245,158,11,0.12);
+    --best-bg: rgba(239,68,68,0.12);
+
+    --radius: 14px;
+    --glow: 0 0 40px rgba(99,102,241,0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+
+  /* ── HEADER ── */
+  .header {
+    background: linear-gradient(135deg, #0f1426 0%, #1a1040 50%, #0f2040 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 60px 40px 50px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -100px; left: 50%; transform: translateX(-50%);
+    width: 600px; height: 300px;
+    background: radial-gradient(ellipse, rgba(99,102,241,0.2) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .header-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(99,102,241,0.15);
+    border: 1px solid rgba(99,102,241,0.3);
+    border-radius: 99px;
+    padding: 6px 16px;
+    font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
+    color: #818cf8;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    position: relative;
+  }
+  .header h1 {
+    font-size: clamp(28px, 5vw, 46px);
+    font-weight: 800;
+    background: linear-gradient(135deg, #e2e8f0, #818cf8, #38bdf8);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 12px;
+    position: relative;
+  }
+  .header p {
+    color: var(--text-muted);
+    font-size: 16px;
+    max-width: 680px; margin: 0 auto;
+    position: relative;
+  }
+  .header-stats {
+    display: flex; justify-content: center; gap: 40px;
+    margin-top: 32px; flex-wrap: wrap;
+    position: relative;
+  }
+  .stat-item { text-align: center; }
+  .stat-num { font-size: 26px; font-weight: 800; color: #818cf8; font-family:'JetBrains Mono',monospace; }
+  .stat-label { font-size: 11px; color: var(--text-muted); letter-spacing: 0.05em; text-transform: uppercase; }
+
+  /* ── NAV TABS ── */
+  .nav-tabs {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(10,14,26,0.95);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    display: flex; gap: 4px; padding: 12px 40px;
+    overflow-x: auto;
+  }
+  .nav-tab {
+    padding: 8px 18px;
+    border-radius: 8px;
+    border: none; background: transparent;
+    color: var(--text-muted); font-family: 'Inter', sans-serif;
+    font-size: 13px; font-weight: 500;
+    cursor: pointer; white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .nav-tab:hover { background: var(--card); color: var(--text); }
+  .nav-tab.active { color: white; font-weight: 600; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); }
+
+  /* ── LAYOUT ── */
+  .container { max-width: 1200px; margin: 0 auto; padding: 40px; }
+  .model-section { display: none; }
+  .model-section.active { display: block; }
+  .section { margin-bottom: 56px; }
+  .section-title {
+    font-size: 21px; font-weight: 700;
+    margin-bottom: 22px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .section-title::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(90deg, var(--border), transparent);
+  }
+  .lead {
+    color: var(--text-muted); font-size: 14.5px; max-width: 880px; margin-bottom: 24px;
+  }
+  .lead b { color: var(--text); }
+
+  /* ── SCENARIO CARDS ── */
+  .timeline { display: flex; align-items: stretch; gap: 14px; overflow-x: auto; padding: 20px 0 10px; flex-wrap:wrap; }
+  .timeline-item {
+    flex: 1; min-width: 210px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 18px;
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+  .timeline-item:hover { transform: translateY(-4px); box-shadow: var(--glow); }
+  .tl-badge { font-size: 22px; margin-bottom: 8px; }
+  .tl-title { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+  .tl-sub { font-size: 11.5px; color: var(--text-muted); margin-bottom: 10px; }
+  .tl-f1 { font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono', monospace; }
+  .tl-f1-label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom:8px;}
+  .tl-dim { font-size: 11px; color: var(--text-dim); margin-top:6px; font-family:'JetBrains Mono',monospace; }
+
+  /* ── PIPELINE ── */
+  .pipeline-wrap {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 28px; margin-bottom: 28px; overflow-x: auto;
+  }
+  .pipeline-wrap h3 {
+    font-size: 14px; font-weight: 600; color: var(--text-muted);
+    margin-bottom: 22px; text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  .pipeline { display: flex; align-items: center; gap: 0; min-width: 900px; }
+  .pipe-col { display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
+  .pipe-arrow { display: flex; align-items: center; flex-shrink: 0; padding: 0 10px; color: var(--text-dim); font-size: 18px; }
+  .pipe-node {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 16px; text-align: center; transition: all 0.2s; position: relative; min-width:150px;
+  }
+  .pipe-node:hover { border-color: rgba(255,255,255,0.2); background: var(--card-hover); }
+  .pipe-node-title { font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+  .pipe-node-detail { font-size: 10px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+  .pipe-node-dim {
+    font-size: 11px; font-weight: 700; font-family: 'JetBrains Mono', monospace;
+    margin-top: 6px; padding: 2px 8px; border-radius: 99px; display: inline-block;
+  }
+  .pipe-label {
+    font-size: 11px; font-weight: 600; color: var(--text-dim);
+    text-align: center; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .pipe-group { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 12px; }
+
+  /* ── numbered steps ── */
+  .step-list { display:flex; flex-direction:column; gap:12px; }
+  .step-item {
+    display:flex; gap:16px; align-items:flex-start;
+    background: var(--card); border:1px solid var(--border); border-radius:12px; padding:16px 20px;
+  }
+  .step-num {
+    flex-shrink:0; width:32px; height:32px; border-radius:50%;
+    background: rgba(99,102,241,0.15); border:1px solid rgba(99,102,241,0.4); color:#818cf8;
+    display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px;
+  }
+  .step-body h4 { font-size:14px; font-weight:700; margin-bottom:4px; }
+  .step-body p { font-size:13px; color:var(--text-muted); }
+
+  .callout {
+    background: rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.25); border-radius:12px;
+    padding:18px 22px; margin-top:20px; font-size:13.5px; color: #fca5a5;
+  }
+  .callout b { color:#f87171; }
+  .callout-ok {
+    background: rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.25); border-radius:12px;
+    padding:18px 22px; margin-top:20px; font-size:13.5px; color: #6ee7b7;
+  }
+  .callout-ok b { color:#34d399; }
+  .callout-info {
+    background: rgba(59,130,246,0.08); border:1px solid rgba(59,130,246,0.25); border-radius:12px;
+    padding:18px 22px; margin-top:20px; font-size:13.5px; color: #93c5fd;
+  }
+  .callout-info b { color:#60a5fa; }
+
+  /* ── TABLES ── */
+  .table-wrap {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 24px; margin-bottom: 24px; overflow-x: auto;
+  }
+  .table-wrap h3 {
+    font-size: 14px; font-weight: 600; color: var(--text-muted); margin-bottom: 18px;
+    text-transform: uppercase; letter-spacing: 0.08em; display: flex; align-items: center; gap: 8px;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th {
+    background: rgba(255,255,255,0.04); padding: 10px 14px; text-align: left; font-weight: 600;
+    color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em;
+    border-bottom: 1px solid var(--border); white-space:nowrap;
+  }
+  td { padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+  .mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+  .bold { font-weight: 700; }
+  .row-best td { background: rgba(239,68,68,0.08); }
+  .row-scenario-best td { background: rgba(16,185,129,0.06); }
+  .pill {
+    display:inline-block; padding:2px 10px; border-radius:99px; font-size:10.5px; font-weight:700;
+    letter-spacing:.03em;
+  }
+  .pill-best { background: var(--best-bg); color:#f87171; border:1px solid rgba(239,68,68,.4); }
+  .pill-s1 { background: var(--s1-bg); color:#60a5fa; border:1px solid rgba(59,130,246,.4); }
+  .pill-s2 { background: var(--s2-bg); color:#34d399; border:1px solid rgba(16,185,129,.4); }
+  .pill-s3 { background: var(--s3-bg); color:#a78bfa; border:1px solid rgba(139,92,246,.4); }
+  .pill-s4 { background: var(--s4-bg); color:#fbbf24; border:1px solid rgba(245,158,11,.4); }
+
+  /* ── GRID ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 900px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+  /* ── CHARTS ── */
+  .chart-wrap { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; }
+  .chart-wrap h3 { font-size: 14px; font-weight: 600; color: var(--text-muted); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.08em; }
+
+  /* ── INSIGHT CARDS ── */
+  .insight-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+  .insight-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; transition: all 0.2s; }
+  .insight-card:hover { background: var(--card-hover); transform: translateY(-2px); }
+  .insight-icon { font-size: 22px; margin-bottom: 10px; }
+  .insight-title { font-weight: 700; font-size: 14px; margin-bottom: 6px; }
+  .insight-body { font-size: 12.5px; color: var(--text-muted); }
+
+  /* ── METRIC CARDS ── */
+  .metric-card-row { display:flex; gap:16px; flex-wrap:wrap; }
+  .metric-card {
+    background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 10px;
+    padding: 16px 22px; text-align: center; min-width: 120px; flex:1;
+  }
+  .metric-val { font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono', monospace; }
+  .metric-lbl { font-size: 11px; color: var(--text-muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  /* ── CONFUSION MATRIX ── */
+  .cm-wrap { display:flex; gap:28px; flex-wrap:wrap; align-items:center; }
+  .cm-grid { display:grid; grid-template-columns: auto repeat(2, 110px); grid-template-rows: auto repeat(2, 90px); gap:4px; font-size:12px; }
+  .cm-cell { display:flex; flex-direction:column; align-items:center; justify-content:center; border-radius:8px; font-family:'JetBrains Mono',monospace; }
+  .cm-label { color:var(--text-muted); font-size:11px; font-weight:600; display:flex; align-items:center; justify-content:center; text-align:center; padding:4px;}
+  .cm-tn { background: rgba(16,185,129,0.18); border:1px solid rgba(16,185,129,.4); }
+  .cm-tp { background: rgba(16,185,129,0.18); border:1px solid rgba(16,185,129,.4); }
+  .cm-fp { background: rgba(239,68,68,0.14); border:1px solid rgba(239,68,68,.35); }
+  .cm-fn { background: rgba(239,68,68,0.14); border:1px solid rgba(239,68,68,.35); }
+  .cm-num { font-size:22px; font-weight:800; }
+  .cm-sub { font-size:9.5px; color:var(--text-dim); margin-top:2px; }
+
+  /* ── GLOSSARY ── */
+  .glossary { display:grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); gap:14px; }
+  .gloss-item { background: var(--card); border:1px solid var(--border); border-radius:10px; padding:14px 18px; }
+  .gloss-term { font-weight:700; font-size:13px; color:#818cf8; margin-bottom:4px; }
+  .gloss-def { font-size:12.5px; color:var(--text-muted); }
+
+  /* ── FOOTER ── */
+  .footer {
+    text-align:center; padding:40px 20px 60px; color:var(--text-dim); font-size:12px; border-top:1px solid var(--border); margin-top:20px;
+  }
+
+  @media (max-width: 700px) {
+    .header { padding:44px 20px 36px; }
+    .container { padding: 24px 16px; }
+    .nav-tabs { padding: 10px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-badge">📋 Handover Document · Single Version Audit</div>
+  <h1>ML Model Comparison — Versi 95</h1>
+  <p>Perbandingan Apple-to-Apple 4 skenario fitur × 4 algoritma Machine Learning pada pipeline <b style="color:#cbd5e1">Wav2Vec 768 No-PCA + Anti-Leakage</b>. Disusun untuk keperluan presentasi dan serah terima ke Project Manager.</p>
+  <div class="header-stats">
+    <div class="stat-item"><div class="stat-num">189</div><div class="stat-label">Total Partisipan</div></div>
+    <div class="stat-item"><div class="stat-num">4 × 4</div><div class="stat-label">Skenario × Model</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:#f87171">0.6491</div><div class="stat-label">Best F1-Macro</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:#fbbf24">65.0%</div><div class="stat-label">Best Accuracy</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:#f87171">Belum</div><div class="stat-label">Target 0.75</div></div>
+  </div>
+</div>
+
+<div class="nav-tabs">
+  <button class="nav-tab active" data-sec="overview" onclick="showSection('overview', this)">🎯 Ringkasan</button>
+  <button class="nav-tab" data-sec="workflow" onclick="showSection('workflow', this)">🔄 Alur Sistem</button>
+  <button class="nav-tab" data-sec="features" onclick="showSection('features', this)">🧩 Fitur & Skenario</button>
+  <button class="nav-tab" data-sec="performance" onclick="showSection('performance', this)">📊 Performa & Akurasi</button>
+  <button class="nav-tab" data-sec="xai" onclick="showSection('xai', this)">🔍 Analisis XAI</button>
+  <button class="nav-tab" data-sec="recommend" onclick="showSection('recommend', this)">✅ Rekomendasi</button>
+</div>
+
+<!-- ══════════════════════════════════ OVERVIEW ══════════════════════════════════ -->
+<div id="sec-overview" class="model-section active">
+<div class="container">
+
+  <div class="section">
+    <div class="section-title">🎯 Ringkasan Eksekutif</div>
+    <p class="lead">Pipeline <b>v95</b> menguji <b>4 skenario representasi fitur audio</b> (Spectrogram, MFCC, Wav2Vec 768, dan Fusion gabungan) yang masing-masing dievaluasi dengan <b>4 algoritma ML yang sama</b> (Random Forest, SVM, Logistic Regression, XGBoost) — sehingga seluruh perbandingan bersifat <b>apple-to-apple</b>: satu-satunya variabel yang berubah adalah representasi fitur, bukan cara evaluasi. Dataset terdiri dari <b>189 partisipan</b>, dibagi 169 untuk training (5-fold cross-validation) dan 20 untuk test akhir yang seimbang (10 Normal, 10 Depresi).</p>
+    <div class="callout-ok"><b>Model terbaik:</b> XGBoost pada skenario S2 (MFCC + Prosodic) dengan F1-Macro <b>0.6491</b>, Akurasi <b>65%</b>. Skenario Wav2Vec768 (SVM, tanpa PCA) menjadi runner-up kompetitif dengan AUC tertinggi (0.70).</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">🧩 Skenario Fitur — Ringkasan Cepat</div>
+    <div class="timeline">
+      <div class="timeline-item" style="border-color:var(--s1)">
+        <div class="tl-badge">🔵</div>
+        <div class="tl-title" style="color:#60a5fa">S1 · Spectrogram</div>
+        <div class="tl-sub">Mel-band statistics, spectral entropy, centroid, chroma, RMS, ZCR</div>
+        <div class="tl-f1-label">Best Test F1 (LR)</div>
+        <div class="tl-f1" style="color:#60a5fa">0.5396</div>
+        <div class="tl-dim">681 fitur</div>
+      </div>
+      <div class="timeline-item" style="border-color:var(--s2)">
+        <div class="tl-badge">🟢</div>
+        <div class="tl-title" style="color:#34d399">S2 · MFCC + Prosodic</div>
+        <div class="tl-sub">MFCC m1-40, delta/delta-delta, pitch, jitter, shimmer, HNR</div>
+        <div class="tl-f1-label">Best Test F1 (XGB) 🏆</div>
+        <div class="tl-f1" style="color:#34d399">0.6491</div>
+        <div class="tl-dim">990 fitur</div>
+      </div>
+      <div class="timeline-item" style="border-color:var(--s3)">
+        <div class="tl-badge">🟣</div>
+        <div class="tl-title" style="color:#a78bfa">S3 · Wav2Vec 768</div>
+        <div class="tl-sub">Mean embedding pretrained facebook/wav2vec2-base</div>
+        <div class="tl-f1-label">Best Test F1 (SVM)</div>
+        <div class="tl-f1" style="color:#a78bfa">0.6267</div>
+        <div class="tl-dim">768 fitur</div>
+      </div>
+      <div class="timeline-item" style="border-color:var(--s4)">
+        <div class="tl-badge">🟠</div>
+        <div class="tl-title" style="color:#fbbf24">S4 · Fusion (S1+S2+S3)</div>
+        <div class="tl-sub">Gabungan seluruh fitur dari tiga skenario di atas</div>
+        <div class="tl-f1-label">Best Test F1 (RF)</div>
+        <div class="tl-f1" style="color:#fbbf24">0.5604</div>
+        <div class="tl-dim">2439 fitur</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">📊 Perbandingan Cepat — F1-Macro Terbaik per Skenario</div>
+    <div class="chart-wrap">
+      <h3>📈 Apple-to-Apple: Best Test F1-Macro per Skenario (Test N=20, balanced)</h3>
+      <canvas id="chartOverview" height="90"></canvas>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">💡 Insight Kunci</div>
+    <div class="insight-grid">
+      <div class="insight-card">
+        <div class="insight-icon">🏆</div>
+        <div class="insight-title">MFCC + XGBoost tetap juara</div>
+        <div class="insight-body">Fitur prosodic/MFCC klasik (990 dim) yang dipasangkan dengan XGBoost menghasilkan F1 tertinggi (0.6491) — mengalahkan representasi deep embedding Wav2Vec768.</div>
+      </div>
+      <div class="insight-card">
+        <div class="insight-icon">🎯</div>
+        <div class="insight-title">Wav2Vec768 unggul di presisi & AUC</div>
+        <div class="insight-body">SVM tanpa PCA pada Wav2Vec768 punya AUC tertinggi (0.70) dan precision tertinggi (0.70) — cocok bila prioritas mengurangi false alarm.</div>
+      </div>
+      <div class="insight-card">
+        <div class="insight-icon">📉</div>
+        <div class="insight-title">Fusion tidak otomatis lebih baik</div>
+        <div class="insight-body">Menggabungkan semua fitur (2439 dim) justru F1 terbaiknya (0.5604) lebih rendah dari S2 & S3 tunggal — dataset N=189 terlalu kecil untuk dimensi sebesar itu, risiko overfitting.</div>
+      </div>
+      <div class="insight-card">
+        <div class="insight-icon">⚠️</div>
+        <div class="insight-title">Target F1 0.75 belum tercapai</div>
+        <div class="insight-body">Model terbaik saat ini (0.6491) masih di bawah target 0.75. Oracle F1 (threshold ideal di test) mencapai 0.70 — ada headroom dari penyempurnaan strategi threshold, namun gap terbesar tetap dari kapasitas model/data.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ══════════════════════════════════ WORKFLOW ══════════════════════════════════ -->
+<div id="sec-workflow" class="model-section">
+<div class="container">
+
+  <div class="section">
+    <div class="section-title">🔄 Alur Sistem End-to-End (v95)</div>
+    <p class="lead">Diagram berikut menunjukkan bagaimana data audio mentah diproses hingga menghasilkan prediksi <b>Normal / Depresi</b>, termasuk mekanisme <b>anti-leakage</b> yang menjaga validitas evaluasi.</p>
+    <div class="pipeline-wrap">
+      <h3>Pipeline Data → Fitur → Model → Prediksi</h3>
+      <div class="pipeline">
+        <div class="pipe-col">
+          <div class="pipe-label">📥 Input</div>
+          <div class="pipe-group">
+            <div class="pipe-node" style="border-color:rgba(255,255,255,.15)">
+              <div class="pipe-node-title">Audio Cleaned</div>
+              <div class="pipe-node-detail">189 file .wav</div>
+              <div class="pipe-node-detail">16 kHz mono</div>
+            </div>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-col">
+          <div class="pipe-label">🔧 Ekstraksi Fitur</div>
+          <div class="pipe-group">
+            <div class="pipe-node" style="border-color:var(--s1)">
+              <div class="pipe-node-title" style="color:#60a5fa">Spectrogram/GeMAPS</div>
+              <div class="pipe-node-detail">mel-band, entropy, chroma</div>
+              <div class="pipe-node-dim" style="background:var(--s1-bg);color:#60a5fa">681-dim</div>
+            </div>
+            <div class="pipe-node" style="border-color:var(--s2)">
+              <div class="pipe-node-title" style="color:#34d399">MFCC + Prosodic</div>
+              <div class="pipe-node-detail">m1-40, delta, F0, jitter</div>
+              <div class="pipe-node-dim" style="background:var(--s2-bg);color:#34d399">990-dim</div>
+            </div>
+            <div class="pipe-node" style="border-color:var(--s3)">
+              <div class="pipe-node-title" style="color:#a78bfa">Wav2Vec2 Mean Emb.</div>
+              <div class="pipe-node-detail">facebook/wav2vec2-base</div>
+              <div class="pipe-node-dim" style="background:var(--s3-bg);color:#a78bfa">768-dim</div>
+            </div>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-col">
+          <div class="pipe-label">🧩 4 Skenario</div>
+          <div class="pipe-node" style="border-color:var(--s4); min-height:190px; display:flex; flex-direction:column; justify-content:center">
+            <div class="pipe-node-title" style="color:#fbbf24">S1 / S2 / S3 / S4-Fusion</div>
+            <div class="pipe-node-detail">S4 = S1+S2+S3 concat</div>
+            <div class="pipe-node-dim" style="background:var(--s4-bg);color:#fbbf24; margin-top:8px">up to 2439-dim</div>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-col">
+          <div class="pipe-label">⚙️ Preprocessing</div>
+          <div class="pipe-group">
+            <div class="pipe-node" style="border-color:rgba(255,255,255,.15)">
+              <div class="pipe-node-title">StandardScaler</div>
+              <div class="pipe-node-detail">fit hanya di train fold</div>
+            </div>
+            <div class="pipe-node" style="border-color:rgba(255,255,255,.15)">
+              <div class="pipe-node-title">PCA (opsional)</div>
+              <div class="pipe-node-detail">n=10/20/30/50/80</div>
+              <div class="pipe-node-detail" style="color:#f87171">kecuali S3 + LR/SVM</div>
+            </div>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-col">
+          <div class="pipe-label">🎯 4 Classifier</div>
+          <div class="pipe-group">
+            <div class="pipe-node" style="border-color:rgba(255,255,255,.15)">
+              <div class="pipe-node-title">RF · SVM · LR · XGBoost</div>
+              <div class="pipe-node-detail">grid hyperparameter</div>
+              <div class="pipe-node-detail">class_weight balanced /</div>
+              <div class="pipe-node-detail">scale_pos_weight dinamis</div>
+            </div>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-col">
+          <div class="pipe-label">📤 Output</div>
+          <div class="pipe-node" style="border-color:var(--best); min-height:190px; display:flex; flex-direction:column; justify-content:center">
+            <div class="pipe-node-title" style="color:#f87171">Softmax / Prob</div>
+            <div style="margin-top:10px; font-size:13px; font-weight:700; color:#34d399">NORMAL</div>
+            <div style="margin-top:4px; font-size:13px; font-weight:700; color:#f87171">DEPRESI</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">🧭 Langkah demi Langkah (versi non-teknis)</div>
+    <div class="step-list">
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-body"><h4>Kumpulkan & bersihkan audio</h4><p>189 rekaman wawancara partisipan dibersihkan dan distandarisasi ke 16kHz mono sebelum diproses lebih lanjut.</p></div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-body"><h4>Ekstrak 3 jenis representasi suara</h4><p>Dari audio yang sama, diambil 3 "sudut pandang" fitur berbeda: pola spektral (Spectrogram), pola nada/prosodi klasik (MFCC), dan representasi hasil model AI pretrained (Wav2Vec2).</p></div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-body"><h4>Susun 4 skenario perbandingan</h4><p>Tiga fitur di atas diuji sendiri-sendiri (S1, S2, S3), lalu digabung menjadi satu skenario tambahan (S4-Fusion) untuk melihat apakah menggabungkan semuanya membantu.</p></div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">4</div>
+        <div class="step-body"><h4>Kunci 20 data test di awal (anti-leakage)</h4><p>Sebelum model apa pun dilatih, 20 partisipan (10 Normal + 10 Depresi) dipisahkan sebagai data ujian akhir yang tidak pernah dilihat model selama proses latihan.</p></div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">5</div>
+        <div class="step-body"><h4>Latih & validasi 4 model per skenario</h4><p>Sisa 169 data dipakai untuk melatih dan memvalidasi 4 algoritma (RF, SVM, LR, XGBoost) memakai 5-fold cross-validation, sehingga tiap model diuji pada beberapa pembagian data internal.</p></div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">6</div>
+        <div class="step-body"><h4>Tentukan ambang batas keputusan (threshold)</h4><p>Ambang probabilitas untuk memutuskan "Depresi vs Normal" dicari otomatis dari hasil validasi (bukan dari data test), untuk menghindari kecurangan/leakage.</p></div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">7</div>
+        <div class="step-body"><h4>Uji akhir pada 20 data yang dikunci</h4><p>Model dengan konfigurasi terbaik lalu diuji sekali pada 20 data test — hasil inilah yang dilaporkan sebagai performa final tiap skenario/model.</p></div>
+      </div>
+    </div>
+    <div class="callout"><b>Kenapa "anti-leakage" penting?</b> Tanpa mekanisme ini, angka akurasi bisa terlihat sangat tinggi di atas kertas tapi menyesatkan — model sebenarnya "menghafal" data, bukan belajar pola yang generalizable. Pipeline v95 secara ketat memisahkan data test dan menentukan threshold hanya dari data training/validasi.</div>
+  </div>
+
+</div>
+</div>
+
+<!-- ══════════════════════════════════ FEATURES ══════════════════════════════════ -->
+<div id="sec-features" class="model-section">
+<div class="container">
+
+  <div class="section">
+    <div class="section-title">🧩 Definisi "Apple-to-Apple"</div>
+    <p class="lead">Semua skenario fitur di bawah ini dievaluasi dengan <b>kondisi yang identik</b>: split data yang sama (169 train / 20 test), strategi 5-fold cross-validation yang sama, keempat algoritma yang sama, serta strategi threshold yang sama. Dengan begitu, perbedaan hasil murni mencerminkan kualitas representasi fitur — bukan perbedaan metodologi evaluasi.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">📋 Matriks Skenario Fitur</div>
+    <div class="table-wrap">
+      <h3>🧬 Deskripsi & Dimensi per Skenario</h3>
+      <table>
+        <tr><th>Skenario</th><th>Deskripsi Fitur</th><th>Dimensi</th><th>Sumber Ekstraksi</th></tr>
+        <tr><td><span class="pill pill-s1">S1</span> Spectrogram</td><td>Statistik mel-band, spectral entropy, centroid, bandwidth, rolloff, flatness, chroma, RMS, ZCR, low-energy ratio (GeMAPS-like)</td><td class="mono">681</td><td class="mono">daic_v6_spectrogram.csv</td></tr>
+        <tr><td><span class="pill pill-s2">S2</span> MFCC + Prosodic</td><td>MFCC m1–m40, delta & delta-delta MFCC, proxy pitch/F0, RMS, ZCR, proxy HNR, spectral entropy, jitter, shimmer, voiced ratio</td><td class="mono">990</td><td class="mono">daic_v6_mfcc.csv</td></tr>
+        <tr><td><span class="pill pill-s3">S3</span> Wav2Vec 768</td><td>Mean embedding dari model pretrained self-supervised <span class="mono">facebook/wav2vec2-base</span> (768 dimensi hidden state, dirata-rata di seluruh frame)</td><td class="mono">768</td><td class="mono">daic_v95_wav2vec768_mean_189.csv</td></tr>
+        <tr><td><span class="pill pill-s4">S4</span> Fusion</td><td>Gabungan (concatenation) langsung dari S1 + S2 + S3 tanpa seleksi tambahan</td><td class="mono">2439</td><td class="mono">S1 ⊕ S2 ⊕ S3</td></tr>
+      </table>
+    </div>
+    <div class="chart-wrap">
+      <h3>📐 Perbandingan Dimensi Fitur per Skenario</h3>
+      <canvas id="chartDims" height="80"></canvas>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">⚙️ Preprocessing Pipeline & Penanganan Class Imbalance</div>
+    <div class="grid-2">
+      <div class="table-wrap">
+        <h3>🔧 Urutan Preprocessing (sklearn Pipeline)</h3>
+        <table>
+          <tr><th>Tahap</th><th>Keterangan</th></tr>
+          <tr><td class="mono">1. StandardScaler</td><td>Fit hanya pada data train fold (mencegah leakage antar fold)</td></tr>
+          <tr><td class="mono">2. PCA (opsional)</td><td>Reduksi dimensi, grid: 10/20/30 (S1/S2), 20/50/80 (S3 non-LR/SVM), 10/20/30/50 (S4)</td></tr>
+          <tr><td class="mono">→ Pengecualian</td><td><b style="color:#f87171">S3 Wav2Vec768 + Logistic Regression / Linear SVM dijalankan TANPA PCA</b> — memakai fitur asli 768-dim penuh</td></tr>
+          <tr><td class="mono">3. Classifier</td><td>RF / SVM / LR / XGBoost sesuai konfigurasi grid terbaik (dipilih dari CV F1-macro)</td></tr>
+        </table>
+      </div>
+      <div class="table-wrap">
+        <h3>⚖️ Penanganan Ketidakseimbangan Kelas</h3>
+        <table>
+          <tr><th>Model</th><th>Strategi</th></tr>
+          <tr><td class="mono">RF / SVM / LR</td><td><span class="mono">class_weight='balanced'</span> (bobot otomatis berbanding terbalik dengan frekuensi kelas)</td></tr>
+          <tr><td class="mono">XGBoost</td><td><span class="mono">scale_pos_weight</span> dinamis = rasio Normal:Depresi pada data training (train: 123 Normal / 46 Depresi → 2.674)</td></tr>
+          <tr><td class="mono">Threshold</td><td>OOF sweep fokus 0.35–0.45, fallback ke rentang lebar 0.05–0.95 bila hasil fallback lebih baik &gt;0.015 F1</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">🎛️ Grid Hyperparameter per Model</div>
+    <div class="table-wrap">
+      <h3>🔩 Ruang Pencarian (Grid Search via 5-Fold CV)</h3>
+      <table>
+        <tr><th>Model</th><th>Parameter yang Diuji</th></tr>
+        <tr><td class="mono">Random Forest</td><td>n_estimators=200; max_depth ∈ {3, None}; min_samples_leaf ∈ {2, 4}</td></tr>
+        <tr><td class="mono">SVM</td><td>C ∈ {0.1, 1.0} × kernel ∈ {linear, rbf} &nbsp;|&nbsp; khusus S3: C ∈ {0.01, 0.1, 1.0}, kernel=linear (no-PCA)</td></tr>
+        <tr><td class="mono">Logistic Regression</td><td>C ∈ {0.01, 0.1, 1.0} &nbsp;|&nbsp; khusus S3: C ∈ {0.001, 0.01, 0.05, 0.1} (no-PCA)</td></tr>
+        <tr><td class="mono">XGBoost</td><td>n_estimators=100; max_depth ∈ {2, 3}; learning_rate=0.05; reg_alpha=1.0; reg_lambda=5.0</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">🔒 Split Data</div>
+    <div class="metric-card-row">
+      <div class="metric-card"><div class="metric-val">169</div><div class="metric-lbl">Total Train</div></div>
+      <div class="metric-card"><div class="metric-val" style="color:#34d399">123</div><div class="metric-lbl">Train · Normal</div></div>
+      <div class="metric-card"><div class="metric-val" style="color:#f87171">46</div><div class="metric-lbl">Train · Depresi</div></div>
+      <div class="metric-card"><div class="metric-val">20</div><div class="metric-lbl">Total Test</div></div>
+      <div class="metric-card"><div class="metric-val" style="color:#34d399">10</div><div class="metric-lbl">Test · Normal</div></div>
+      <div class="metric-card"><div class="metric-val" style="color:#f87171">10</div><div class="metric-lbl">Test · Depresi (Balanced)</div></div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ══════════════════════════════════ PERFORMANCE ══════════════════════════════════ -->
+<div id="sec-performance" class="model-section">
+<div class="container">
+
+  <div class="section">
+    <div class="section-title">🏆 Model Terbaik Keseluruhan</div>
+    <div class="metric-card-row">
+      <div class="metric-card" style="border-color:var(--best)"><div class="metric-val" style="color:#f87171">XGB × S2</div><div class="metric-lbl">Model & Skenario</div></div>
+      <div class="metric-card"><div class="metric-val">0.6491</div><div class="metric-lbl">F1-Macro (Test)</div></div>
+      <div class="metric-card"><div class="metric-val">65.0%</div><div class="metric-lbl">Accuracy</div></div>
+      <div class="metric-card"><div class="metric-val">0.6515</div><div class="metric-lbl">Precision (Macro)</div></div>
+      <div class="metric-card"><div class="metric-val">0.6500</div><div class="metric-lbl">Recall (Macro)</div></div>
+      <div class="metric-card"><div class="metric-val">0.6400</div><div class="metric-lbl">AUC</div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">📊 Test F1-Macro — Semua Skenario × Model</div>
+    <div class="chart-wrap">
+      <h3>📈 Grouped Bar: Test F1-Macro (N=20, balanced)</h3>
+      <canvas id="chartAllResults" height="90"></canvas>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">📋 Tabel Ringkasan Lengkap (16 Kombinasi)</div>
+    <div class="table-wrap">
+      <h3>📄 Diurutkan berdasarkan Test F1-Macro (tertinggi → terendah)</h3>
+      <table>
+        <tr><th>Skenario</th><th>Model</th><th>PCA</th><th>CV F1</th><th>Thr</th><th>Src</th><th>Test F1</th><th>Acc</th><th>Prec</th><th>Recall</th><th>RecD</th><th>Top50</th><th>AUC</th><th>Oracle</th></tr>
+        <tr class="row-best"><td><span class="pill pill-s2">S2</span> MFCC</td><td class="mono bold">XGB</td><td class="mono">10</td><td class="mono">0.5865</td><td class="mono">0.495</td><td class="mono">wide</td><td class="mono bold">0.6491</td><td class="mono">0.6500</td><td class="mono">0.6515</td><td class="mono">0.6500</td><td class="mono">0.6000</td><td class="mono">0.7000</td><td class="mono">0.6400</td><td class="mono">0.7000</td></tr>
+        <tr class="row-scenario-best"><td><span class="pill pill-s3">S3</span> Wav2Vec768</td><td class="mono">SVM</td><td class="mono">none</td><td class="mono">0.5653</td><td class="mono">0.295</td><td class="mono">wide</td><td class="mono">0.6267</td><td class="mono">0.6500</td><td class="mono">0.7000</td><td class="mono">0.6500</td><td class="mono">0.4000</td><td class="mono">0.7000</td><td class="mono">0.7000</td><td class="mono">0.7494</td></tr>
+        <tr><td><span class="pill pill-s3">S3</span> Wav2Vec768</td><td class="mono">RF</td><td class="mono">80</td><td class="mono">0.5678</td><td class="mono">0.385</td><td class="mono">focused</td><td class="mono">0.6011</td><td class="mono">0.6500</td><td class="mono">0.7941</td><td class="mono">0.6500</td><td class="mono">0.3000</td><td class="mono">0.6000</td><td class="mono">0.5900</td><td class="mono">0.6011</td></tr>
+        <tr><td><span class="pill pill-s3">S3</span> Wav2Vec768</td><td class="mono">XGB</td><td class="mono">80</td><td class="mono">0.5520</td><td class="mono">0.445</td><td class="mono">focused</td><td class="mono">0.5604</td><td class="mono">0.6000</td><td class="mono">0.6562</td><td class="mono">0.6000</td><td class="mono">0.3000</td><td class="mono">0.5000</td><td class="mono">0.5600</td><td class="mono">0.6267</td></tr>
+        <tr class="row-scenario-best"><td><span class="pill pill-s4">S4</span> Fusion</td><td class="mono">RF</td><td class="mono">10</td><td class="mono">0.6149</td><td class="mono">0.480</td><td class="mono">wide</td><td class="mono">0.5604</td><td class="mono">0.6000</td><td class="mono">0.6562</td><td class="mono">0.6000</td><td class="mono">0.3000</td><td class="mono">0.6000</td><td class="mono">0.6100</td><td class="mono">0.6267</td></tr>
+        <tr class="row-scenario-best"><td><span class="pill pill-s1">S1</span> Spectrogram</td><td class="mono">LR</td><td class="mono">10</td><td class="mono">0.6069</td><td class="mono">0.565</td><td class="mono">wide</td><td class="mono">0.5396</td><td class="mono">0.5500</td><td class="mono">0.5549</td><td class="mono">0.5500</td><td class="mono">0.4000</td><td class="mono">0.5000</td><td class="mono">0.4700</td><td class="mono">0.5960</td></tr>
+        <tr><td><span class="pill pill-s4">S4</span> Fusion</td><td class="mono">XGB</td><td class="mono">10</td><td class="mono">0.5958</td><td class="mono">0.510</td><td class="mono">wide</td><td class="mono">0.5396</td><td class="mono">0.5500</td><td class="mono">0.5549</td><td class="mono">0.5500</td><td class="mono">0.4000</td><td class="mono">0.5000</td><td class="mono">0.4900</td><td class="mono">0.5489</td></tr>
+        <tr><td><span class="pill pill-s1">S1</span> Spectrogram</td><td class="mono">XGB</td><td class="mono">10</td><td class="mono">0.5501</td><td class="mono">0.525</td><td class="mono">wide</td><td class="mono">0.4872</td><td class="mono">0.5500</td><td class="mono">0.5980</td><td class="mono">0.5500</td><td class="mono">0.2000</td><td class="mono">0.6000</td><td class="mono">0.7000</td><td class="mono">0.6491</td></tr>
+        <tr><td><span class="pill pill-s1">S1</span> Spectrogram</td><td class="mono">SVM</td><td class="mono">30</td><td class="mono">0.5635</td><td class="mono">0.290</td><td class="mono">wide</td><td class="mono">0.4505</td><td class="mono">0.5000</td><td class="mono">0.5000</td><td class="mono">0.5000</td><td class="mono">0.2000</td><td class="mono">0.5000</td><td class="mono">0.5400</td><td class="mono">0.5833</td></tr>
+        <tr><td><span class="pill pill-s2">S2</span> MFCC</td><td class="mono">SVM</td><td class="mono">10</td><td class="mono">0.5928</td><td class="mono">0.300</td><td class="mono">wide</td><td class="mono">0.4505</td><td class="mono">0.5000</td><td class="mono">0.5000</td><td class="mono">0.5000</td><td class="mono">0.2000</td><td class="mono">0.5000</td><td class="mono">0.4500</td><td class="mono">0.5489</td></tr>
+        <tr><td><span class="pill pill-s1">S1</span> Spectrogram</td><td class="mono">RF</td><td class="mono">10</td><td class="mono">0.5608</td><td class="mono">0.505</td><td class="mono">wide</td><td class="mono">0.4357</td><td class="mono">0.5500</td><td class="mono">0.7632</td><td class="mono">0.5500</td><td class="mono">0.1000</td><td class="mono">0.6000</td><td class="mono">0.6300</td><td class="mono">0.6267</td></tr>
+        <tr><td><span class="pill pill-s2">S2</span> MFCC</td><td class="mono">LR</td><td class="mono">10</td><td class="mono">0.5879</td><td class="mono">0.610</td><td class="mono">wide</td><td class="mono">0.4048</td><td class="mono">0.5000</td><td class="mono">0.5000</td><td class="mono">0.5000</td><td class="mono">0.1000</td><td class="mono">0.5000</td><td class="mono">0.4700</td><td class="mono">0.5489</td></tr>
+        <tr><td><span class="pill pill-s3">S3</span> Wav2Vec768</td><td class="mono">LR</td><td class="mono">none</td><td class="mono">0.5764</td><td class="mono">0.560</td><td class="mono">wide</td><td class="mono">0.4048</td><td class="mono">0.5000</td><td class="mono">0.5000</td><td class="mono">0.5000</td><td class="mono">0.1000</td><td class="mono">0.6000</td><td class="mono">0.6200</td><td class="mono">0.6491</td></tr>
+        <tr><td><span class="pill pill-s2">S2</span> MFCC</td><td class="mono">RF</td><td class="mono">30</td><td class="mono">0.5535</td><td class="mono">0.465</td><td class="mono">wide</td><td class="mono">0.3732</td><td class="mono">0.4500</td><td class="mono">0.4020</td><td class="mono">0.4500</td><td class="mono">0.1000</td><td class="mono">0.4000</td><td class="mono">0.4700</td><td class="mono">0.6011</td></tr>
+        <tr><td><span class="pill pill-s4">S4</span> Fusion</td><td class="mono">SVM</td><td class="mono">50</td><td class="mono">0.5535</td><td class="mono">0.280</td><td class="mono">wide</td><td class="mono">0.3103</td><td class="mono">0.4500</td><td class="mono">0.2368</td><td class="mono">0.4500</td><td class="mono">0.0000</td><td class="mono">0.6000</td><td class="mono">0.4900</td><td class="mono">0.4949</td></tr>
+        <tr><td><span class="pill pill-s4">S4</span> Fusion</td><td class="mono">LR</td><td class="mono">10</td><td class="mono">0.5697</td><td class="mono">0.595</td><td class="mono">wide</td><td class="mono">0.3103</td><td class="mono">0.4500</td><td class="mono">0.2368</td><td class="mono">0.4500</td><td class="mono">0.0000</td><td class="mono">0.5000</td><td class="mono">0.4900</td><td class="mono">0.5396</td></tr>
+      </table>
+      <div style="margin-top:12px; display:flex; gap:16px; flex-wrap:wrap; font-size:11.5px; color:var(--text-dim)">
+        <span><span class="pill pill-best">Merah</span> = Terbaik keseluruhan</span>
+        <span><span class="pill" style="background:rgba(16,185,129,.15);color:#34d399;border:1px solid rgba(16,185,129,.4)">Hijau</span> = Terbaik per skenario (apple-to-apple)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">🥇 Apple-to-Apple: Terbaik per Skenario</div>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Skenario</th><th>Model Terbaik</th><th>PCA</th><th>CV F1</th><th>Test F1</th><th>Acc</th><th>Precision</th><th>Recall</th><th>AUC</th></tr>
+        <tr><td><span class="pill pill-s1">S1</span> Spectrogram</td><td class="mono bold">LR</td><td class="mono">10</td><td class="mono">0.6069</td><td class="mono">0.5396</td><td class="mono">0.5500</td><td class="mono">0.5549</td><td class="mono">0.5500</td><td class="mono">0.4700</td></tr>
+        <tr class="row-best"><td><span class="pill pill-s2">S2</span> MFCC</td><td class="mono bold">XGB</td><td class="mono">10</td><td class="mono">0.5865</td><td class="mono bold">0.6491</td><td class="mono">0.6500</td><td class="mono">0.6515</td><td class="mono">0.6500</td><td class="mono">0.6400</td></tr>
+        <tr><td><span class="pill pill-s3">S3</span> Wav2Vec768</td><td class="mono bold">SVM</td><td class="mono">none</td><td class="mono">0.5653</td><td class="mono">0.6267</td><td class="mono">0.6500</td><td class="mono">0.7000</td><td class="mono">0.6500</td><td class="mono">0.7000</td></tr>
+        <tr><td><span class="pill pill-s4">S4</span> Fusion</td><td class="mono bold">RF</td><td class="mono">10</td><td class="mono">0.6149</td><td class="mono">0.5604</td><td class="mono">0.6000</td><td class="mono">0.6562</td><td class="mono">0.6000</td><td class="mono">0.6100</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="table-wrap">
+      <h3>📄 Classification Report — Model Terbaik (XGB × S2_MFCC)</h3>
+      <table>
+        <tr><th>Kelas</th><th>Precision</th><th>Recall</th><th>F1-Score</th><th>Support</th></tr>
+        <tr><td>Normal</td><td class="mono">0.64</td><td class="mono">0.70</td><td class="mono">0.67</td><td class="mono">10</td></tr>
+        <tr><td>Depresi</td><td class="mono">0.67</td><td class="mono">0.60</td><td class="mono">0.63</td><td class="mono">10</td></tr>
+        <tr><td class="bold">Accuracy</td><td colspan="3" class="mono bold">0.65</td><td class="mono">20</td></tr>
+        <tr><td class="bold">Macro Avg</td><td class="mono">0.65</td><td class="mono">0.65</td><td class="mono">0.65</td><td class="mono">20</td></tr>
+      </table>
+    </div>
+    <div class="table-wrap">
+      <h3>🧮 Confusion Matrix — Model Terbaik</h3>
+      <div class="cm-wrap">
+        <div class="cm-grid">
+          <div></div>
+          <div class="cm-label">Pred. Normal</div>
+          <div class="cm-label">Pred. Depresi</div>
+          <div class="cm-label">Aktual Normal</div>
+          <div class="cm-cell cm-tn"><div class="cm-num" style="color:#34d399">7</div><div class="cm-sub">True Negative</div></div>
+          <div class="cm-cell cm-fp"><div class="cm-num" style="color:#f87171">3</div><div class="cm-sub">False Positive</div></div>
+          <div class="cm-label">Aktual Depresi</div>
+          <div class="cm-cell cm-fn"><div class="cm-num" style="color:#f87171">4</div><div class="cm-sub">False Negative</div></div>
+          <div class="cm-cell cm-tp"><div class="cm-num" style="color:#34d399">6</div><div class="cm-sub">True Positive</div></div>
+        </div>
+      </div>
+      <p style="font-size:12px;color:var(--text-dim);margin-top:14px">Dari 20 data test, 13 diprediksi benar (7 Normal + 6 Depresi), 7 salah (3 Normal terprediksi Depresi, 4 Depresi terprediksi Normal).</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">📉 Error Analysis — Model Terbaik</div>
+    <div class="table-wrap">
+      <h3>❌ 7 Partisipan yang Salah Diklasifikasikan</h3>
+      <table>
+        <tr><th>Participant ID</th><th>Label Aktual</th><th>Prediksi</th><th>Probabilitas Depresi</th></tr>
+        <tr><td class="mono">315</td><td>Normal</td><td style="color:#f87171">Depresi</td><td class="mono">0.584</td></tr>
+        <tr><td class="mono">347</td><td>Depresi</td><td style="color:#f87171">Normal</td><td class="mono">0.195</td></tr>
+        <tr><td class="mono">355</td><td>Depresi</td><td style="color:#f87171">Normal</td><td class="mono">0.188</td></tr>
+        <tr><td class="mono">373</td><td>Normal</td><td style="color:#f87171">Depresi</td><td class="mono">0.710</td></tr>
+        <tr><td class="mono">426</td><td>Depresi</td><td style="color:#f87171">Normal</td><td class="mono">0.341</td></tr>
+        <tr><td class="mono">459</td><td>Depresi</td><td style="color:#f87171">Normal</td><td class="mono">0.427</td></tr>
+        <tr><td class="mono">487</td><td>Normal</td><td style="color:#f87171">Depresi</td><td class="mono">0.519</td></tr>
+      </table>
+    </div>
+    <div class="callout-info"><b>Catatan:</b> Beberapa kasus (mis. participant 459 dengan probabilitas 0.427) sangat dekat dengan threshold (0.495) — menunjukkan model "ragu-ragu" pada kasus borderline, bukan kesalahan yang meyakinkan.</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">🎚️ Actual F1 vs Oracle F1 (Headroom Threshold)</div>
+    <div class="chart-wrap">
+      <h3>📊 Test F1-Macro Aktual (OOF Threshold) vs Oracle (Threshold Ideal di Test)</h3>
+      <canvas id="chartOracle" height="90"></canvas>
+    </div>
+    <div class="callout-info" style="margin-top:16px"><b>Interpretasi:</b> Nilai <i>Oracle</i> menunjukkan F1 maksimum yang bisa dicapai jika threshold "ditentukan setelah melihat" data test — ini <b>bukan angka yang valid dipakai di produksi</b>, hanya sebagai indikator seberapa jauh strategi threshold OOF saat ini dari kondisi ideal.</div>
+  </div>
+
+</div>
+</div>
+
+<!-- ══════════════════════════════════ XAI ══════════════════════════════════ -->
+<div id="sec-xai" class="model-section">
+<div class="container">
+
+  <div class="section">
+    <div class="section-title">🔍 Explainable AI (XAI) — Bagaimana Model Mengambil Keputusan</div>
+    <p class="lead">Untuk menjaga kepercayaan dan akuntabilitas, setiap model diaudit menggunakan metode XAI yang sesuai jenisnya. Tujuannya: memberi gambaran fitur/komponen apa yang paling memengaruhi prediksi Normal vs Depresi.</p>
+    <div class="grid-2">
+      <div class="table-wrap">
+        <h3>🧠 Metode XAI per Tipe Model</h3>
+        <table>
+          <tr><th>Model</th><th>Metode</th><th>Interpretasi</th></tr>
+          <tr><td class="mono">LR / SVM (linear)</td><td>Koefisien (<span class="mono">coef_</span>)</td><td>Tanda (+/−) menunjukkan arah pengaruh: positif → mendorong ke "Depresi", negatif → mendorong ke "Normal"</td></tr>
+          <tr><td class="mono">RF / XGBoost</td><td>Feature Importance</td><td>Hanya menunjukkan besarnya kontribusi (magnitude), tanpa arah — semakin tinggi nilai, semakin besar pengaruh terhadap keputusan model</td></tr>
+        </table>
+      </div>
+      <div class="table-wrap">
+        <h3>⚠️ Catatan Penting untuk Model Terbaik</h3>
+        <p style="font-size:13px; color:var(--text-muted); padding:4px 0 8px">Model terbaik (<b style="color:#f87171">XGBoost pada S2_MFCC</b>) menggunakan <b>PCA dengan 10 komponen</b> sebelum klasifikasi. Artinya, feature importance yang dihasilkan berada pada level <b>komponen PCA (PC1–PC10)</b>, bukan langsung pada fitur MFCC mentah (misal "MFCC koefisien ke-5").</p>
+        <div class="callout" style="margin-top:0">Setiap komponen PCA adalah <b>kombinasi linear dari ratusan fitur MFCC asli</b>. Ini membuat interpretasi langsung ke PM lebih sulit — kami tidak bisa langsung bilang "fitur X yang menyebabkan prediksi Depresi", melainkan "kombinasi pola akustik tertentu (komponen Y)".</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">📊 Top-10 Feature Importance — Model Terbaik (XGB × S2_MFCC, PCA=10)</div>
+    <div class="chart-wrap">
+      <h3>🎯 Importance per Komponen PCA</h3>
+      <canvas id="chartXAI" height="90"></canvas>
+    </div>
+    <div class="table-wrap" style="margin-top:20px">
+      <h3>📄 Tabel Nilai Importance</h3>
+      <table>
+        <tr><th>Rank</th><th>Komponen</th><th>Importance</th><th>Level</th></tr>
+        <tr><td>1</td><td class="mono">PC2</td><td class="mono">0.1322</td><td>PCA component</td></tr>
+        <tr><td>2</td><td class="mono">PC7</td><td class="mono">0.1199</td><td>PCA component</td></tr>
+        <tr><td>3</td><td class="mono">PC5</td><td class="mono">0.1199</td><td>PCA component</td></tr>
+        <tr><td>4</td><td class="mono">PC10</td><td class="mono">0.1081</td><td>PCA component</td></tr>
+        <tr><td>5</td><td class="mono">PC8</td><td class="mono">0.1044</td><td>PCA component</td></tr>
+        <tr><td>6</td><td class="mono">PC6</td><td class="mono">0.0951</td><td>PCA component</td></tr>
+        <tr><td>7</td><td class="mono">PC9</td><td class="mono">0.0949</td><td>PCA component</td></tr>
+        <tr><td>8</td><td class="mono">PC1</td><td class="mono">0.0825</td><td>PCA component</td></tr>
+        <tr><td>9</td><td class="mono">PC4</td><td class="mono">0.0791</td><td>PCA component</td></tr>
+        <tr><td>10</td><td class="mono">PC3</td><td class="mono">0.0638</td><td>PCA component</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">💬 Penjelasan untuk Project Manager</div>
+    <div class="insight-grid">
+      <div class="insight-card">
+        <div class="insight-icon">⚖️</div>
+        <div class="insight-title">Kontribusi cukup merata</div>
+        <div class="insight-body">Importance ke-10 komponen relatif berdekatan (0.064–0.132) — tidak ada satu komponen dominan tunggal. Model mengandalkan kombinasi banyak pola akustik, bukan satu sinyal tunggal.</div>
+      </div>
+      <div class="insight-card">
+        <div class="insight-icon">🔬</div>
+        <div class="insight-title">Trade-off akurasi vs interpretasi</div>
+        <div class="insight-body">Model dengan PCA (seperti pemenang saat ini) cenderung lebih sulit dijelaskan secara langsung dibanding model tanpa PCA (mis. S3 Wav2Vec768 SVM no-PCA) yang koefisiennya bisa ditelusuri per-dimensi embedding.</div>
+      </div>
+      <div class="insight-card">
+        <div class="insight-icon">🗣️</div>
+        <div class="insight-title">Cara menyampaikan ke pihak non-teknis</div>
+        <div class="insight-body">Sampaikan sebagai: "model melihat kombinasi pola nada bicara dan ritme (dari MFCC) — bukan satu kata atau nada spesifik — untuk memperkirakan kemungkinan depresi."</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ══════════════════════════════════ RECOMMEND ══════════════════════════════════ -->
+<div id="sec-recommend" class="model-section">
+<div class="container">
+
+  <div class="section">
+    <div class="section-title">✅ Kesimpulan</div>
+    <div class="callout-ok">
+      <b>Status saat ini:</b> Pipeline v95 berhasil menetapkan baseline apple-to-apple yang solid antar 4 skenario fitur dan 4 model ML. Model terbaik (XGBoost × MFCC) mencapai F1-Macro <b>0.6491</b> dan Akurasi <b>65%</b>, namun <b>belum mencapai target F1 0.75</b>.
+    </div>
+    <div class="callout" style="margin-top:16px">
+      <b>Risiko utama:</b> Dataset relatif kecil (N=189, test hanya 20), sehingga variasi antar fold cukup tinggi dan hasil skenario Fusion (dimensi tertinggi) justru turun performa (indikasi overfitting risk pada dimensi besar dengan data terbatas).
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">📌 Rekomendasi Tindak Lanjut</div>
+    <div class="step-list">
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-body"><h4>Tambah volume data</h4><p>Prioritas tertinggi — N=189 (dengan test hanya 20) membatasi seberapa jauh model bisa dievaluasi secara stabil. Menambah partisipan, khususnya kelas Depresi, akan paling berdampak.</p></div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-body"><h4>Evaluasi ulang strategi Fusion</h4><p>Fusion mentah (concatenation 2439-dim) belum optimal. Coba seleksi fitur atau fusion di level embedding/skor (bukan concatenation langsung fitur mentah).</p></div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-body"><h4>Bandingkan dengan pendekatan Deep Learning</h4><p>Selaraskan temuan v95 (ML klasik) dengan hasil DL Model Comparison untuk melihat pendekatan mana yang lebih menjanjikan pada skala data saat ini vs. skala data yang lebih besar di masa depan.</p></div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">4</div>
+        <div class="step-body"><h4>Tinjau kasus borderline</h4><p>Fokuskan audit kualitatif pada partisipan dengan probabilitas dekat threshold (mis. PID 459 @0.427, PID 315 @0.584) — bisa jadi indikasi label yang ambigu atau butuh anotasi tambahan.</p></div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">5</div>
+        <div class="step-body"><h4>Pertimbangkan ensembling ringan</h4><p>Menggabungkan prediksi S2 (XGB) dan S3 (SVM no-PCA) — dua skenario dengan pola kekuatan berbeda (F1 tinggi vs precision/AUC tinggi) — berpotensi menaikkan stabilitas tanpa menambah kompleksitas fitur.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">📖 Glosarium Istilah (untuk Non-Teknis)</div>
+    <div class="glossary">
+      <div class="gloss-item"><div class="gloss-term">F1-Macro</div><div class="gloss-def">Skor gabungan precision & recall yang dihitung merata untuk tiap kelas (Normal & Depresi), sehingga tidak bias ke kelas mayoritas.</div></div>
+      <div class="gloss-item"><div class="gloss-term">Precision</div><div class="gloss-def">Dari semua yang diprediksi "Depresi", berapa persen yang benar-benar Depresi.</div></div>
+      <div class="gloss-item"><div class="gloss-term">Recall</div><div class="gloss-def">Dari semua yang benar-benar Depresi, berapa persen yang berhasil terdeteksi model.</div></div>
+      <div class="gloss-item"><div class="gloss-term">AUC</div><div class="gloss-def">Kemampuan model membedakan kelas Normal vs Depresi di seluruh kemungkinan threshold; 1.0 = sempurna, 0.5 = setara tebak acak.</div></div>
+      <div class="gloss-item"><div class="gloss-term">PCA</div><div class="gloss-def">Teknik mengompres ratusan fitur menjadi beberapa "komponen" utama yang merangkum informasi terpenting, untuk mengurangi risiko overfitting.</div></div>
+      <div class="gloss-item"><div class="gloss-term">OOF (Out-of-Fold)</div><div class="gloss-def">Prediksi yang dihasilkan saat suatu data berperan sebagai validasi (bukan training) dalam cross-validation — dipakai agar evaluasi tetap adil/tidak leakage.</div></div>
+      <div class="gloss-item"><div class="gloss-term">Apple-to-Apple</div><div class="gloss-def">Perbandingan yang adil karena semua kondisi (split data, model, evaluasi) dibuat identik — hanya representasi fitur yang berbeda.</div></div>
+      <div class="gloss-item"><div class="gloss-term">Threshold</div><div class="gloss-def">Batas probabilitas untuk mengubah skor mentah model menjadi keputusan akhir "Normal" atau "Depresi".</div></div>
+      <div class="gloss-item"><div class="gloss-term">Anti-Leakage</div><div class="gloss-def">Praktik memastikan data test tidak pernah "bocor" ke proses training/tuning, agar hasil evaluasi mencerminkan performa di dunia nyata.</div></div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<div class="footer">
+  ML Model Comparison — Versi 95 · Dokumen handover internal · Dihasilkan dari <span class="mono">tradisional_mlv95.py</span> &amp; log eksekusi 2026-07-03
+</div>
+
+<script>
+  function showSection(id, btn) {
+    document.querySelectorAll('.model-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('sec-' + id).classList.add('active');
+    if (btn) btn.classList.add('active');
+    window.scrollTo({top:0, behavior:'instant'});
+  }
+
+  const chartDefaults = {
+    responsive: true,
+    plugins: {
+      legend: { labels: { color:'#94a3b8', font:{size:11} } },
+      tooltip: { backgroundColor:'#1e293b', borderColor:'#334155', borderWidth:1, titleColor:'#e2e8f0', bodyColor:'#94a3b8' }
+    },
+    scales: {
+      x: { ticks:{color:'#94a3b8'}, grid:{color:'rgba(255,255,255,0.04)'} },
+      y: { ticks:{color:'#94a3b8'}, grid:{color:'rgba(255,255,255,0.04)'} }
+    }
+  };
+
+  function initCharts() {
+    // Overview: Best F1 per scenario
+    const ov = document.getElementById('chartOverview');
+    if (ov) {
+      new Chart(ov, {
+        type: 'bar',
+        data: {
+          labels: ['S1 Spectrogram (LR)', 'S2 MFCC (XGB)', 'S3 Wav2Vec768 (SVM)', 'S4 Fusion (RF)'],
+          datasets: [{
+            label: 'Test F1-Macro',
+            data: [0.5396, 0.6491, 0.6267, 0.5604],
+            backgroundColor: ['rgba(59,130,246,0.55)','rgba(16,185,129,0.55)','rgba(139,92,246,0.55)','rgba(245,158,11,0.55)'],
+            borderColor: ['#3b82f6','#10b981','#8b5cf6','#f59e0b'],
+            borderWidth: 2, borderRadius: 8
+          }]
+        },
+        options: { ...chartDefaults, plugins:{...chartDefaults.plugins, legend:{display:false}}, scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, min:0, max:0.8, title:{display:true,text:'F1-Macro',color:'#64748b'} } } }
+      });
+    }
+
+    // Feature dimensions
+    const dim = document.getElementById('chartDims');
+    if (dim) {
+      new Chart(dim, {
+        type: 'bar',
+        data: {
+          labels: ['S1 Spectrogram', 'S3 Wav2Vec768', 'S2 MFCC', 'S4 Fusion'],
+          datasets: [{
+            label: 'Jumlah Fitur',
+            data: [681, 768, 990, 2439],
+            backgroundColor: ['rgba(59,130,246,0.5)','rgba(139,92,246,0.5)','rgba(16,185,129,0.5)','rgba(245,158,11,0.5)'],
+            borderColor: ['#3b82f6','#8b5cf6','#10b981','#f59e0b'],
+            borderWidth: 2, borderRadius: 8
+          }]
+        },
+        options: { ...chartDefaults, indexAxis: 'y', plugins:{...chartDefaults.plugins, legend:{display:false}}, scales: { ...chartDefaults.scales, x: { ...chartDefaults.scales.x, title:{display:true,text:'Dimensi',color:'#64748b'} } } }
+      });
+    }
+
+    // All results grouped bar
+    const all = document.getElementById('chartAllResults');
+    if (all) {
+      new Chart(all, {
+        type: 'bar',
+        data: {
+          labels: ['S1 Spectrogram', 'S2 MFCC', 'S3 Wav2Vec768', 'S4 Fusion'],
+          datasets: [
+            { label:'RF', data:[0.4357, 0.3732, 0.6011, 0.5604], backgroundColor:'rgba(239,68,68,0.6)', borderColor:'#ef4444', borderWidth:1.5, borderRadius:5 },
+            { label:'SVM', data:[0.4505, 0.4505, 0.6267, 0.3103], backgroundColor:'rgba(59,130,246,0.6)', borderColor:'#3b82f6', borderWidth:1.5, borderRadius:5 },
+            { label:'LR', data:[0.5396, 0.4048, 0.4048, 0.3103], backgroundColor:'rgba(16,185,129,0.6)', borderColor:'#10b981', borderWidth:1.5, borderRadius:5 },
+            { label:'XGB', data:[0.4872, 0.6491, 0.5604, 0.5396], backgroundColor:'rgba(245,158,11,0.6)', borderColor:'#f59e0b', borderWidth:1.5, borderRadius:5 },
+          ]
+        },
+        options: { ...chartDefaults, scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, min:0, max:0.8, title:{display:true,text:'Test F1-Macro',color:'#64748b'} } } }
+      });
+    }
+
+    // Oracle vs Actual
+    const oracle = document.getElementById('chartOracle');
+    if (oracle) {
+      new Chart(oracle, {
+        type: 'bar',
+        data: {
+          labels: ['S1 (LR)', 'S2 (XGB)', 'S3 (SVM)', 'S4 (RF)'],
+          datasets: [
+            { label:'Test F1 Aktual (OOF Threshold)', data:[0.5396, 0.6491, 0.6267, 0.5604], backgroundColor:'rgba(59,130,246,0.55)', borderColor:'#3b82f6', borderWidth:2, borderRadius:6 },
+            { label:'Oracle F1 (Threshold Ideal di Test)', data:[0.5960, 0.7000, 0.7494, 0.6267], backgroundColor:'rgba(239,68,68,0.3)', borderColor:'#ef4444', borderWidth:2, borderRadius:6, borderDash:[5,3] },
+          ]
+        },
+        options: { ...chartDefaults, scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, min:0, max:0.85, title:{display:true,text:'F1-Macro',color:'#64748b'} } } }
+      });
+    }
+
+    // XAI top10
+    const xai = document.getElementById('chartXAI');
+    if (xai) {
+      new Chart(xai, {
+        type: 'bar',
+        data: {
+          labels: ['PC3','PC4','PC1','PC9','PC6','PC8','PC10','PC5','PC7','PC2'],
+          datasets: [{
+            label: 'Feature Importance',
+            data: [0.0638, 0.0791, 0.0825, 0.0949, 0.0951, 0.1044, 0.1081, 0.1199, 0.1199, 0.1322],
+            backgroundColor: 'rgba(139,92,246,0.55)',
+            borderColor: '#8b5cf6', borderWidth:2, borderRadius: 6
+          }]
+        },
+        options: { ...chartDefaults, indexAxis:'y', plugins:{...chartDefaults.plugins, legend:{display:false}}, scales: { ...chartDefaults.scales, x: { ...chartDefaults.scales.x, title:{display:true,text:'Importance',color:'#64748b'} } } }
+      });
+    }
+  }
+
+  window.addEventListener('load', () => setTimeout(initCharts, 250));
+</script>
+</body>
+</html>

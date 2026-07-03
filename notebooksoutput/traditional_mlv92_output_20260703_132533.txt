@@ -1,0 +1,59 @@
+================================================================================
+  NOTEBOOK OUTPUT EXTRACTOR
+  File   : traditional_mlv92.ipynb
+  Path   : notebooks\traditional_mlv92.ipynb
+  Diambil: 2026-07-03 13:25:33
+  Total  : 16 cell
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+# Pipeline v92 - Leakage-Safe CV + SelectKBest/PCA | Base v89
+
+Tujuan:
+- Melanjutkan v92 dari basis v89, tetapi memperbaiki bagian validasi agar preprocessing
+  (feature selection, scaling, PCA) di-fit di dalam fold CV.
+- Tetap memenuhi prompt.txt:
+  1. Dataset tetap: 189 participant dari fitur v6 yang sudah diekstrak.
+  2. Feature extraction tidak diubah: baca CSV v6 cache.
+  3. Split tetap 80:20 dengan test balanced 10 Normal + 10 Depresi.
+  4. Baseline model tetap: Random Forest, SVM, Logistic Regression, XGBoost.
+  5. Evaluasi apple-to-apple S1-S4.
+
+Catatan dari v91:
+- SMOTE/Tomek tidak dipakai karena menaikkan CV tetapi menurunkan test.
+- LDA tidak dipakai karena binary LDA hanya 1 komponen dan rawan leakage bila tidak dipipeline-kan.
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 1. Cek Versi Sebelumnya
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 2. Load Feature Cache v6
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 3. Split 80:20 Balanced Test
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 4. Helper Model, CV, dan Threshold
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 5. Main Experiment: 4 Skenario x 4 Model
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 6. Visualisasi dan Error Analysis
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 7. Summary Report
+
+================================================================================
+  RINGKASAN
+  Code cells  : 8
+  Cells dengan output teks: 0
+================================================================================

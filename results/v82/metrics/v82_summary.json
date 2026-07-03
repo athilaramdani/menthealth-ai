@@ -1,0 +1,19 @@
+{
+  "version": "v82",
+  "rf_configs": 22,
+  "best_cv": {
+    "scenario": "S5_FusionEng",
+    "model": "RandomForest",
+    "cv_f1": 0.7005,
+    "test_f1": 0.6011,
+    "K": "30"
+  },
+  "best_test": {
+    "scenario": "S3_Wav2Vec",
+    "model": "RandomForest",
+    "cv_f1": 0.6632,
+    "test_f1": 0.7442
+  },
+  "target_075_cv": false,
+  "target_075_test": false
+}

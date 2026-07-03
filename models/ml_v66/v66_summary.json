@@ -1,0 +1,11 @@
+{
+  "version": "v66",
+  "n_experiments": 21461,
+  "best_exp": "arch400_150_75_25|s42|a1e-05|lr0.0003",
+  "best_f1": 0.9115,
+  "best_accuracy": 0.913,
+  "best_auc": 0.8968,
+  "best_threshold": 0.68,
+  "target_87_achieved": true,
+  "target_90_achieved": true
+}

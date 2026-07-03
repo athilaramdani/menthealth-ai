@@ -1,0 +1,51 @@
+{
+  "version": "v96",
+  "strategy": "Focused S3 Wav2Vec768 LinearSVM C tuning, S2 MFCC XGBoost tuning, S4 full-feature LR/LinearSVM, OOF threshold 0.30-0.60, metrics+XAI",
+  "dataset_total": 189,
+  "split": {
+    "train": 169,
+    "test": 20,
+    "test_normal": 10,
+    "test_depresi": 10
+  },
+  "feature_dimensions": [
+    {
+      "scenario": "S1_Spectrogram",
+      "group": "Spectrogram/GeMAPS-like",
+      "dimension": 681
+    },
+    {
+      "scenario": "S2_MFCC",
+      "group": "MFCC/Prosodic",
+      "dimension": 990
+    },
+    {
+      "scenario": "S3_Wav2Vec768",
+      "group": "Wav2Vec 768 mean embedding",
+      "dimension": 768
+    },
+    {
+      "scenario": "S4_Fusion",
+      "group": "Spectrogram + MFCC + Wav2Vec",
+      "dimension": 2439
+    }
+  ],
+  "best": {
+    "scenario": "S1_Spectrogram",
+    "model": "RF",
+    "pca_n": 10,
+    "no_pca": false,
+    "cfg": "{'n_estimators': 250, 'max_depth': 3, 'min_samples_leaf': 2}",
+    "cv_f1": 0.5556,
+    "threshold": 0.44,
+    "test_f1": 0.6267,
+    "accuracy": 0.65,
+    "precision": 0.7,
+    "recall": 0.65,
+    "auc": 0.63,
+    "oracle_f1": 0.6267
+  },
+  "xai_plot": "D:\\repositories\\menthealth-ai\\results\\v96\\plots\\xai_top20_v96.png",
+  "target_075": false,
+  "elapsed_s": 183.7
+}

@@ -1,0 +1,72 @@
+================================================================================
+  NOTEBOOK OUTPUT EXTRACTOR
+  File   : traditional_mlv89.ipynb
+  Path   : D:/repositories/menthealth-ai/notebooks/traditional_mlv89.ipynb
+  Diambil: 2026-07-02 06:58:37
+  Total  : 18 cell
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+# Pipeline v89 — Weighted Ensemble + OOF Stacking | Target >= 0.75
+
+─────────────────────────────────────────────────────────────────────────────
+v88 Breakthrough:
+- W2V Ensemble (LR+XGBoost): F1(oof)=0.7494 | Acc=0.75 | AUC=0.80
+- CalibSVM (linear, n=30): F1(oof)=0.7494
+- Gap tinggal 0.0006 — butuh 1 prediksi benar saja!
+- 15/20 correct: 7 Normal + 8 Depresi
+- Wrong: 3 Normal→Depresi (FP) + 2 Depresi→Normal (FN)
+
+ANALISIS: Mengapa stuck di 0.7494?
+- OOF threshold 0.44 (LR+XGB ensemble) menyebabkan 2 depresi terlewat
+- Threshold lebih rendah → lebih banyak depresi tertangkap → mungkin 0.75+
+
+STRATEGI v89 — CLOSE THE 0.0006 GAP:
+[1] Weighted ensemble sweep: α*LR + (1-α)*XGB, α in 0.05..0.95
+    → Cari weighting yang lebih optimal dari equal weights
+
+[3] OOF Stacking: OOF probs dari W2V models → meta-learner LR/SVM
+    → Lebih principled dari manual weighted averaging
+[4] Extended model zoo untuk Wav2Vec: LDA, GaussianNB, ExtraTrees
+    → Diversitas lebih tinggi untuk ensemble yang lebih kuat
+[5] Apple-to-apple S1-S4 tetap (prompt requirement)
+─────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Load Data
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Helpers
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Standard Apple-to-Apple (S1-S4)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Extended Wav2Vec Model Zoo (LDA, GNB, ExtraTrees, CalibSVM)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Weighted Ensemble Sweep (α for LR+XGB on Wav2Vec)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## OOF Stacking (Meta-Learner on W2V OOF Probs)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 🎨 Visualizations (PCA Variance, 2D Features, KDE Probs)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Summary Table & Final Report
+
+================================================================================
+  RINGKASAN
+  Code cells  : 9
+  Cells dengan output teks: 0
+================================================================================

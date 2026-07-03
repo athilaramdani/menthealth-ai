@@ -1,0 +1,44 @@
+{
+  "version": "v92",
+  "strategy": "Base v89 + leakage-safe CV preprocessing + SelectKBest/PCA; no SMOTE; no LDA",
+  "dataset_total": 189,
+  "split": {
+    "train": 169,
+    "test": 20,
+    "test_normal": 10,
+    "test_depresi": 10
+  },
+  "feature_dimensions": [
+    {
+      "scenario": "S1_Spectrogram",
+      "dimension": 681
+    },
+    {
+      "scenario": "S2_MFCC",
+      "dimension": 990
+    },
+    {
+      "scenario": "S3_Wav2Vec",
+      "dimension": 72
+    },
+    {
+      "scenario": "S4_Fusion",
+      "dimension": 1743
+    }
+  ],
+  "best_single": {
+    "model": "RF",
+    "scenario": "S3_Wav2Vec",
+    "select_k": 50,
+    "pca_n": 15,
+    "cv_f1": 0.559,
+    "f1_oof": 0.5604,
+    "f1_oracle": 0.697,
+    "auc": 0.6
+  },
+  "overall_best": 0.5604,
+  "target_070": false,
+  "v89_ref_full_189": 0.6011,
+  "v91_ref_full_189": 0.5238,
+  "elapsed_s": 638.6
+}

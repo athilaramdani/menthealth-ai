@@ -1,0 +1,5 @@
+scenario,group,dimension
+S1_Spectrogram,Spectrogram/GeMAPS-like,681
+S2_MFCC,MFCC/Prosodic,990
+S3_Wav2Vec768,Wav2Vec 768 mean embedding,768
+S4_Fusion,Spectrogram + MFCC + Wav2Vec,2439

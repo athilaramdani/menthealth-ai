@@ -1,0 +1,105 @@
+{
+  "version": "v94",
+  "strategy": "Strict apple-to-apple: leakage-safe CV + recall threshold + balanced-prior top-50 + same-scenario-only decision fusion",
+  "dataset_total": 189,
+  "split": {
+    "train": 169,
+    "test": 20,
+    "test_normal": 10,
+    "test_depresi": 10
+  },
+  "feature_dimensions": [
+    {
+      "scenario": "S1_Spectrogram",
+      "dimension": 681
+    },
+    {
+      "scenario": "S2_MFCC",
+      "dimension": 990
+    },
+    {
+      "scenario": "S3_Wav2Vec",
+      "dimension": 72
+    },
+    {
+      "scenario": "S4_Fusion",
+      "dimension": 1743
+    }
+  ],
+  "best_single_prior50": {
+    "model": "RF",
+    "scenario": "S2_MFCC",
+    "select_k": 200,
+    "pca_n": 10,
+    "cv_f1": 0.5976,
+    "f1_oof_threshold": 0.4373,
+    "f1_prior50": 0.6,
+    "f1_recall_threshold": 0.4949,
+    "f1_oracle": 0.6,
+    "auc": 0.51
+  },
+  "best_decision_fusion_prior50": {
+    "name": "E3_rank_S3_all_models",
+    "members": "S3_Wav2Vec:RF + S3_Wav2Vec:SVM + S3_Wav2Vec:LR + S3_Wav2Vec:XGB",
+    "mode": "rank",
+    "cv_f1": 0.5653,
+    "oof_thr": 0.6,
+    "test_f1_oof": 0.4949,
+    "test_f1_prior50": 0.6,
+    "test_recall_dep_prior50": 0.6,
+    "test_auc": 0.54,
+    "test_thr_oracle": 0.515,
+    "test_f1_oracle": 0.6,
+    "y_pred_prior50": [
+      0,
+      1,
+      1,
+      1,
+      0,
+      1,
+      1,
+      0,
+      0,
+      1,
+      1,
+      0,
+      0,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    "score": [
+      0.513157894736842,
+      0.6842105263157895,
+      0.6973684210526315,
+      0.7631578947368421,
+      0.5131578947368421,
+      0.5263157894736842,
+      0.618421052631579,
+      0.15789473684210525,
+      0.21052631578947367,
+      0.6710526315789473,
+      0.8421052631578947,
+      0.10526315789473684,
+      0.35526315789473684,
+      0.5789473684210527,
+      0.7236842105263158,
+      0.2763157894736842,
+      0.4078947368421052,
+      0.02631578947368421,
+      0.4605263157894737,
+      0.868421052631579
+    ]
+  },
+  "overall_best_kind": "decision_fusion",
+  "overall_best_prior50": 0.6,
+  "target_070": false,
+  "v89_ref_full_189": 0.6011,
+  "v91_ref_full_189": 0.5238,
+  "v92_ref_full_189": 0.5604,
+  "elapsed_s": 565.0
+}

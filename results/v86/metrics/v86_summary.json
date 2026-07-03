@@ -1,0 +1,28 @@
+{
+  "version": "v86",
+  "strategy": "OOF_threshold + PCA_whitening + Wav2Vec_focus (No SMOTE)",
+  "best_cv": {
+    "scenario": "S2_MFCC",
+    "model": "SVM",
+    "n": 10,
+    "cv_f1": 0.7448,
+    "test_f1_oof": 0.596
+  },
+  "best_test_single": {
+    "scenario": "S2_MFCC",
+    "model": "XGBoost",
+    "n": 10,
+    "test_f1_oof": 0.7333
+  },
+  "best_calib_svm": {
+    "key": "CalibSVM(C=0.1,k=linear) n=30",
+    "f1_oof": 0.7493734335839599
+  },
+  "best_ensemble": {
+    "combo": "LogisticRegression+XGBoost",
+    "f1_oof": 0.7493734335839599
+  },
+  "overall_best": 0.7494,
+  "target_075": false,
+  "v85_ref": 0.7442
+}

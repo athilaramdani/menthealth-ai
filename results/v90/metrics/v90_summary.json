@@ -1,0 +1,13 @@
+{
+  "version": "v90",
+  "strategy": "Raw Features (No PCA)",
+  "best_single": {
+    "model": "SVM",
+    "scenario": "S3_Wav2Vec",
+    "n": "None",
+    "f1_oof": 0.6267
+  },
+  "overall_best": 0.6267,
+  "target_075": false,
+  "v89_ref": 0.7494
+}

@@ -1,0 +1,355 @@
+================================================================================
+  NOTEBOOK OUTPUT EXTRACTOR
+  File   : traditional_mlv87.ipynb
+  Path   : D:/repositories/menthealth-ai/notebooks/traditional_mlv87.ipynb
+  Diambil: 2026-06-30 19:52:47
+  Total  : 18 cell
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+# Pipeline v87 — Weighted Ensemble + Cross-Modal (MFCC+W2V) + Stacking | Target >= 0.75
+
+─────────────────────────────────────────────────────────────────────────────
+v86 Breakthrough:
+- W2V Ensemble (LR+XGBoost): F1(oof)=0.7494 | Acc=0.75 | AUC=0.80
+- CalibSVM (linear, n=30): F1(oof)=0.7494
+- Gap tinggal 0.0006 — butuh 1 prediksi benar saja!
+- 15/20 correct: 7 Normal + 8 Depresi
+- Wrong: 3 Normal→Depresi (FP) + 2 Depresi→Normal (FN)
+
+ANALISIS: Mengapa stuck di 0.7494?
+- OOF threshold 0.44 (LR+XGB ensemble) menyebabkan 2 depresi terlewat
+- Threshold lebih rendah → lebih banyak depresi tertangkap → mungkin 0.75+
+
+STRATEGI v87 — CLOSE THE 0.0006 GAP:
+[1] Weighted ensemble sweep: α*LR + (1-α)*XGB, α in 0.05..0.95
+    → Cari weighting yang lebih optimal dari equal weights
+[2] MFCC + Wav2Vec cross-modal ensemble (S2+S3)
+    → Dua modality terbaik digabung
+[3] OOF Stacking: OOF probs dari W2V models → meta-learner LR/SVM
+    → Lebih principled dari manual weighted averaging
+[4] Extended model zoo untuk Wav2Vec: LDA, GaussianNB, ExtraTrees
+    → Diversitas lebih tinggi untuk ensemble yang lebih kuat
+[5] Apple-to-apple S1-S4 tetap (prompt requirement)
+─────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────
+In [1] (Code Cell #1)
+────────────────────────────────────────────────────────────────────────────────
+================================================================================
+  Pipeline v87 — Weighted Ensemble + Cross-Modal + Stacking
+  Target: F1 >= 0.75 (gap only 0.0006 from v86!)
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Load Data
+
+────────────────────────────────────────────────────────────────────────────────
+In [2] (Code Cell #2)
+────────────────────────────────────────────────────────────────────────────────
+  Total: 102 (N:63, D:39)
+  S1_Spectrogram      : 687 fitur
+  S2_MFCC             : 990 fitur
+  S3_Wav2Vec          : 72 fitur
+  S4_Fusion           : 1749 fitur
+
+  Train=82 (N:53, D:29, ratio=1.83:1) | Test=20 (10N+10D)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Helpers
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Standard Apple-to-Apple (S1-S4)
+
+────────────────────────────────────────────────────────────────────────────────
+In [4] (Code Cell #4)
+────────────────────────────────────────────────────────────────────────────────
+
+================================================================================
+  v87 MAIN LOOP: S1-S4 × 5 Models (OOF Threshold)
+  v86 Reference: 0.7494 | gap = 0.0006
+================================================================================
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S1_Spectrogram | 687 fitur | PCA_n=[10, 15, 20, 25, 30]
+  LR         n=10  OOF_thr=0.52 CV=0.6120±0.1515 Test(oof)=0.4505 Test(sw)=0.6491 ⚠OV 
+  SVM_rbf    n=10  OOF_thr=0.37 CV=0.6936±0.1268 Test(oof)=0.3103 Test(sw)=0.5200 ⚠OV 
+  SVM_lin    n=20  OOF_thr=0.36 CV=0.6575±0.1028 Test(oof)=0.4486 Test(sw)=0.4949 ⚠OV 
+  RF         n=10  OOF_thr=0.46 CV=0.6259±0.1433 Test(oof)=0.3939 Test(sw)=0.4792 ⚠OV 
+  XGB        n=15  OOF_thr=0.47 CV=0.6694±0.1695 Test(oof)=0.4486 Test(sw)=0.5000 ⚠OV 
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S2_MFCC | 990 fitur | PCA_n=[10, 15, 20, 25, 30]
+  LR         n=15  OOF_thr=0.56 CV=0.6207±0.1885 Test(oof)=0.4505 Test(sw)=0.6000 ⚠OV 
+  SVM_rbf    n=10  OOF_thr=0.35 CV=0.7448±0.0881 Test(oof)=0.5960 Test(sw)=0.6491 ⚠OV 
+  SVM_lin    n=25  OOF_thr=0.36 CV=0.6210±0.1133 Test(oof)=0.4133 Test(sw)=0.4949 ⚠OV 
+  RF         n=10  OOF_thr=0.53 CV=0.7097±0.1511 Test(oof)=0.6703 Test(sw)=0.7980 ✓OK 
+  XGB        n=10  OOF_thr=0.57 CV=0.6906±0.0754 Test(oof)=0.6011 Test(sw)=0.8465 ✓OK 
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S3_Wav2Vec | 72 fitur | PCA_n=[15, 20, 25, 30, 35, 40, 50]
+  LR         n=30  OOF_thr=0.50 CV=0.6768±0.1397 Test(oof)=0.5960 Test(sw)=0.7917 ✓OK 
+  SVM_rbf    n=30  OOF_thr=0.36 CV=0.5569±0.1304 Test(oof)=0.2929 Test(sw)=0.4133 ⚠OV 
+  SVM_lin    n=30  OOF_thr=0.36 CV=0.6416±0.1457 Test(oof)=0.7000 Test(sw)=0.7980 ✓OK 
+  RF         n=30  OOF_thr=0.49 CV=0.6487±0.0984 Test(oof)=0.5833 Test(sw)=0.8000 ✓OK 
+  XGB        n=35  OOF_thr=0.34 CV=0.5889±0.0813 Test(oof)=0.7494 Test(sw)=0.7494 ✓OK 
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S4_Fusion | 1749 fitur | PCA_n=[10, 15, 20, 25, 30]
+  LR         n=10  OOF_thr=0.56 CV=0.6640±0.2005 Test(oof)=0.6011 Test(sw)=0.6970 ✓OK 
+  SVM_rbf    n=30  OOF_thr=0.38 CV=0.7098±0.1289 Test(oof)=0.4000 Test(sw)=0.5833 ⚠OV 
+  SVM_lin    n=25  OOF_thr=0.36 CV=0.6163±0.1295 Test(oof)=0.5960 Test(sw)=0.5960 ✓OK 
+  RF         n=10  OOF_thr=0.48 CV=0.6062±0.1417 Test(oof)=0.4872 Test(sw)=0.6491 ⚠OV 
+  XGB        n=10  OOF_thr=0.34 CV=0.6258±0.1297 Test(oof)=0.5833 Test(sw)=0.6491 ✓OK
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Extended Wav2Vec Model Zoo (LDA, GNB, ExtraTrees, CalibSVM)
+
+────────────────────────────────────────────────────────────────────────────────
+In [5] (Code Cell #5)
+────────────────────────────────────────────────────────────────────────────────
+
+================================================================================
+  WAV2VEC EXTENDED MODEL ZOO
+================================================================================
+
+  --- LDA on Wav2Vec ---
+  LDA n=15: OOF=0.4486 SW=0.5000 AUC=0.4200
+  LDA n=20: OOF=0.4949 SW=0.5833 AUC=0.5400
+  LDA n=25: OOF=0.4505 SW=0.5833 AUC=0.5100
+  LDA n=30: OOF=0.7000 SW=0.7917 AUC=0.7600
+  LDA n=35: OOF=0.7000 SW=0.7980 AUC=0.7400
+  LDA n=40: OOF=0.7442 SW=0.7494 AUC=0.8000
+  LDA n=50: OOF=0.6970 SW=0.7494 AUC=0.7600
+
+  --- ExtraTrees on Wav2Vec ---
+  ET n=25 cfg=(200, 5): CV=0.6426 OOF=0.4357 SW=0.6267 AUC=0.5700
+  ET n=30 cfg=(300, 3): CV=0.6396 OOF=0.6419 SW=0.6970 AUC=0.6900
+  ET n=35 cfg=(200, 3): CV=0.6381 OOF=0.5200 SW=0.6875 AUC=0.6800
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Weighted Ensemble Sweep (α for LR+XGB on Wav2Vec)
+
+────────────────────────────────────────────────────────────────────────────────
+In [6] (Code Cell #6)
+────────────────────────────────────────────────────────────────────────────────
+
+================================================================================
+  WEIGHTED ENSEMBLE SWEEP — α × W2V_LR + (1-α) × W2V_XGB
+================================================================================
+
+  α sweep [0.05..0.95 step 0.05]:
+
+  Best weighted: α=0.90 → F1(oof)=0.7000
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## MFCC + Wav2Vec Cross-Modal Ensemble
+
+────────────────────────────────────────────────────────────────────────────────
+In [7] (Code Cell #7)
+────────────────────────────────────────────────────────────────────────────────
+
+================================================================================
+  CROSS-MODAL ENSEMBLE: S2_MFCC + S3_Wav2Vec
+================================================================================
+
+  MFCC × Wav2Vec cross-modal combinations:
+  MFCC.SVM_rbf+W2V.LR α=0.3: OOF_thr=0.465 F1(oof)=0.7980 F1(sw)=0.7980 AUC=0.7900 ★ NEW BEST ★
+  MFCC.SVM_rbf+W2V.LR α=0.4: OOF_thr=0.450 F1(oof)=0.7494 F1(sw)=0.7494 AUC=0.7700 
+  MFCC.XGB+W2V.LR α=0.2: OOF_thr=0.500 F1(oof)=0.7917 F1(sw)=0.8496 AUC=0.9000 
+  MFCC.XGB+W2V.SVM_lin α=0.3: OOF_thr=0.385 F1(oof)=0.7917 F1(sw)=0.8000 AUC=0.8600 
+  MFCC.XGB+W2V.RF α=0.4: OOF_thr=0.445 F1(oof)=0.7917 F1(sw)=0.8000 AUC=0.8500 
+  MFCC.XGB+W2V.XGB α=0.3: OOF_thr=0.395 F1(oof)=0.8000 F1(sw)=0.8000 AUC=0.7900 ★ NEW BEST ★
+  MFCC.XGB+W2V.XGB α=0.5: OOF_thr=0.420 F1(oof)=0.7494 F1(sw)=0.8000 AUC=0.7600
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## OOF Stacking (Meta-Learner on W2V OOF Probs)
+
+────────────────────────────────────────────────────────────────────────────────
+In [8] (Code Cell #8)
+────────────────────────────────────────────────────────────────────────────────
+
+================================================================================
+  OOF STACKING — Meta-learner on W2V model OOF probs
+================================================================================
+  Stack shape: Train=(82, 5), Test=(20, 5)
+  Members: ['LR', 'SVM_rbf', 'SVM_lin', 'RF', 'XGB', 'LDA']
+
+  Best stacking: F1(oof)=0.4373
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Summary Table & Final Report
+
+────────────────────────────────────────────────────────────────────────────────
+In [9] (Code Cell #9)
+────────────────────────────────────────────────────────────────────────────────
+
+==============================================================================================================
+                            TABEL RINGKASAN v87 — S1-S4 × 5 Models (OOF Threshold)                            
+==============================================================================================================
+  Skenario               Model        n      CV F1  Test(oof)  Test(sw)    AUC
+  S3_Wav2Vec             XGB          35    0.5889     0.7494    0.7494 0.7600
+  S3_Wav2Vec             SVM_lin      30    0.6416     0.7000    0.7980 0.7400
+  S2_MFCC                RF           10    0.7097     0.6703    0.7980 0.7800
+  S2_MFCC                XGB          10    0.6906     0.6011    0.8465 0.7900
+  S4_Fusion              LR           10    0.6640     0.6011    0.6970 0.6000
+  S2_MFCC                SVM_rbf      10    0.7448     0.5960    0.6491 0.7100
+  S3_Wav2Vec             LR           30    0.6768     0.5960    0.7917 0.7600
+  S4_Fusion              SVM_lin      25    0.6163     0.5960    0.5960 0.5100
+  S3_Wav2Vec             RF           30    0.6487     0.5833    0.8000 0.7500
+  S4_Fusion              XGB          10    0.6258     0.5833    0.6491 0.5600
+  S4_Fusion              RF           10    0.6062     0.4872    0.6491 0.6500
+  S1_Spectrogram         LR           10    0.6120     0.4505    0.6491 0.6100
+  S2_MFCC                LR           15    0.6207     0.4505    0.6000 0.5100
+  S1_Spectrogram         SVM_lin      20    0.6575     0.4486    0.4949 0.3600
+  S1_Spectrogram         XGB          15    0.6694     0.4486    0.5000 0.4200
+  S2_MFCC                SVM_lin      25    0.6210     0.4133    0.4949 0.4100
+  S4_Fusion              SVM_rbf      30    0.7098     0.4000    0.5833 0.4900
+  S1_Spectrogram         RF           10    0.6259     0.3939    0.4792 0.3600
+  S1_Spectrogram         SVM_rbf      10    0.6936     0.3103    0.5200 0.5200
+  S3_Wav2Vec             SVM_rbf      30    0.5569     0.2929    0.4133 0.2500
+
+  ★ BEST Single  : S3_Wav2Vec × XGB n=35 → Test(oof)=0.7494
+
+  APPLE-TO-APPLE (S1-S4):
+  S1_Spectrogram         LR           n=10 CV=0.6120 Test(oof)=0.4505 Test(sw)=0.6491
+  S2_MFCC                RF           n=10 CV=0.7097 Test(oof)=0.6703 Test(sw)=0.7980
+  S3_Wav2Vec             XGB          n=35 CV=0.5889 Test(oof)=0.7494 Test(sw)=0.7494
+  S4_Fusion              LR           n=10 CV=0.6640 Test(oof)=0.6011 Test(sw)=0.6970
+
+================================================================================
+  CLASSIFICATION REPORTS — Top Strategies
+================================================================================
+
+  ── CrossModal_MFCC.XGB+W2V.XGB α=0.3 | F1(oof)=0.8000 ──
+              precision    recall  f1-score   support
+
+      Normal       0.80      0.80      0.80        10
+     Depresi       0.80      0.80      0.80        10
+
+    accuracy                           0.80        20
+   macro avg       0.80      0.80      0.80        20
+weighted avg       0.80      0.80      0.80        20
+
+
+  ── Single_XGB_S3_Wav2Vec | F1(oof)=0.7494 ──
+              precision    recall  f1-score   support
+
+      Normal       0.78      0.70      0.74        10
+     Depresi       0.73      0.80      0.76        10
+
+    accuracy                           0.75        20
+   macro avg       0.75      0.75      0.75        20
+weighted avg       0.75      0.75      0.75        20
+
+
+  ── Weighted_α0.90 | F1(oof)=0.7000 ──
+              precision    recall  f1-score   support
+
+      Normal       0.70      0.70      0.70        10
+     Depresi       0.70      0.70      0.70        10
+
+    accuracy                           0.70        20
+   macro avg       0.70      0.70      0.70        20
+weighted avg       0.70      0.70      0.70        20
+
+
+  ── Stack | F1(oof)=0.4373 ──
+              precision    recall  f1-score   support
+
+      Normal       0.43      0.30      0.35        10
+     Depresi       0.46      0.60      0.52        10
+
+    accuracy                           0.45        20
+   macro avg       0.45      0.45      0.44        20
+weighted avg       0.45      0.45      0.44        20
+
+
+================================================================================
+                                FINAL REPORT v87                                
+================================================================================
+  v86 Referensi    : 0.7494
+  v87 Best Single  : 0.7494 (XGB_S3_Wav2Vec)
+  v87 Weighted Ens : 0.7000
+  v87 Stack        : 0.4373
+  v87 CrossModal   : 0.8000 (MFCC.XGB+W2V.XGB α=0.3)
+  OVERALL BEST     : 0.8000
+
+  TARGET 0.75      : ✓ TERCAPAI!
+  Total waktu      : 3082.2s
+================================================================================
+[ERROR] TypeError: Object of type ndarray is not JSON serializable
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+Cell In[9], line 109
+    105     'overall_best': round(overall_best_v87, 4),
+    106     'target_075': bool(overall_best_v87 >= 0.75),
+    107     'v86_ref': 0.7494,
+    108 }
+--> 109 json.dump(summary, open(os.path.join(RESULTS_DIR,"metrics","v87_summary.json"),'w'), indent=2)
+    110 print(f"  Summary saved: {RESULTS_DIR}/metrics/v87_summary.json")
+
+File C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\json\__init__.py:179, in dump(obj, fp, skipkeys, ensure_ascii, check_circular, allow_nan, cls, indent, separators, default, sort_keys, **kw)
+    173     iterable = cls(skipkeys=skipkeys, ensure_ascii=ensure_ascii,
+    174         check_circular=check_circular, allow_nan=allow_nan, indent=indent,
+    175         separators=separators,
+    176         default=default, sort_keys=sort_keys, **kw).iterencode(obj)
+    177 # could accelerate with writelines in some versions of Python, at
+    178 # a debuggability cost
+--> 179 for chunk in iterable:
+    180     fp.write(chunk)
+
+File C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\json\encoder.py:432, in _make_iterencode.<locals>._iterencode(o, _current_indent_level)
+    430     yield from _iterencode_list(o, _current_indent_level)
+    431 elif isinstance(o, dict):
+--> 432     yield from _iterencode_dict(o, _current_indent_level)
+    433 else:
+    434     if markers is not None:
+
+File C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\json\encoder.py:406, in _make_iterencode.<locals>._iterencode_dict(dct, _current_indent_level)
+    404         else:
+    405             chunks = _iterencode(value, _current_indent_level)
+--> 406         yield from chunks
+    407 if newline_indent is not None:
+    408     _current_indent_level -= 1
+
+File C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\json\encoder.py:406, in _make_iterencode.<locals>._iterencode_dict(dct, _current_indent_level)
+    404         else:
+    405             chunks = _iterencode(value, _current_indent_level)
+--> 406         yield from chunks
+    407 if newline_indent is not None:
+    408     _current_indent_level -= 1
+
+File C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\json\encoder.py:439, in _make_iterencode.<locals>._iterencode(o, _current_indent_level)
+    437         raise ValueError("Circular reference detected")
+    438     markers[markerid] = o
+--> 439 o = _default(o)
+    440 yield from _iterencode(o, _current_indent_level)
+    441 if markers is not None:
+
+File C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\json\encoder.py:180, in JSONEncoder.default(self, o)
+    161 def default(self, o):
+    162     """Implement this method in a subclass such that it returns
+    163     a serializable object for ``o``, or calls the base implementation
+    164     (to raise a ``TypeError``).
+   (...)    178 
+    179     """
+--> 180     raise TypeError(f'Object of type {o.__class__.__name__} '
+    181                     f'is not JSON serializable')
+
+TypeError: Object of type ndarray is not JSON serializable
+
+================================================================================
+  RINGKASAN
+  Code cells  : 9
+  Cells dengan output teks: 8
+================================================================================

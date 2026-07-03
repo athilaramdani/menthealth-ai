@@ -1,0 +1,20 @@
+{
+  "version": "v77",
+  "benchmark_v76": 0.7149,
+  "best_cv": {
+    "scenario": "S5_FusionEng",
+    "model": "XGBoost",
+    "cv_f1": 0.8478,
+    "test_f1": 0.5489,
+    "K": "80",
+    "bal": "none"
+  },
+  "best_test": {
+    "scenario": "S3_Wav2Vec",
+    "model": "LogisticRegression",
+    "cv_f1": 0.7137,
+    "test_f1": 0.7494
+  },
+  "target_075_cv": true,
+  "target_075_test": false
+}

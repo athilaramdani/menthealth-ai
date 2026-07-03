@@ -1,0 +1,276 @@
+================================================================================
+  NOTEBOOK OUTPUT EXTRACTOR
+  File   : traditional_mlv89.ipynb
+  Path   : D:/repositories/menthealth-ai/notebooks/traditional_mlv89.ipynb
+  Diambil: 2026-07-02 22:57:07
+  Total  : 18 cell
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+# Pipeline v89 — Weighted Ensemble + OOF Stacking | Target >= 0.75
+
+─────────────────────────────────────────────────────────────────────────────
+v88 Breakthrough:
+- W2V Ensemble (LR+XGBoost): F1(oof)=0.7494 | Acc=0.75 | AUC=0.80
+- CalibSVM (linear, n=30): F1(oof)=0.7494
+- Gap tinggal 0.0006 — butuh 1 prediksi benar saja!
+- 15/20 correct: 7 Normal + 8 Depresi
+- Wrong: 3 Normal→Depresi (FP) + 2 Depresi→Normal (FN)
+
+ANALISIS: Mengapa stuck di 0.7494?
+- OOF threshold 0.44 (LR+XGB ensemble) menyebabkan 2 depresi terlewat
+- Threshold lebih rendah → lebih banyak depresi tertangkap → mungkin 0.75+
+
+STRATEGI v89 — CLOSE THE 0.0006 GAP:
+[1] Weighted ensemble sweep: α*LR + (1-α)*XGB, α in 0.05..0.95
+    → Cari weighting yang lebih optimal dari equal weights
+
+[3] OOF Stacking: OOF probs dari W2V models → meta-learner LR/SVM
+    → Lebih principled dari manual weighted averaging
+[4] Extended model zoo untuk Wav2Vec: LDA, GaussianNB, ExtraTrees
+    → Diversitas lebih tinggi untuk ensemble yang lebih kuat
+[5] Apple-to-apple S1-S4 tetap (prompt requirement)
+─────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────
+In [19] (Code Cell #1)
+────────────────────────────────────────────────────────────────────────────────
+================================================================================
+  Pipeline v89 — Weighted Ensemble + Cross-Modal + Stacking
+  Target: F1 >= 0.75 (gap only 0.0006 from v88!)
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Load Data
+
+────────────────────────────────────────────────────────────────────────────────
+In [20] (Code Cell #2)
+────────────────────────────────────────────────────────────────────────────────
+  Total: 102 (N:63, D:39)
+  S1_Spectrogram      : 687 fitur
+  S2_MFCC             : 990 fitur
+  S3_Wav2Vec          : 72 fitur
+  S4_Fusion           : 1749 fitur
+
+  Train=82 (N:53, D:29, ratio=1.83:1) | Test=20 (10N+10D)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Helpers
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Standard Apple-to-Apple (S1-S4)
+
+────────────────────────────────────────────────────────────────────────────────
+In [22] (Code Cell #4)
+────────────────────────────────────────────────────────────────────────────────
+
+================================================================================
+  v89 MAIN LOOP: S1-S4 × 4 Models (OOF Threshold)
+  v88 Reference: 0.7494 | gap = 0.0006
+================================================================================
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S1_Spectrogram | 687 fitur | PCA_n=[10, 15, 20, 25, 30]
+  LR         n=10  OOF_thr=0.52 CV=0.6120±0.1515 Test(oof)=0.4505 Test(sw)=0.6491 ⚠OV 
+  SVM        n=10  OOF_thr=0.37 CV=0.6936±0.1268 Test(oof)=0.3103 Test(sw)=0.5200 ⚠OV 
+  RF         n=10  OOF_thr=0.46 CV=0.6259±0.1433 Test(oof)=0.3939 Test(sw)=0.4792 ⚠OV 
+  XGB        n=15  OOF_thr=0.47 CV=0.6694±0.1695 Test(oof)=0.4486 Test(sw)=0.5000 ⚠OV 
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S2_MFCC | 990 fitur | PCA_n=[10, 15, 20, 25, 30]
+  LR         n=15  OOF_thr=0.56 CV=0.6207±0.1885 Test(oof)=0.4505 Test(sw)=0.6000 ⚠OV 
+  SVM        n=10  OOF_thr=0.35 CV=0.7448±0.0881 Test(oof)=0.5960 Test(sw)=0.6491 ⚠OV 
+  RF         n=10  OOF_thr=0.53 CV=0.7097±0.1511 Test(oof)=0.6703 Test(sw)=0.7980 ✓OK 
+  XGB        n=10  OOF_thr=0.57 CV=0.6906±0.0754 Test(oof)=0.6011 Test(sw)=0.8465 ✓OK 
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S3_Wav2Vec | 72 fitur | PCA_n=[15, 20, 25, 30, 35, 40, 50]
+  LR         n=30  OOF_thr=0.50 CV=0.6768±0.1397 Test(oof)=0.5960 Test(sw)=0.7917 ✓OK 
+  SVM        n=30  OOF_thr=0.36 CV=0.6416±0.1457 Test(oof)=0.7000 Test(sw)=0.7980 ✓OK 
+  RF         n=30  OOF_thr=0.49 CV=0.6487±0.0984 Test(oof)=0.5833 Test(sw)=0.8000 ✓OK 
+  XGB        n=35  OOF_thr=0.34 CV=0.5889±0.0813 Test(oof)=0.7494 Test(sw)=0.7494 ✓OK 
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S4_Fusion | 1749 fitur | PCA_n=[10, 15, 20, 25, 30]
+  LR         n=10  OOF_thr=0.56 CV=0.6640±0.2005 Test(oof)=0.6011 Test(sw)=0.6970 ✓OK 
+  SVM        n=30  OOF_thr=0.38 CV=0.7098±0.1289 Test(oof)=0.4000 Test(sw)=0.5833 ⚠OV 
+  RF         n=10  OOF_thr=0.48 CV=0.6062±0.1417 Test(oof)=0.4872 Test(sw)=0.6491 ⚠OV 
+  XGB        n=10  OOF_thr=0.34 CV=0.6258±0.1297 Test(oof)=0.5833 Test(sw)=0.6491 ✓OK
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Extended Wav2Vec Model Zoo (LDA, GNB, ExtraTrees, CalibSVM)
+
+────────────────────────────────────────────────────────────────────────────────
+In [23] (Code Cell #5)
+────────────────────────────────────────────────────────────────────────────────
+
+================================================================================
+  WAV2VEC EXTENDED MODEL ZOO
+================================================================================
+
+  --- LDA on Wav2Vec ---
+  LDA n=15: OOF=0.4486 SW=0.5000 AUC=0.4200
+  LDA n=20: OOF=0.4949 SW=0.5833 AUC=0.5400
+  LDA n=25: OOF=0.4505 SW=0.5833 AUC=0.5100
+  LDA n=30: OOF=0.7000 SW=0.7917 AUC=0.7600
+  LDA n=35: OOF=0.7000 SW=0.7980 AUC=0.7400
+  LDA n=40: OOF=0.7442 SW=0.7494 AUC=0.8000
+  LDA n=50: OOF=0.6970 SW=0.7494 AUC=0.7600
+
+  --- ExtraTrees on Wav2Vec ---
+  ET n=25 cfg=(200, 5): CV=0.6426 OOF=0.4357 SW=0.6267 AUC=0.5700
+  ET n=30 cfg=(300, 3): CV=0.6396 OOF=0.6419 SW=0.6970 AUC=0.6900
+  ET n=35 cfg=(200, 3): CV=0.6381 OOF=0.5200 SW=0.6875 AUC=0.6800
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Weighted Ensemble Sweep (α for LR+XGB on Wav2Vec)
+
+────────────────────────────────────────────────────────────────────────────────
+In [24] (Code Cell #6)
+────────────────────────────────────────────────────────────────────────────────
+
+================================================================================
+  WEIGHTED ENSEMBLE SWEEP — α × W2V_LR + (1-α) × W2V_XGB
+================================================================================
+
+  α sweep [0.05..0.95 step 0.05]:
+
+  Best weighted: α=0.90 → F1(oof)=0.7000
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## OOF Stacking (Meta-Learner on W2V OOF Probs)
+
+────────────────────────────────────────────────────────────────────────────────
+In [25] (Code Cell #7)
+────────────────────────────────────────────────────────────────────────────────
+
+================================================================================
+  OOF STACKING — Meta-learner on W2V model OOF probs
+================================================================================
+  Stack shape: Train=(82, 3), Test=(20, 3)
+  Members: ['LR', 'RF', 'XGB', 'LDA']
+
+  Best stacking: F1(oof)=0.6419
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 🎨 Visualizations (PCA Variance, 2D Features, KDE Probs)
+
+────────────────────────────────────────────────────────────────────────────────
+In [26] (Code Cell #8)
+────────────────────────────────────────────────────────────────────────────────
+
+================================================================================
+  GENERATING VISUALIZATIONS
+================================================================================
+  ✓ Saved PCA Variance Plot
+  ✓ Saved PCA 2D Scatter Plot
+  ✓ Saved KDE Probs Plot
+
+  ✓ Saved Heatmap Performa Plot
+  ✓ Saved Stacked Bar Chart Fitur Plot
+
+  ✓ Saved Learning Curve Plot
+
+  ✓ Saved Best Model to: d:\repositories\menthealth-ai\models\ml_v89\best_XGB_S3_Wav2Vec.pkl
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Summary Table & Final Report
+
+────────────────────────────────────────────────────────────────────────────────
+In [27] (Code Cell #9)
+────────────────────────────────────────────────────────────────────────────────
+
+==============================================================================================================
+                            TABEL RINGKASAN v89 — S1-S4 × 4 Models (OOF Threshold)                            
+==============================================================================================================
+  Skenario               Model        n      CV F1  Test(oof)  Test(sw)    AUC
+  S3_Wav2Vec             XGB          35    0.5889     0.7494    0.7494 0.7600
+  S3_Wav2Vec             SVM          30    0.6416     0.7000    0.7980 0.7400
+  S2_MFCC                RF           10    0.7097     0.6703    0.7980 0.7800
+  S2_MFCC                XGB          10    0.6906     0.6011    0.8465 0.7900
+  S4_Fusion              LR           10    0.6640     0.6011    0.6970 0.6000
+  S2_MFCC                SVM          10    0.7448     0.5960    0.6491 0.7100
+  S3_Wav2Vec             LR           30    0.6768     0.5960    0.7917 0.7600
+  S3_Wav2Vec             RF           30    0.6487     0.5833    0.8000 0.7500
+  S4_Fusion              XGB          10    0.6258     0.5833    0.6491 0.5600
+  S4_Fusion              RF           10    0.6062     0.4872    0.6491 0.6500
+  S1_Spectrogram         LR           10    0.6120     0.4505    0.6491 0.6100
+  S2_MFCC                LR           15    0.6207     0.4505    0.6000 0.5100
+  S1_Spectrogram         XGB          15    0.6694     0.4486    0.5000 0.4200
+  S4_Fusion              SVM          30    0.7098     0.4000    0.5833 0.4900
+  S1_Spectrogram         RF           10    0.6259     0.3939    0.4792 0.3600
+  S1_Spectrogram         SVM          10    0.6936     0.3103    0.5200 0.5200
+
+  ★ BEST Single  : S3_Wav2Vec × XGB n=35 → Test(oof)=0.7494
+
+  APPLE-TO-APPLE (S1-S4):
+  S1_Spectrogram         LR           n=10 CV=0.6120 Test(oof)=0.4505 Test(sw)=0.6491
+  S2_MFCC                RF           n=10 CV=0.7097 Test(oof)=0.6703 Test(sw)=0.7980
+  S3_Wav2Vec             XGB          n=35 CV=0.5889 Test(oof)=0.7494 Test(sw)=0.7494
+  S4_Fusion              LR           n=10 CV=0.6640 Test(oof)=0.6011 Test(sw)=0.6970
+
+================================================================================
+  CLASSIFICATION REPORTS — Top Strategies
+================================================================================
+
+  ── Single_XGB_S3_Wav2Vec | F1(oof)=0.7494 ──
+              precision    recall  f1-score   support
+
+      Normal       0.78      0.70      0.74        10
+     Depresi       0.73      0.80      0.76        10
+
+    accuracy                           0.75        20
+   macro avg       0.75      0.75      0.75        20
+weighted avg       0.75      0.75      0.75        20
+
+
+  ── Weighted_α0.90 | F1(oof)=0.7000 ──
+              precision    recall  f1-score   support
+
+      Normal       0.70      0.70      0.70        10
+     Depresi       0.70      0.70      0.70        10
+
+    accuracy                           0.70        20
+   macro avg       0.70      0.70      0.70        20
+weighted avg       0.70      0.70      0.70        20
+
+
+  ── Stack | F1(oof)=0.6419 ──
+              precision    recall  f1-score   support
+
+      Normal       0.62      0.80      0.70        10
+     Depresi       0.71      0.50      0.59        10
+
+    accuracy                           0.65        20
+   macro avg       0.66      0.65      0.64        20
+weighted avg       0.66      0.65      0.64        20
+
+
+================================================================================
+                                FINAL REPORT v89                                
+================================================================================
+  v88 Referensi    : 0.7494
+  v89 Best Single  : 0.7494 (XGB_S3_Wav2Vec)
+  v89 Weighted Ens : 0.7000
+  v89 Stack        : 0.6419
+  OVERALL BEST     : 0.7494
+
+  TARGET 0.75      : NO (gap: 0.0006)
+  Total waktu      : 2626.0s
+================================================================================
+  Summary saved: d:\repositories\menthealth-ai\results\v89/metrics/v89_summary.json
+
+================================================================================
+  RINGKASAN
+  Code cells  : 9
+  Cells dengan output teks: 8
+================================================================================

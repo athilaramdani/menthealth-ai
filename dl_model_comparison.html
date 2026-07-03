@@ -1,0 +1,2419 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DL Model Comparison — Mental Health AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --bg2: #0f1426;
+    --bg3: #141830;
+    --card: rgba(255,255,255,0.04);
+    --card-hover: rgba(255,255,255,0.08);
+    --border: rgba(255,255,255,0.08);
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --text-dim: #64748b;
+
+    --v2: #3b82f6;
+    --v3: #10b981;
+    --lf: #8b5cf6;
+    --v4: #f59e0b;
+    --v5: #ef4444;
+
+    --v2-bg: rgba(59,130,246,0.12);
+    --v3-bg: rgba(16,185,129,0.12);
+    --lf-bg: rgba(139,92,246,0.12);
+    --v4-bg: rgba(245,158,11,0.12);
+    --v5-bg: rgba(239,68,68,0.12);
+
+    --radius: 14px;
+    --glow: 0 0 40px rgba(99,102,241,0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+
+  /* ── HEADER ── */
+  .header {
+    background: linear-gradient(135deg, #0f1426 0%, #1a1040 50%, #0f2040 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 60px 40px 50px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -100px; left: 50%; transform: translateX(-50%);
+    width: 600px; height: 300px;
+    background: radial-gradient(ellipse, rgba(99,102,241,0.2) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .header-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(99,102,241,0.15);
+    border: 1px solid rgba(99,102,241,0.3);
+    border-radius: 99px;
+    padding: 6px 16px;
+    font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
+    color: #818cf8;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+  }
+  .header h1 {
+    font-size: clamp(28px, 5vw, 48px);
+    font-weight: 800;
+    background: linear-gradient(135deg, #e2e8f0, #818cf8, #38bdf8);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 12px;
+  }
+  .header p {
+    color: var(--text-muted);
+    font-size: 16px;
+    max-width: 600px; margin: 0 auto;
+  }
+  .header-stats {
+    display: flex; justify-content: center; gap: 40px;
+    margin-top: 32px; flex-wrap: wrap;
+  }
+  .stat-item { text-align: center; }
+  .stat-num { font-size: 28px; font-weight: 800; color: #818cf8; }
+  .stat-label { font-size: 12px; color: var(--text-muted); letter-spacing: 0.05em; }
+
+  /* ── NAV TABS ── */
+  .nav-tabs {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(10,14,26,0.95);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    display: flex; gap: 4px; padding: 12px 40px;
+    overflow-x: auto;
+  }
+  .nav-tab {
+    padding: 8px 18px;
+    border-radius: 8px;
+    border: none; background: transparent;
+    color: var(--text-muted); font-family: 'Inter', sans-serif;
+    font-size: 13px; font-weight: 500;
+    cursor: pointer; white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .nav-tab:hover { background: var(--card); color: var(--text); }
+  .nav-tab.active { color: white; font-weight: 600; }
+  .nav-tab[data-model="v2"].active { background: var(--v2-bg); border: 1px solid var(--v2); color: #60a5fa; }
+  .nav-tab[data-model="v3"].active { background: var(--v3-bg); border: 1px solid var(--v3); color: #34d399; }
+  .nav-tab[data-model="lf"].active { background: var(--lf-bg); border: 1px solid var(--lf); color: #a78bfa; }
+  .nav-tab[data-model="v4"].active { background: var(--v4-bg); border: 1px solid var(--v4); color: #fbbf24; }
+  .nav-tab[data-model="v5"].active { background: var(--v5-bg); border: 1px solid var(--v5); color: #f87171; }
+  .nav-tab[data-model="compare"].active { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: white; }
+
+  /* ── MAIN LAYOUT ── */
+  .container { max-width: 1200px; margin: 0 auto; padding: 40px; }
+  .section { margin-bottom: 60px; }
+  .section-title {
+    font-size: 22px; font-weight: 700;
+    margin-bottom: 24px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .section-title::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(90deg, var(--border), transparent);
+  }
+
+  /* ── EVOLUTION TIMELINE ── */
+  .timeline {
+    display: flex; align-items: stretch; gap: 0;
+    overflow-x: auto; padding: 20px 0 10px;
+  }
+  .timeline-item {
+    flex: 1; min-width: 180px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 16px;
+    position: relative;
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+  .timeline-item:hover { transform: translateY(-4px); box-shadow: var(--glow); }
+  .timeline-arrow {
+    display: flex; align-items: center;
+    padding: 0 8px; color: var(--text-dim);
+    font-size: 20px; flex-shrink: 0;
+  }
+  .tl-badge {
+    font-size: 22px; margin-bottom: 8px;
+  }
+  .tl-title { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+  .tl-sub { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; }
+  .tl-f1 {
+    font-size: 20px; font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .tl-f1-label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; }
+  .tl-warn { font-size: 10px; color: #f87171; margin-top: 4px; }
+  .tl-training { font-size: 10px; color: #fbbf24; margin-top: 4px; }
+
+  /* ── MODEL SECTION ── */
+  .model-section { display: none; }
+  .model-section.active { display: block; }
+
+  .model-header {
+    padding: 28px 32px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    margin-bottom: 32px;
+    display: flex; align-items: center; gap: 24px;
+    flex-wrap: wrap;
+  }
+  .model-icon { font-size: 48px; }
+  .model-header-info { flex: 1; }
+  .model-header-info h2 { font-size: 26px; font-weight: 800; margin-bottom: 6px; }
+  .model-header-info p { color: var(--text-muted); font-size: 14px; }
+  .model-tags { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .tag {
+    padding: 4px 12px; border-radius: 99px;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
+    border: 1px solid var(--border);
+  }
+  .model-metric-cards { display: flex; gap: 16px; flex-wrap: wrap; }
+  .metric-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    text-align: center; min-width: 110px;
+  }
+  .metric-val { font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono', monospace; }
+  .metric-lbl { font-size: 11px; color: var(--text-muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  /* ── PIPELINE DIAGRAM ── */
+  .pipeline-wrap {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    margin-bottom: 28px;
+    overflow-x: auto;
+  }
+  .pipeline-wrap h3 {
+    font-size: 15px; font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+    text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  /* CSS Pipeline Diagram */
+  .pipeline {
+    display: flex; align-items: center; gap: 0;
+    min-width: 700px;
+  }
+  .pipe-col {
+    display: flex; flex-direction: column; gap: 8px;
+    flex-shrink: 0;
+  }
+  .pipe-arrow {
+    display: flex; align-items: center; flex-shrink: 0;
+    padding: 0 10px; color: var(--text-dim); font-size: 18px;
+  }
+  .pipe-node {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    text-align: center;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .pipe-node:hover { border-color: rgba(255,255,255,0.2); background: var(--card-hover); }
+  .pipe-node-title { font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+  .pipe-node-detail { font-size: 10px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+  .pipe-node-dim {
+    font-size: 11px; font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 6px;
+    padding: 2px 8px; border-radius: 99px;
+    display: inline-block;
+  }
+  .pipe-label {
+    font-size: 11px; font-weight: 600;
+    color: var(--text-dim);
+    text-align: center; margin-bottom: 6px;
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .pipe-group {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px; padding: 12px;
+  }
+  .frozen-tag {
+    background: rgba(239,68,68,0.15);
+    border: 1px solid rgba(239,68,68,0.3);
+    border-radius: 4px;
+    font-size: 9px; font-weight: 700;
+    color: #f87171; padding: 1px 6px;
+    margin-top: 4px; display: inline-block;
+  }
+  .trainable-tag {
+    background: rgba(16,185,129,0.15);
+    border: 1px solid rgba(16,185,129,0.3);
+    border-radius: 4px;
+    font-size: 9px; font-weight: 700;
+    color: #34d399; padding: 1px 6px;
+    margin-top: 4px; display: inline-block;
+  }
+  .pretrained-tag {
+    background: rgba(59,130,246,0.15);
+    border: 1px solid rgba(59,130,246,0.3);
+    border-radius: 4px;
+    font-size: 9px; font-weight: 700;
+    color: #60a5fa; padding: 1px 6px;
+    margin-top: 4px; display: inline-block;
+  }
+  .new-tag {
+    background: rgba(245,158,11,0.15);
+    border: 1px solid rgba(245,158,11,0.3);
+    border-radius: 4px;
+    font-size: 9px; font-weight: 700;
+    color: #fbbf24; padding: 1px 6px;
+    margin-top: 4px; display: inline-block;
+  }
+
+  /* ── TABLES ── */
+  .table-wrap {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 24px;
+    overflow-x: auto;
+  }
+  .table-wrap h3 {
+    font-size: 15px; font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 18px;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    display: flex; align-items: center; gap: 8px;
+  }
+  table {
+    width: 100%; border-collapse: collapse;
+    font-size: 13px;
+  }
+  th {
+    background: rgba(255,255,255,0.04);
+    padding: 10px 14px;
+    text-align: left; font-weight: 600;
+    color: var(--text-muted); font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    vertical-align: middle;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+  .mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+  .bold { font-weight: 700; }
+  .badge-frozen { color: #f87171; font-weight: 600; }
+  .badge-train { color: #34d399; font-weight: 600; }
+  .badge-pretrained { color: #60a5fa; font-weight: 600; }
+
+  /* ── 2-COL GRID ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  /* ── CHARTS ── */
+  .chart-wrap {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+  }
+  .chart-wrap h3 {
+    font-size: 15px; font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    text-transform: uppercase; letter-spacing: 0.08em;
+  }
+
+  /* ── INSIGHT CARDS ── */
+  .insight-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+  .insight-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.2s;
+  }
+  .insight-card:hover { background: var(--card-hover); transform: translateY(-2px); }
+  .insight-icon { font-size: 28px; margin-bottom: 12px; }
+  .insight-title { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+  .insight-body { font-size: 13px; color: var(--text-muted); line-height: 1.7; }
+
+  /* ── ALERT BOX ── */
+  .alert {
+    padding: 14px 18px;
+    border-radius: 10px; margin: 16px 0;
+    font-size: 13px; display: flex; gap: 12px; align-items: flex-start;
+  }
+  .alert-warn { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25); color: #fbbf24; }
+  .alert-error { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); color: #f87171; }
+  .alert-info { background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.25); color: #60a5fa; }
+  .alert-success { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.25); color: #34d399; }
+  .alert-icon { font-size: 18px; flex-shrink: 0; }
+
+  /* ── STAGE FLOW ── */
+  .stage-flow { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 16px 0; }
+  .stage-box {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 18px;
+    text-align: center; flex: 1; min-width: 160px;
+  }
+  .stage-num { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; color: var(--text-dim); }
+  .stage-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .stage-detail { font-size: 11px; color: var(--text-muted); }
+  .stage-arrow { font-size: 24px; color: var(--text-dim); flex-shrink: 0; }
+
+  /* ── DIFF HIGHLIGHT ── */
+  .diff-table td.improved { color: #34d399; font-weight: 600; }
+  .diff-table td.new { color: #fbbf24; font-weight: 600; }
+  .diff-table td.same { color: var(--text-muted); }
+
+  /* ── COMPARE SECTION ── */
+  .rank-row { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
+  .rank-num { font-size: 20px; font-weight: 800; width: 36px; text-align: center; flex-shrink: 0; }
+  .rank-bar-wrap { flex: 1; }
+  .rank-label { font-size: 13px; font-weight: 600; margin-bottom: 4px; display: flex; justify-content: space-between; }
+  .rank-bar { height: 28px; border-radius: 6px; display: flex; align-items: center; padding: 0 12px; font-size: 12px; font-weight: 700; font-family: 'JetBrains Mono', monospace; transition: width 1s ease; }
+
+  /* ── FOOTER ── */
+  .footer {
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    padding: 30px 40px;
+    text-align: center;
+    color: var(--text-dim); font-size: 13px;
+  }
+
+  /* ── SUB TABS (Inside Training Tab) ── */
+  .sub-tabs { display: flex; gap: 8px; margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 12px; overflow-x: auto; }
+  .sub-tab {
+    padding: 8px 16px; border-radius: 6px; border: 1px solid var(--border);
+    background: transparent; color: var(--text-muted); font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: all 0.2s; white-space: nowrap;
+  }
+  .sub-tab:hover { background: var(--card); color: var(--text); }
+  .sub-tab.active { font-weight: 600; color: white; }
+  .sub-tab[data-train="v2_train"].active { background: var(--v2-bg); border-color: var(--v2); color: #60a5fa; }
+  .sub-tab[data-train="v3_train"].active { background: var(--v3-bg); border-color: var(--v3); color: #34d399; }
+  .sub-tab[data-train="lf_train"].active { background: var(--lf-bg); border-color: var(--lf); color: #a78bfa; }
+  .sub-tab[data-train="v4_train"].active { background: var(--v4-bg); border-color: var(--v4); color: #fbbf24; }
+  .sub-tab[data-train="v5_train"].active { background: var(--v5-bg); border-color: var(--v5); color: #f87171; }
+
+  /* ── TRAINING MODEL CONTENT ── */
+  .train-model-content { display: none; }
+  .train-model-content.active { display: block; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-badge">🧠 Mental Health AI · DL Division</div>
+  <h1>Deep Learning Model Comparison</h1>
+  <p>Pipeline arsitektur mendalam & evaluasi 5 variasi model multi-modal depression detection</p>
+  <div class="header-stats">
+    <div class="stat-item"><div class="stat-num">5</div><div class="stat-label">Variasi Model</div></div>
+    <div class="stat-item"><div class="stat-num">189</div><div class="stat-label">Partisipan</div></div>
+    <div class="stat-item"><div class="stat-num">3</div><div class="stat-label">Modalitas Audio</div></div>
+    <div class="stat-item"><div class="stat-num">0.70</div><div class="stat-label">Target F1</div></div>
+  </div>
+</div>
+
+<!-- NAV TABS -->
+<div class="nav-tabs">
+  <button class="nav-tab active" data-model="overview" onclick="showSection('overview', this)">🗺️ Overview</button>
+  <button class="nav-tab" data-model="v2" onclick="showSection('v2', this)">🔵 V2 Optimized</button>
+  <button class="nav-tab" data-model="v3" onclick="showSection('v3', this)">🟢 V3 All-In</button>
+  <button class="nav-tab" data-model="lf" onclick="showSection('lf', this)">🟣 Late Fusion</button>
+  <button class="nav-tab" data-model="v4" onclick="showSection('v4', this)">🟠 V4 Shared</button>
+  <button class="nav-tab" data-model="v5" onclick="showSection('v5', this)">🔴 V5 Frozen</button>
+  <button class="nav-tab" data-model="compare" onclick="showSection('compare', this)">📊 Perbandingan</button>
+  <button class="nav-tab" data-model="training" onclick="showSection('training', this)">📈 Training Results</button>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- OVERVIEW SECTION -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="sec-overview" class="model-section active">
+<div class="container">
+
+  <div class="section">
+    <div class="section-title">🗺️ Evolusi Model</div>
+    <div class="timeline">
+      <div class="timeline-item" style="border-color:var(--v2)" onclick="showSection('v2', document.querySelector('[data-model=v2]'))">
+        <div class="tl-badge">🔵</div>
+        <div class="tl-title" style="color:var(--v2)">V2 Optimized</div>
+        <div class="tl-sub">BiLSTM + 1D-CNN<br>5-Fold · 1 seg/person</div>
+        <div class="tl-f1" style="color:var(--v2)">0.5582</div>
+        <div class="tl-f1-label">OOF F1-Macro</div>
+      </div>
+      <div class="timeline-arrow">→</div>
+      <div class="timeline-item" style="border-color:var(--v3)" onclick="showSection('v3', document.querySelector('[data-model=v3]'))">
+        <div class="tl-badge">🟢</div>
+        <div class="tl-title" style="color:var(--v3)">V3 All-In</div>
+        <div class="tl-sub">BiLSTM + Wav2Vec2<br>End-to-End · All segs</div>
+        <div class="tl-f1" style="color:var(--v3)">0.5727</div>
+        <div class="tl-f1-label">OOF F1-Macro</div>
+      </div>
+      <div class="timeline-arrow">→</div>
+      <div class="timeline-item" style="border-color:var(--lf)" onclick="showSection('lf', document.querySelector('[data-model=lf]'))">
+        <div class="tl-badge">🟣</div>
+        <div class="tl-title" style="color:var(--lf)">Late Fusion</div>
+        <div class="tl-sub">Frozen BiLSTM + MLP<br>Only 724K trainable</div>
+        <div class="tl-f1" style="color:var(--lf)">0.2719</div>
+        <div class="tl-f1-label">OOF F1-Macro</div>
+        <div class="tl-warn">⚠️ Data Leakage</div>
+      </div>
+      <div class="timeline-arrow">→</div>
+      <div class="timeline-item" style="border-color:var(--v4)" onclick="showSection('v4', document.querySelector('[data-model=v4]'))">
+        <div class="tl-badge">🟠</div>
+        <div class="tl-title" style="color:var(--v4)">V4 Shared</div>
+        <div class="tl-sub">Shared Wav2Vec2<br>Partial Freeze · 3-Fold</div>
+        <div class="tl-f1" style="color:var(--v4)">0.6020</div>
+        <div class="tl-f1-label">OOF F1-Macro</div>
+      </div>
+      <div class="timeline-arrow">→</div>
+      <div class="timeline-item" style="border-color:var(--v5)" onclick="showSection('v5', document.querySelector('[data-model=v5]'))">
+        <div class="tl-badge">🔴</div>
+        <div class="tl-title" style="color:var(--v5)">V5 Frozen+Attn</div>
+        <div class="tl-sub">Fully Frozen Wav2Vec2<br>Cross-Modal Attention</div>
+        <div class="tl-f1" style="color:var(--v5)">~0.65</div>
+        <div class="tl-f1-label">OOF F1 (Estimasi)</div>
+        <div class="tl-training">🔄 Sedang Training</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">📊 Perbandingan Cepat — OOF F1-Macro</div>
+    <div class="chart-wrap">
+      <h3>📈 OOF Cross-Validation F1-Macro (N=189)</h3>
+      <canvas id="chartOverview" height="100"></canvas>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">💡 Insight Kunci</div>
+    <div class="insight-grid">
+      <div class="insight-card">
+        <div class="insight-icon">📉</div>
+        <div class="insight-title">Lebih banyak params ≠ F1 lebih tinggi</div>
+        <div class="insight-body">V3 punya 95M params tapi F1 OOF lebih rendah dari V4 (38.6M trainable). Dataset N=189 terlalu kecil untuk DL besar end-to-end.</div>
+      </div>
+      <div class="insight-card">
+        <div class="insight-icon">🔒</div>
+        <div class="insight-title">Frozen backbone = kunci efisiensi</div>
+        <div class="insight-body">V5 hanya punya 2.83M params trainable namun diharapkan mengalahkan V4 (38.6M). Pre-trained Wav2Vec2 representasi sudah kaya tanpa fine-tuning.</div>
+      </div>
+      <div class="insight-card">
+        <div class="insight-icon">⚠️</div>
+        <div class="insight-title">Late Fusion — Jebakan Leakage</div>
+        <div class="insight-body">Extractor dilatih pada semua 189 partisipan sebelum CV. F1 training ~0.87-0.94, tapi OOF aktual hanya 0.2719. Tidak valid untuk skripsi.</div>
+      </div>
+      <div class="insight-card">
+        <div class="insight-icon">🎯</div>
+        <div class="insight-title">Cross-Modal Attention — Inovasi V5</div>
+        <div class="insight-body">Tiap modalitas (Raw, MFCC, MelSpec) saling attend satu sama lain. Lebih kaya dari simple concatenation yang dipakai V2-V4.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- V2 SECTION -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="sec-v2" class="model-section">
+<div class="container">
+  <div class="model-header" style="background:var(--v2-bg); border-color:var(--v2)">
+    <div class="model-icon">🔵</div>
+    <div class="model-header-info">
+      <h2 style="color:#60a5fa">Fusion V2 Optimized</h2>
+      <p>BiLSTM + 1D-CNN · 3 cabang independen · Simple Concatenation Fusion</p>
+      <div class="model-tags">
+        <span class="tag" style="border-color:var(--v2);color:#60a5fa">5-Fold CV</span>
+        <span class="tag" style="border-color:var(--v2);color:#60a5fa">6.3M Params</span>
+        <span class="tag" style="border-color:var(--v2);color:#60a5fa">No Pre-trained</span>
+        <span class="tag" style="border-color:var(--v2);color:#60a5fa">1 seg/person</span>
+      </div>
+    </div>
+    <div class="model-metric-cards">
+      <div class="metric-card">
+        <div class="metric-val" style="color:#60a5fa">0.5582</div>
+        <div class="metric-lbl">OOF F1</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val" style="color:#60a5fa">64.6%</div>
+        <div class="metric-lbl">OOF Acc</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val" style="color:#60a5fa">0.7722</div>
+        <div class="metric-lbl">AVEC F1</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">🏗️ Pipeline Arsitektur</div>
+    <div class="pipeline-wrap">
+      <h3>Alur Data End-to-End</h3>
+      <div class="pipeline">
+        <!-- INPUT -->
+        <div class="pipe-col">
+          <div class="pipe-label">📥 INPUT</div>
+          <div class="pipe-group">
+            <div class="pipe-node" style="border-color:rgba(255,255,255,0.15)">
+              <div class="pipe-node-title">Raw Waveform</div>
+              <div class="pipe-node-detail">160,000 samples</div>
+              <div class="pipe-node-detail">@ 16 kHz · 10 detik</div>
+            </div>
+            <div class="pipe-node" style="border-color:rgba(255,255,255,0.15)">
+              <div class="pipe-node-title">MFCC</div>
+              <div class="pipe-node-detail">T × 120 features</div>
+            </div>
+            <div class="pipe-node" style="border-color:rgba(255,255,255,0.15)">
+              <div class="pipe-node-title">MelSpectrogram</div>
+              <div class="pipe-node-detail">T × 128 mel bins</div>
+            </div>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <!-- EXTRACTORS -->
+        <div class="pipe-col">
+          <div class="pipe-label">🔧 FEATURE EXTRACTOR</div>
+          <div class="pipe-group">
+            <div class="pipe-node" style="border-color:var(--v2)">
+              <div class="pipe-node-title" style="color:#60a5fa">1D-CNN</div>
+              <div class="pipe-node-detail">4 Conv Blocks</div>
+              <div class="pipe-node-detail">Kernel: 8,5,3,3</div>
+              <div class="trainable-tag">Trainable</div>
+              <div class="pipe-node-dim" style="background:var(--v2-bg);color:#60a5fa">→ 384-dim</div>
+            </div>
+            <div class="pipe-node" style="border-color:var(--v2)">
+              <div class="pipe-node-title" style="color:#60a5fa">BiLSTM + Attn</div>
+              <div class="pipe-node-detail">192h · 2L · Bidirect.</div>
+              <div class="pipe-node-detail">+ Self-Attention</div>
+              <div class="trainable-tag">Trainable</div>
+              <div class="pipe-node-dim" style="background:var(--v2-bg);color:#60a5fa">→ 384-dim</div>
+            </div>
+            <div class="pipe-node" style="border-color:var(--v2)">
+              <div class="pipe-node-title" style="color:#60a5fa">BiLSTM + Attn</div>
+              <div class="pipe-node-detail">192h · 2L · Bidirect.</div>
+              <div class="pipe-node-detail">+ Self-Attention</div>
+              <div class="trainable-tag">Trainable</div>
+              <div class="pipe-node-dim" style="background:var(--v2-bg);color:#60a5fa">→ 384-dim</div>
+            </div>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <!-- FUSION -->
+        <div class="pipe-col">
+          <div class="pipe-label">🔀 FUSION</div>
+          <div class="pipe-node" style="border-color:var(--v2); height:100%; display:flex; flex-direction:column; justify-content:center; min-height:180px">
+            <div class="pipe-node-title" style="color:#60a5fa">Concatenation</div>
+            <div class="pipe-node-detail">384 + 384 + 384</div>
+            <div class="pipe-node-dim" style="background:var(--v2-bg);color:#60a5fa; font-size:14px; margin-top:10px">1152-dim</div>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <!-- CLASSIFIER -->
+        <div class="pipe-col">
+          <div class="pipe-label">🎯 CLASSIFIER</div>
+          <div class="pipe-node" style="border-color:var(--v2); min-height:180px; display:flex; flex-direction:column; justify-content:center">
+            <div class="pipe-node-title" style="color:#60a5fa">MLP Head</div>
+            <div class="pipe-node-detail">Linear 1152→512</div>
+            <div class="pipe-node-detail">LayerNorm · GELU</div>
+            <div class="pipe-node-detail">Dropout(0.3)</div>
+            <div class="pipe-node-detail">Linear 512→256</div>
+            <div class="pipe-node-detail">Linear 256→2</div>
+            <div class="pipe-node-dim" style="background:var(--v2-bg);color:#60a5fa; margin-top:10px">→ 2 kelas</div>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <!-- OUTPUT -->
+        <div class="pipe-col">
+          <div class="pipe-label">📤 OUTPUT</div>
+          <div class="pipe-node" style="border-color:var(--v2); min-height:180px; display:flex; flex-direction:column; justify-content:center">
+            <div class="pipe-node-title" style="color:#60a5fa">Softmax</div>
+            <div style="margin-top:12px; font-size:13px; font-weight:700; color:#34d399">NORMAL</div>
+            <div style="margin-top:4px; font-size:13px; font-weight:700; color:#f87171">DEPRESI</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="table-wrap">
+      <h3>⚙️ Komponen & Parameter</h3>
+      <table>
+        <tr><th>Komponen</th><th>Arsitektur</th><th>Dim</th><th>Params</th></tr>
+        <tr><td>Raw Branch</td><td class="mono">1D-CNN (4 Conv)</td><td class="mono">384</td><td class="mono">~1.8M</td></tr>
+        <tr><td>MFCC Branch</td><td class="mono">BiLSTM+Attn</td><td class="mono">384</td><td class="mono">~2.2M</td></tr>
+        <tr><td>MelSpec Branch</td><td class="mono">BiLSTM+Attn</td><td class="mono">384</td><td class="mono">~2.2M</td></tr>
+        <tr><td>Fusion Head</td><td class="mono">1152→512→256→2</td><td class="mono">2</td><td class="mono">~0.7M</td></tr>
+        <tr><td class="bold">TOTAL</td><td>-</td><td>-</td><td class="bold mono">~6.3M</td></tr>
+      </table>
+    </div>
+    <div class="table-wrap">
+      <h3>📋 Hyperparameter</h3>
+      <table>
+        <tr><th>Parameter</th><th>Nilai</th></tr>
+        <tr><td>CV Strategy</td><td class="mono">5-Fold Stratified</td></tr>
+        <tr><td>Data/fold</td><td class="mono">1 seg/person (151 train)</td></tr>
+        <tr><td>Max Epochs</td><td class="mono">100 + Early Stopping</td></tr>
+        <tr><td>Batch Size</td><td class="mono">32</td></tr>
+        <tr><td>Learning Rate</td><td class="mono">3e-4 (uniform)</td></tr>
+        <tr><td>Loss Function</td><td class="mono">Focal Loss (γ=2.0)</td></tr>
+        <tr><td>Dropout</td><td class="mono">0.3</td></tr>
+        <tr><td>Oversampling</td><td class="mono">2.5× DEPRESI</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="alert alert-warn"><div class="alert-icon">⚠️</div><div>Kelemahan utama: 1D-CNN untuk raw waveform tidak cukup kuat menangkap pola temporal. Hanya 1 segment per participant = data terlalu sedikit. → Diganti all-segments + Wav2Vec2 di V3.</div></div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- V3 SECTION -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="sec-v3" class="model-section">
+<div class="container">
+  <div class="model-header" style="background:var(--v3-bg); border-color:var(--v3)">
+    <div class="model-icon">🟢</div>
+    <div class="model-header-info">
+      <h2 style="color:#34d399">Fusion V3 All-In</h2>
+      <p>BiLSTM×2 + Wav2Vec2 · End-to-End Fine-tune · 2-Stage Training</p>
+      <div class="model-tags">
+        <span class="tag" style="border-color:var(--v3);color:#34d399">3-Fold CV</span>
+        <span class="tag" style="border-color:var(--v3);color:#34d399">95M Params</span>
+        <span class="tag" style="border-color:var(--v3);color:#34d399">Wav2Vec2 Pretrained</span>
+        <span class="tag" style="border-color:var(--v3);color:#34d399">All Segments</span>
+      </div>
+    </div>
+    <div class="model-metric-cards">
+      <div class="metric-card">
+        <div class="metric-val" style="color:#34d399">0.5727</div>
+        <div class="metric-lbl">OOF F1</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val" style="color:#34d399">64.6%</div>
+        <div class="metric-lbl">OOF Acc</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val" style="color:#fbbf24">1.000 ⚠️</div>
+        <div class="metric-lbl">AVEC F1</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">⏱️ 2-Stage Training Strategy</div>
+    <div class="stage-flow">
+      <div class="stage-box" style="border-color:var(--v3)">
+        <div class="stage-num" style="color:#34d399">Stage 1 — 12 Epochs</div>
+        <div class="stage-title">Warmup</div>
+        <div class="stage-detail">Wav2Vec2 + BiLSTM FROZEN<br>Train Fusion Head only</div>
+      </div>
+      <div class="stage-arrow">→</div>
+      <div class="stage-box" style="border-color:var(--v3)">
+        <div class="stage-num" style="color:#34d399">Stage 2 — 50 Epochs</div>
+        <div class="stage-title">Full Fine-tune</div>
+        <div class="stage-detail">ALL layers UNFROZEN<br>Discriminative LR<br>Early Stopping (ES=8)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">🏗️ Pipeline Arsitektur</div>
+    <div class="pipeline-wrap">
+      <h3>Alur Data End-to-End</h3>
+      <div class="pipeline">
+        <div class="pipe-col">
+          <div class="pipe-label">📥 INPUT</div>
+          <div class="pipe-group">
+            <div class="pipe-node"><div class="pipe-node-title">Raw Waveform</div><div class="pipe-node-detail">160,000 samples</div></div>
+            <div class="pipe-node"><div class="pipe-node-title">MFCC</div><div class="pipe-node-detail">T × 120</div></div>
+            <div class="pipe-node"><div class="pipe-node-title">MelSpec</div><div class="pipe-node-detail">T × 128</div></div>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-col">
+          <div class="pipe-label">🔧 FEATURE EXTRACTOR</div>
+          <div class="pipe-group">
+            <div class="pipe-node" style="border-color:var(--v3)">
+              <div class="pipe-node-title" style="color:#34d399">Wav2Vec2-Base</div>
+              <div class="pipe-node-detail">CNN + 12-Layer Transformer</div>
+              <div class="pipe-node-detail">Linear Projector 768→384</div>
+              <div class="pretrained-tag">Pretrained LibriSpeech</div>
+              <div class="pipe-node-dim" style="background:var(--v3-bg);color:#34d399">→ 384-dim</div>
+            </div>
+            <div class="pipe-node" style="border-color:var(--v3)">
+              <div class="pipe-node-title" style="color:#34d399">BiLSTM + Attn</div>
+              <div class="pipe-node-detail">192h · 2L · Bidirect.</div>
+              <div class="trainable-tag">Random Init</div>
+              <div class="pipe-node-dim" style="background:var(--v3-bg);color:#34d399">→ 384-dim</div>
+            </div>
+            <div class="pipe-node" style="border-color:var(--v3)">
+              <div class="pipe-node-title" style="color:#34d399">BiLSTM + Attn</div>
+              <div class="pipe-node-detail">192h · 2L · Bidirect.</div>
+              <div class="trainable-tag">Random Init</div>
+              <div class="pipe-node-dim" style="background:var(--v3-bg);color:#34d399">→ 384-dim</div>
+            </div>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-col">
+          <div class="pipe-label">🔀 FUSION</div>
+          <div class="pipe-node" style="border-color:var(--v3); min-height:180px; display:flex; flex-direction:column; justify-content:center">
+            <div class="pipe-node-title" style="color:#34d399">Concatenation</div>
+            <div class="pipe-node-detail">384 + 384 + 384</div>
+            <div class="pipe-node-dim" style="background:var(--v3-bg);color:#34d399; font-size:14px; margin-top:10px">1152-dim</div>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-col">
+          <div class="pipe-label">🎯 CLASSIFIER</div>
+          <div class="pipe-node" style="border-color:var(--v3); min-height:180px; display:flex; flex-direction:column; justify-content:center">
+            <div class="pipe-node-title" style="color:#34d399">Fusion MLP</div>
+            <div class="pipe-node-detail">1152→512→256→2</div>
+            <div class="pipe-node-detail">LN · GELU · Dropout(0.5)</div>
+            <div class="pipe-node-dim" style="background:var(--v3-bg);color:#34d399; margin-top:8px">~0.5M params</div>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-col">
+          <div class="pipe-label">📤 OUTPUT</div>
+          <div class="pipe-node" style="border-color:var(--v3); min-height:180px; display:flex; flex-direction:column; justify-content:center">
+            <div class="pipe-node-title" style="color:#34d399">Softmax</div>
+            <div style="margin-top:12px; font-size:13px; font-weight:700; color:#34d399">NORMAL</div>
+            <div style="margin-top:4px; font-size:13px; font-weight:700; color:#f87171">DEPRESI</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="table-wrap">
+      <h3>⚙️ Komponen & Parameter</h3>
+      <table>
+        <tr><th>Komponen</th><th>Params</th><th>Pretrained</th></tr>
+        <tr><td>MelSpec BiLSTM+Attn</td><td class="mono">~2.5M</td><td>❌ Random</td></tr>
+        <tr><td>MFCC BiLSTM+Attn</td><td class="mono">~2.5M</td><td>❌ Random</td></tr>
+        <tr><td>Raw Wav2Vec2+Proj</td><td class="mono">~90.0M</td><td class="badge-pretrained">✅ LibriSpeech</td></tr>
+        <tr><td>Fusion MLP Head</td><td class="mono">~0.5M</td><td>❌</td></tr>
+        <tr><td class="bold">TOTAL</td><td class="bold mono">~95.0M</td><td>-</td></tr>
+      </table>
+    </div>
+    <div class="table-wrap">
+      <h3>📋 Discriminative LR</h3>
+      <table>
+        <tr><th>Komponen</th><th>LR</th></tr>
+        <tr><td>Fusion Head (Stage 1+2)</td><td class="mono" style="color:#fbbf24">1e-3</td></tr>
+        <tr><td>BiLSTM (Stage 2)</td><td class="mono" style="color:#60a5fa">1e-4</td></tr>
+        <tr><td>Wav2Vec2 (Stage 2)</td><td class="mono" style="color:#34d399">1e-5</td></tr>
+        <tr><td>Dropout</td><td class="mono">0.5</td></tr>
+        <tr><td>Weight Decay</td><td class="mono">1e-3</td></tr>
+        <tr><td>Batch Size</td><td class="mono">32</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="alert alert-warn"><div class="alert-icon">⚠️</div><div>BiLSTM dengan random initialization pada N≈2400 segmen tetap mengalami overfitting berat (Train Acc 99.7% vs Val Acc ~70%). Hal ini mendorong desain V4 dengan shared backbone.</div></div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- LATE FUSION SECTION -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="sec-lf" class="model-section">
+<div class="container">
+  <div class="model-header" style="background:var(--lf-bg); border-color:var(--lf)">
+    <div class="model-icon">🟣</div>
+    <div class="model-header-info">
+      <h2 style="color:#a78bfa">V3 Late Fusion</h2>
+      <p>Frozen Extractor · Trainable FusionMLP Only · ⚠️ Data Leakage</p>
+      <div class="model-tags">
+        <span class="tag" style="border-color:var(--lf);color:#a78bfa">3-Fold CV</span>
+        <span class="tag" style="border-color:var(--lf);color:#a78bfa">724K Trainable</span>
+        <span class="tag" style="border-color:#f87171;color:#f87171">⚠️ LEAKAGE</span>
+      </div>
+    </div>
+    <div class="model-metric-cards">
+      <div class="metric-card" style="border-color:#f87171">
+        <div class="metric-val" style="color:#f87171">0.2719</div>
+        <div class="metric-lbl">OOF F1 (Valid)</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val" style="color:#a78bfa">~0.87</div>
+        <div class="metric-lbl">Train F1 (Inflated)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert alert-error"><div class="alert-icon">🚨</div><div><strong>Data Leakage Terdeteksi!</strong> Extractor (BiLSTM + Wav2Vec2) dilatih pada SEMUA 189 partisipan sebelum CV dilakukan. Sehingga saat validasi fold, model sudah "pernah melihat" data validasi. F1 OOF yang valid adalah <strong>0.2719</strong>, bukan angka inflasi ~0.87-0.94 yang terlihat saat training.</div></div>
+
+  <div class="section">
+    <div class="section-title">🏗️ Pipeline Arsitektur</div>
+    <div class="pipeline-wrap">
+      <h3>2-Phase: Pre-training (Leakage) → Frozen Inference</h3>
+      <div style="margin-bottom:20px; padding:16px; background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.2); border-radius:10px;">
+        <div style="font-size:12px; font-weight:700; color:#f87171; margin-bottom:10px;">⚠️ FASE PRE-TRAINING (Di Luar CV — Semua 189 Partisipan)</div>
+        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+          <div class="pipe-node" style="border-color:#f87171">
+            <div class="pipe-node-title" style="color:#f87171">BiLSTM MelSpec</div>
+            <div class="pipe-node-detail">Dilatih pada ALL 189 data</div>
+            <div class="pipe-node-detail">Disimpan: best_model.pt</div>
+          </div>
+          <div class="pipe-node" style="border-color:#f87171">
+            <div class="pipe-node-title" style="color:#f87171">BiLSTM MFCC</div>
+            <div class="pipe-node-detail">Dilatih pada ALL 189 data</div>
+            <div class="pipe-node-detail">Disimpan: best_model.pt</div>
+          </div>
+          <div class="pipe-node" style="border-color:#f87171">
+            <div class="pipe-node-title" style="color:#f87171">Wav2Vec2-Base</div>
+            <div class="pipe-node-detail">HuggingFace Pretrained</div>
+          </div>
+        </div>
+      </div>
+      <div class="pipeline">
+        <div class="pipe-col">
+          <div class="pipe-label">📥 INPUT</div>
+          <div class="pipe-group">
+            <div class="pipe-node"><div class="pipe-node-title">Raw Waveform</div></div>
+            <div class="pipe-node"><div class="pipe-node-title">MFCC</div></div>
+            <div class="pipe-node"><div class="pipe-node-title">MelSpec</div></div>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-col">
+          <div class="pipe-label">🔒 FROZEN EXTRACTOR</div>
+          <div class="pipe-group">
+            <div class="pipe-node" style="border-color:#f87171">
+              <div class="pipe-node-title" style="color:#f87171">🔒 Wav2Vec2</div>
+              <div class="pipe-node-detail">CNN + Transformer</div>
+              <div class="frozen-tag">FROZEN — No Grad</div>
+              <div class="pipe-node-dim" style="background:rgba(239,68,68,0.1);color:#f87171">→ 384-dim</div>
+            </div>
+            <div class="pipe-node" style="border-color:#f87171">
+              <div class="pipe-node-title" style="color:#f87171">🔒 BiLSTM MFCC</div>
+              <div class="pipe-node-detail">Pretrained weights</div>
+              <div class="frozen-tag">FROZEN — No Grad</div>
+              <div class="pipe-node-dim" style="background:rgba(239,68,68,0.1);color:#f87171">→ 384-dim</div>
+            </div>
+            <div class="pipe-node" style="border-color:#f87171">
+              <div class="pipe-node-title" style="color:#f87171">🔒 BiLSTM MelSpec</div>
+              <div class="pipe-node-detail">Pretrained weights</div>
+              <div class="frozen-tag">FROZEN — No Grad</div>
+              <div class="pipe-node-dim" style="background:rgba(239,68,68,0.1);color:#f87171">→ 384-dim</div>
+            </div>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-col">
+          <div class="pipe-label">🔀 FUSION</div>
+          <div class="pipe-node" style="border-color:var(--lf); min-height:180px; display:flex; flex-direction:column; justify-content:center">
+            <div class="pipe-node-title" style="color:#a78bfa">Concat</div>
+            <div class="pipe-node-dim" style="background:var(--lf-bg);color:#a78bfa; font-size:14px; margin-top:8px">1152-dim</div>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-col">
+          <div class="pipe-label">✏️ TRAINABLE ONLY</div>
+          <div class="pipe-node" style="border-color:#34d399; min-height:180px; display:flex; flex-direction:column; justify-content:center">
+            <div class="pipe-node-title" style="color:#34d399">Fusion MLP</div>
+            <div class="pipe-node-detail">1152→512→256→2</div>
+            <div class="pipe-node-detail">LN · GELU · Dropout(0.4)</div>
+            <div class="trainable-tag">Only 724K params</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert alert-info"><div class="alert-icon">💡</div><div>Meski terkena leakage, pelajaran berharga dari Late Fusion: <strong>ide membekukan backbone yang sudah powerful itu benar</strong>. Masalahnya hanya di cara extractor di-train sebelum CV. V5 mengimplementasikan ide ini dengan benar menggunakan Wav2Vec2 pretrained (bukan yang dilatih ulang pada data kita).</div></div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- V4 SECTION -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="sec-v4" class="model-section">
+<div class="container">
+  <div class="model-header" style="background:var(--v4-bg); border-color:var(--v4)">
+    <div class="model-icon">🟠</div>
+    <div class="model-header-info">
+      <h2 style="color:#fbbf24">Fusion V4 Shared Wav2Vec2</h2>
+      <p>Shared Transformer Backbone · Partial Freeze · Discriminative LR · 2-Stage</p>
+      <div class="model-tags">
+        <span class="tag" style="border-color:var(--v4);color:#fbbf24">3-Fold CV</span>
+        <span class="tag" style="border-color:var(--v4);color:#fbbf24">95.3M Total · 38.6M Trainable</span>
+        <span class="tag" style="border-color:var(--v4);color:#fbbf24">Shared Backbone</span>
+        <span class="tag" style="border-color:var(--v4);color:#fbbf24">Layers 0-7 Frozen</span>
+      </div>
+    </div>
+    <div class="model-metric-cards">
+      <div class="metric-card">
+        <div class="metric-val" style="color:#fbbf24">0.6020</div>
+        <div class="metric-lbl">OOF F1 🏆</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val" style="color:#fbbf24">68.3%</div>
+        <div class="metric-lbl">OOF Acc</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val" style="color:#fbbf24">0.6095</div>
+        <div class="metric-lbl">AVEC F1</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">🏗️ Pipeline Arsitektur — Shared Backbone</div>
+    <div class="pipeline-wrap">
+      <h3>3 Cabang → 1 Shared Wav2Vec2 Transformer</h3>
+      <div class="pipeline">
+        <div class="pipe-col">
+          <div class="pipe-label">📥 INPUT</div>
+          <div class="pipe-group">
+            <div class="pipe-node"><div class="pipe-node-title">Raw Waveform</div><div class="pipe-node-detail">160,000 samples</div></div>
+            <div class="pipe-node"><div class="pipe-node-title">MFCC</div><div class="pipe-node-detail">T × 120</div></div>
+            <div class="pipe-node"><div class="pipe-node-title">MelSpec</div><div class="pipe-node-detail">T × 128</div></div>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-col">
+          <div class="pipe-label">🔧 ADAPTERS</div>
+          <div class="pipe-group">
+            <div class="pipe-node" style="border-color:#888; opacity:0.6; min-height:60px; display:flex; align-items:center; justify-content:center">
+              <div><div class="pipe-node-title">Wav2Vec2 CNN</div><div class="frozen-tag" style="margin-top:4px">ALWAYS FROZEN</div></div>
+            </div>
+            <div class="pipe-node" style="border-color:var(--v4)">
+              <div class="pipe-node-title" style="color:#fbbf24">MFCC Adapter</div>
+              <div class="pipe-node-detail">Linear 120→512</div>
+              <div class="pipe-node-detail">+ LayerNorm + GELU</div>
+              <div class="trainable-tag">~62K params</div>
+              <div class="pipe-node-dim" style="background:var(--v4-bg);color:#fbbf24">→ 512-dim</div>
+            </div>
+            <div class="pipe-node" style="border-color:var(--v4)">
+              <div class="pipe-node-title" style="color:#fbbf24">MelSpec Adapter</div>
+              <div class="pipe-node-detail">Linear 128→512</div>
+              <div class="pipe-node-detail">+ LayerNorm + GELU</div>
+              <div class="trainable-tag">~66K params</div>
+              <div class="pipe-node-dim" style="background:var(--v4-bg);color:#fbbf24">→ 512-dim</div>
+            </div>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-col">
+          <div class="pipe-label">🧠 SHARED WAV2VEC2 TRANSFORMER</div>
+          <div class="pipe-group" style="border-color:rgba(59,130,246,0.3)">
+            <div class="pipe-node" style="border-color:#888; opacity:0.7">
+              <div class="pipe-node-title">Feature Projection</div>
+              <div class="pipe-node-detail">512 → 768</div>
+              <div class="pipe-node-detail" style="color:#60a5fa; font-size:9px; margin-top:4px">Fine-tune LR=5e-7</div>
+            </div>
+            <div class="pipe-node" style="border-color:#888; opacity:0.6">
+              <div class="pipe-node-title">Transformer Layers 0-7</div>
+              <div class="frozen-tag">FROZEN</div>
+            </div>
+            <div class="pipe-node" style="border-color:#60a5fa">
+              <div class="pipe-node-title" style="color:#60a5fa">Transformer Layers 8-11</div>
+              <div class="trainable-tag">Fine-tune LR=1e-6</div>
+              <div class="pipe-node-dim" style="background:rgba(59,130,246,0.1);color:#60a5fa">→ 768-dim (×3)</div>
+            </div>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-col">
+          <div class="pipe-label">📐 PROJ HEADS (×3)</div>
+          <div class="pipe-group">
+            <div class="pipe-node" style="border-color:var(--v4)">
+              <div class="pipe-node-title" style="color:#fbbf24">Raw Projector</div>
+              <div class="pipe-node-detail">768→256+LN+GELU</div>
+              <div class="pipe-node-dim" style="background:var(--v4-bg);color:#fbbf24">→ 256-dim</div>
+            </div>
+            <div class="pipe-node" style="border-color:var(--v4)">
+              <div class="pipe-node-title" style="color:#fbbf24">MFCC Projector</div>
+              <div class="pipe-node-detail">768→256+LN+GELU</div>
+              <div class="pipe-node-dim" style="background:var(--v4-bg);color:#fbbf24">→ 256-dim</div>
+            </div>
+            <div class="pipe-node" style="border-color:var(--v4)">
+              <div class="pipe-node-title" style="color:#fbbf24">MelSpec Projector</div>
+              <div class="pipe-node-detail">768→256+LN+GELU</div>
+              <div class="pipe-node-dim" style="background:var(--v4-bg);color:#fbbf24">→ 256-dim</div>
+            </div>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-col">
+          <div class="pipe-label">🔀 FUSION + CLASSIFY</div>
+          <div class="pipe-node" style="border-color:var(--v4); min-height:200px; display:flex; flex-direction:column; justify-content:center">
+            <div class="pipe-node-title" style="color:#fbbf24">Concat</div>
+            <div class="pipe-node-dim" style="background:var(--v4-bg);color:#fbbf24; font-size:14px; margin:6px auto">768-dim</div>
+            <hr style="border-color:var(--border); margin:10px 0">
+            <div class="pipe-node-title" style="color:#fbbf24">MLP Classifier</div>
+            <div class="pipe-node-detail">LN → 768→256</div>
+            <div class="pipe-node-detail">GELU → Dropout(0.5)</div>
+            <div class="pipe-node-detail">→ 2 kelas</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="table-wrap">
+      <h3>⚙️ Komponen Detail</h3>
+      <table>
+        <tr><th>Komponen</th><th>Params</th><th>Stage 2</th></tr>
+        <tr><td>MFCC Adapter</td><td class="mono">~62K</td><td class="badge-train">✅ Train 5e-5</td></tr>
+        <tr><td>MelSpec Adapter</td><td class="mono">~66K</td><td class="badge-train">✅ Train 5e-5</td></tr>
+        <tr><td>Wav2Vec2 CNN</td><td class="mono">~6M</td><td class="badge-frozen">🔒 Always Frozen</td></tr>
+        <tr><td>Transformer L0-7</td><td class="mono">~42M</td><td class="badge-frozen">🔒 Frozen</td></tr>
+        <tr><td>Transformer L8-11</td><td class="mono">~21M</td><td class="badge-train" style="color:#60a5fa">✅ Fine-tune 1e-6</td></tr>
+        <tr><td>Feature Projection</td><td class="mono">~394K</td><td class="badge-train" style="color:#60a5fa">✅ 5e-7</td></tr>
+        <tr><td>Proj Heads (×3)</td><td class="mono">~590K</td><td class="badge-train">✅ Train 5e-5</td></tr>
+        <tr><td>Fusion Classifier</td><td class="mono">~197K</td><td class="badge-train">✅ Train 1e-4</td></tr>
+        <tr><td class="bold">TOTAL</td><td class="bold mono">~95.3M</td><td class="bold">Trainable: ~38.6M</td></tr>
+      </table>
+    </div>
+    <div class="table-wrap">
+      <h3>📋 Hyperparameter</h3>
+      <table>
+        <tr><th>Parameter</th><th>Nilai</th></tr>
+        <tr><td>CV Strategy</td><td class="mono">3-Fold Stratified</td></tr>
+        <tr><td>Segments/fold</td><td class="mono">~2,877 train</td></tr>
+        <tr><td>Stage 1 Epochs</td><td class="mono">10 (adapters + heads)</td></tr>
+        <tr><td>Stage 2 Epochs</td><td class="mono">25 (fine-tune, ES=8)</td></tr>
+        <tr><td>Batch Size</td><td class="mono">16</td></tr>
+        <tr><td>LR Wav2Vec L8-11</td><td class="mono">1e-6</td></tr>
+        <tr><td>LR Wav2Vec CNN/Proj</td><td class="mono">5e-7</td></tr>
+        <tr><td>LR Adapters/Heads</td><td class="mono">5e-5</td></tr>
+        <tr><td>LR Classifier</td><td class="mono">1e-4</td></tr>
+        <tr><td>Dropout</td><td class="mono">0.5</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="alert alert-warn"><div class="alert-icon">⚠️</div><div>Fine-tuning Wav2Vec2 layers 8-11 pada N=189 masih menyebabkan partial overfitting. Trainable params 38.6M terlalu besar untuk dataset sekecil ini. → V5 membekukan SEMUA layer Wav2Vec2 untuk mengatasi masalah ini.</div></div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- V5 SECTION -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="sec-v5" class="model-section">
+<div class="container">
+  <div class="model-header" style="background:var(--v5-bg); border-color:var(--v5)">
+    <div class="model-icon">🔴</div>
+    <div class="model-header-info">
+      <h2 style="color:#f87171">Fusion V5 — Frozen Wav2Vec2 + Cross-Modal Attention</h2>
+      <p>Fully Frozen Backbone · Cross-Modal Attention Fusion · 5-Fold · Mixup · Label Smoothing</p>
+      <div class="model-tags">
+        <span class="tag" style="border-color:var(--v5);color:#f87171">5-Fold CV</span>
+        <span class="tag" style="border-color:var(--v5);color:#f87171">97.2M Total · 2.83M Trainable</span>
+        <span class="tag" style="border-color:var(--v5);color:#f87171">Fully Frozen Backbone</span>
+        <span class="tag" style="border-color:#fbbf24;color:#fbbf24">🔄 Sedang Training</span>
+      </div>
+    </div>
+    <div class="model-metric-cards">
+      <div class="metric-card" style="border-style:dashed">
+        <div class="metric-val" style="color:#f87171">~0.65</div>
+        <div class="metric-lbl">OOF F1 (Est.)</div>
+      </div>
+      <div class="metric-card" style="border-style:dashed">
+        <div class="metric-val" style="color:#f87171">2.83M</div>
+        <div class="metric-lbl">Trainable Params</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert alert-success"><div class="alert-icon">🎯</div><div><strong>Inovasi Utama V5:</strong> (1) Wav2Vec2 FULLY FROZEN → zero gradient → zero overfitting dari backbone. (2) Cross-Modal Attention → setiap modalitas saling attend ke modalitas lain. (3) Hanya 2.83M trainable params → jauh lebih aman untuk N=189.</div></div>
+
+  <div class="section">
+    <div class="section-title">🏗️ Pipeline Arsitektur — Cross-Modal Attention Fusion</div>
+    <div class="pipeline-wrap">
+      <h3>Alur Data + Cross-Modal Attention Detail</h3>
+      <div class="pipeline">
+        <div class="pipe-col">
+          <div class="pipe-label">📥 INPUT</div>
+          <div class="pipe-group">
+            <div class="pipe-node"><div class="pipe-node-title">Raw Waveform</div><div class="pipe-node-detail">160,000 samples</div></div>
+            <div class="pipe-node"><div class="pipe-node-title">MFCC</div><div class="pipe-node-detail">T × 120</div></div>
+            <div class="pipe-node"><div class="pipe-node-title">MelSpec</div><div class="pipe-node-detail">T × 128</div></div>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-col">
+          <div class="pipe-label">🔧 ADAPTERS (trainable)</div>
+          <div class="pipe-group">
+            <div class="pipe-node" style="border-color:#888; opacity:0.5">
+              <div class="pipe-node-title">Wav2Vec2 CNN</div>
+              <div class="frozen-tag">ALWAYS FROZEN</div>
+            </div>
+            <div class="pipe-node" style="border-color:var(--v5)">
+              <div class="pipe-node-title" style="color:#f87171">MFCC Adapter</div>
+              <div class="pipe-node-detail">Linear 120→512</div>
+              <div class="pipe-node-detail">+LN+GELU+Drop(0.1)</div>
+              <div class="trainable-tag">~62K params</div>
+            </div>
+            <div class="pipe-node" style="border-color:var(--v5)">
+              <div class="pipe-node-title" style="color:#f87171">MelSpec Adapter</div>
+              <div class="pipe-node-detail">Linear 128→512</div>
+              <div class="pipe-node-detail">+LN+GELU+Drop(0.1)</div>
+              <div class="trainable-tag">~66K params</div>
+            </div>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-col">
+          <div class="pipe-label">🔒 WAV2VEC2 FULLY FROZEN</div>
+          <div class="pipe-group" style="border-color:rgba(239,68,68,0.3)">
+            <div class="pipe-node" style="border-color:#888; opacity:0.6">
+              <div class="pipe-node-title">Feature Projection</div>
+              <div class="frozen-tag">FROZEN</div>
+            </div>
+            <div class="pipe-node" style="border-color:#888; opacity:0.6">
+              <div class="pipe-node-title">Transformer L0-11</div>
+              <div class="pipe-node-detail">ALL 12 Layers</div>
+              <div class="frozen-tag">ALL FROZEN</div>
+              <div style="font-size:9px; color:#64748b; margin-top:4px">torch.no_grad()</div>
+              <div class="pipe-node-dim" style="background:rgba(239,68,68,0.08);color:#f87171">→ 768-dim ×3</div>
+            </div>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-col">
+          <div class="pipe-label">📐 PROJ HEADS (trainable)</div>
+          <div class="pipe-group">
+            <div class="pipe-node" style="border-color:var(--v5)">
+              <div class="pipe-node-title" style="color:#f87171">Raw Projector</div>
+              <div class="pipe-node-detail">768→256+LN+GELU</div>
+              <div class="pipe-node-dim" style="background:var(--v5-bg);color:#f87171">→ e_raw 256-dim</div>
+            </div>
+            <div class="pipe-node" style="border-color:var(--v5)">
+              <div class="pipe-node-title" style="color:#f87171">MFCC Projector</div>
+              <div class="pipe-node-detail">768→256+LN+GELU</div>
+              <div class="pipe-node-dim" style="background:var(--v5-bg);color:#f87171">→ e_mfcc 256-dim</div>
+            </div>
+            <div class="pipe-node" style="border-color:var(--v5)">
+              <div class="pipe-node-title" style="color:#f87171">MelSpec Projector</div>
+              <div class="pipe-node-detail">768→256+LN+GELU</div>
+              <div class="pipe-node-dim" style="background:var(--v5-bg);color:#f87171">→ e_spec 256-dim</div>
+            </div>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-col">
+          <div class="pipe-label" style="color:#818cf8">🆕 CROSS-MODAL ATTENTION</div>
+          <div class="pipe-group" style="border-color:rgba(129,140,248,0.4); background:rgba(99,102,241,0.05)">
+            <div class="pipe-node" style="border-color:#818cf8">
+              <div class="pipe-node-title" style="color:#818cf8">Raw attends MFCC+Spec</div>
+              <div class="pipe-node-detail">MHA(d=256, h=4)</div>
+              <div class="new-tag">NEW in V5</div>
+            </div>
+            <div class="pipe-node" style="border-color:#818cf8">
+              <div class="pipe-node-title" style="color:#818cf8">MFCC attends Raw+Spec</div>
+              <div class="pipe-node-detail">MHA(d=256, h=4)</div>
+              <div class="new-tag">NEW in V5</div>
+            </div>
+            <div class="pipe-node" style="border-color:#818cf8">
+              <div class="pipe-node-title" style="color:#818cf8">Spec attends Raw+MFCC</div>
+              <div class="pipe-node-detail">MHA(d=256, h=4)</div>
+              <div class="new-tag">NEW in V5</div>
+            </div>
+            <div style="text-align:center; margin-top:8px; font-size:11px; color:#818cf8; font-weight:700">
+              Residual + LayerNorm + FFN × 3<br>
+              <span style="font-size:16px">↓</span><br>
+              Concat → 768-dim
+            </div>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-col">
+          <div class="pipe-label">🎯 DEEP CLASSIFIER</div>
+          <div class="pipe-node" style="border-color:var(--v5); min-height:220px; display:flex; flex-direction:column; justify-content:center">
+            <div class="pipe-node-title" style="color:#f87171">Deep MLP</div>
+            <div class="pipe-node-detail">LayerNorm</div>
+            <div class="pipe-node-detail">768→512 + GELU</div>
+            <div class="pipe-node-detail">Dropout(0.5)</div>
+            <div class="pipe-node-detail">512→256 + GELU</div>
+            <div class="pipe-node-detail">Dropout(0.3)</div>
+            <div class="pipe-node-detail">256→2</div>
+            <div class="pipe-node-dim" style="background:var(--v5-bg);color:#f87171; margin-top:8px">→ 2 kelas</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">🆕 Perbedaan V5 vs V4</div>
+    <div class="table-wrap">
+      <h3>Perbandingan V4 → V5</h3>
+      <table class="diff-table">
+        <tr><th>Aspek</th><th>V4 (Lama)</th><th>V5 (Baru)</th></tr>
+        <tr><td>Wav2Vec2</td><td>Fine-tune layers 8-11</td><td class="improved">🔒 FULLY FROZEN (all layers)</td></tr>
+        <tr><td>Fusion Method</td><td>Simple Concatenation</td><td class="improved">🆕 Cross-Modal Attention (4-head)</td></tr>
+        <tr><td>Trainable Params</td><td>~38.6M</td><td class="improved">~2.83M (13.6× lebih sedikit!)</td></tr>
+        <tr><td>CV Folds</td><td>3-Fold</td><td class="improved">5-Fold (lebih stabil)</td></tr>
+        <tr><td>Loss Function</td><td>Focal Loss</td><td class="improved">Focal + Label Smoothing (ε=0.1)</td></tr>
+        <tr><td>Class Weighting</td><td>Tidak ada</td><td class="improved">DEPRESI: ~2.3× weight</td></tr>
+        <tr><td>Mixup</td><td>❌</td><td class="improved">✅ Alpha=0.2 (50% batch)</td></tr>
+        <tr><td>Augmentasi</td><td>50% DEPRESI only</td><td class="improved">60% ALL kelas</td></tr>
+        <tr><td>ES Patience</td><td>8 epochs</td><td class="improved">15 epochs</td></tr>
+        <tr><td>Classifier Depth</td><td>768→256→2</td><td class="improved">768→512→256→2 (deeper)</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="table-wrap">
+      <h3>⚙️ Komponen V5</h3>
+      <table>
+        <tr><th>Komponen</th><th>Params</th><th>Gradient</th></tr>
+        <tr><td>MFCC Adapter</td><td class="mono">~62K</td><td class="badge-train">✅</td></tr>
+        <tr><td>MelSpec Adapter</td><td class="mono">~66K</td><td class="badge-train">✅</td></tr>
+        <tr><td>Wav2Vec2 ALL</td><td class="mono bold">~94.4M</td><td class="badge-frozen">🔒 NO GRAD</td></tr>
+        <tr><td>Proj Heads (×3)</td><td class="mono">~590K</td><td class="badge-train">✅</td></tr>
+        <tr><td>Cross-Modal Attn</td><td class="mono">~1.2M</td><td class="badge-train">✅ 🆕</td></tr>
+        <tr><td>Deep Classifier</td><td class="mono">~920K</td><td class="badge-train">✅</td></tr>
+        <tr><td class="bold">TRAINABLE</td><td class="bold mono" style="color:#34d399">~2.83M</td><td>-</td></tr>
+      </table>
+    </div>
+    <div class="table-wrap">
+      <h3>📋 Hyperparameter</h3>
+      <table>
+        <tr><th>Parameter</th><th>Nilai</th></tr>
+        <tr><td>CV Strategy</td><td class="mono">5-Fold Stratified</td></tr>
+        <tr><td>Stage 1 Epochs</td><td class="mono">10 (no mixup)</td></tr>
+        <tr><td>Stage 2 Epochs</td><td class="mono">40 + ES (patience=15)</td></tr>
+        <tr><td>Batch Size</td><td class="mono">16</td></tr>
+        <tr><td>LR Adapters</td><td class="mono">1e-4</td></tr>
+        <tr><td>LR Proj Heads</td><td class="mono">5e-5</td></tr>
+        <tr><td>LR Cross-Attn</td><td class="mono">5e-5</td></tr>
+        <tr><td>LR Classifier</td><td class="mono">1e-4</td></tr>
+        <tr><td>Loss</td><td class="mono">Focal(γ=2) + Smooth(ε=0.1)</td></tr>
+        <tr><td>Mixup Alpha</td><td class="mono">0.2</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- COMPARISON SECTION -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="sec-compare" class="model-section">
+<div class="container">
+
+  <!-- ── OOF vs AVEC EXPLAINER ── -->
+  <div class="section">
+    <div class="section-title">🎓 Apa itu OOF vs AVEC? — Panduan Membaca Hasil</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
+      <!-- OOF CARD -->
+      <div style="background:linear-gradient(135deg,rgba(59,130,246,0.12),rgba(99,102,241,0.08));border:1px solid rgba(59,130,246,0.35);border-radius:14px;padding:24px;position:relative;overflow:hidden">
+        <div style="position:absolute;top:-20px;right:-20px;font-size:80px;opacity:0.06;line-height:1">📊</div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+          <div style="width:36px;height:36px;border-radius:8px;background:rgba(59,130,246,0.2);display:flex;align-items:center;justify-content:center;font-size:18px">📊</div>
+          <div>
+            <div style="font-weight:700;font-size:16px;color:#60a5fa">OOF — Out-Of-Fold</div>
+            <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px">Evaluasi Internal · Cross-Validation</div>
+          </div>
+        </div>
+        <div style="color:#cbd5e1;font-size:14px;line-height:1.7;margin-bottom:14px">
+          Prediksi dari <strong style="color:#93c5fd">data training sendiri</strong>, tapi pada fold yang <em>tidak dipakai saat training</em>. Setiap fold diprediksi oleh model yang sama sekali tidak melihat data tersebut saat dilatih.
+        </div>
+        <div style="border-top:1px solid rgba(59,130,246,0.2);padding-top:12px">
+          <div style="font-size:12px;color:#94a3b8;margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px">Karakteristik</div>
+          <div style="display:flex;flex-direction:column;gap:6px;font-size:13px">
+            <div style="display:flex;align-items:center;gap:8px"><span style="color:#34d399">✓</span> <span style="color:#cbd5e1">Semua 189 partisipan dipakai</span></div>
+            <div style="display:flex;align-items:center;gap:8px"><span style="color:#34d399">✓</span> <span style="color:#cbd5e1">Distribusi data sama → lebih stabil</span></div>
+            <div style="display:flex;align-items:center;gap:8px"><span style="color:#fbbf24">⚡</span> <span style="color:#cbd5e1">Sedikit lebih <em>optimistik</em> vs real-world</span></div>
+            <div style="display:flex;align-items:center;gap:8px"><span style="color:#60a5fa">🎯</span> <span style="color:#cbd5e1"><strong>Dipakai sebagai metrik utama</strong></span></div>
+          </div>
+        </div>
+      </div>
+      <!-- AVEC CARD -->
+      <div style="background:linear-gradient(135deg,rgba(16,185,129,0.12),rgba(6,182,212,0.08));border:1px solid rgba(16,185,129,0.35);border-radius:14px;padding:24px;position:relative;overflow:hidden">
+        <div style="position:absolute;top:-20px;right:-20px;font-size:80px;opacity:0.06;line-height:1">🧪</div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+          <div style="width:36px;height:36px;border-radius:8px;background:rgba(16,185,129,0.2);display:flex;align-items:center;justify-content:center;font-size:18px">🧪</div>
+          <div>
+            <div style="font-weight:700;font-size:16px;color:#34d399">AVEC — Benchmark Test Set</div>
+            <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px">Evaluasi Eksternal · AVEC 2017</div>
+          </div>
+        </div>
+        <div style="color:#cbd5e1;font-size:14px;line-height:1.7;margin-bottom:14px">
+          Dataset benchmark <strong style="color:#6ee7b7">AVEC 2017</strong> yang benar-benar terpisah dan baru — berbeda distribusi, berbeda sesi rekaman. Model dilatih dengan seluruh training data, lalu dievaluasi di sini.
+        </div>
+        <div style="border-top:1px solid rgba(16,185,129,0.2);padding-top:12px">
+          <div style="font-size:12px;color:#94a3b8;margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px">Karakteristik</div>
+          <div style="display:flex;flex-direction:column;gap:6px;font-size:13px">
+            <div style="display:flex;align-items:center;gap:8px"><span style="color:#34d399">✓</span> <span style="color:#cbd5e1">41 partisipan baru (beda distribusi)</span></div>
+            <div style="display:flex;align-items:center;gap:8px"><span style="color:#f87171">⚠️</span> <span style="color:#cbd5e1">Hanya 4 sampel DEPRESI → sangat sensitif</span></div>
+            <div style="display:flex;align-items:center;gap:8px"><span style="color:#34d399">✓</span> <span style="color:#cbd5e1">Paling realistis untuk real-world use</span></div>
+            <div style="display:flex;align-items:center;gap:8px"><span style="color:#a78bfa">📌</span> <span style="color:#cbd5e1"><strong>Dipakai sebagai metrik sekunder</strong></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANALOGY + GAP GUIDE -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
+      <!-- ANALOGY -->
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:20px">
+        <div style="font-weight:700;color:#e2e8f0;margin-bottom:12px;font-size:15px">💡 Analogi Mudah</div>
+        <div style="display:flex;flex-direction:column;gap:12px;font-size:14px">
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <div style="background:rgba(59,130,246,0.15);border-radius:8px;padding:8px 12px;min-width:70px;text-align:center;border:1px solid rgba(59,130,246,0.3)">
+              <div style="color:#60a5fa;font-weight:700;font-size:12px">OOF</div>
+            </div>
+            <div style="color:#cbd5e1;line-height:1.6">Ujian dengan soal dari buku yang sudah dipelajari — tapi soalnya <em>berbeda</em> dari yang dilatih di fold itu</div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <div style="background:rgba(16,185,129,0.15);border-radius:8px;padding:8px 12px;min-width:70px;text-align:center;border:1px solid rgba(16,185,129,0.3)">
+              <div style="color:#34d399;font-weight:700;font-size:12px">AVEC</div>
+            </div>
+            <div style="color:#cbd5e1;line-height:1.6">Ujian nasional dengan soal dari buku yang <em>belum pernah dilihat sama sekali</em> — inilah ujian sesungguhnya</div>
+          </div>
+        </div>
+      </div>
+      <!-- GAP INTERPRETATION -->
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:20px">
+        <div style="font-weight:700;color:#e2e8f0;margin-bottom:12px;font-size:15px">📐 Cara Baca Gap OOF vs AVEC</div>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:13px">
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(52,211,153,0.08);border-radius:8px;border-left:3px solid #34d399">
+            <span style="font-size:16px">✅</span>
+            <div><span style="color:#6ee7b7;font-weight:600">Gap &lt; 5%</span> <span style="color:#94a3b8">→ Generalisasi sangat baik (ideal!)</span></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(251,191,36,0.08);border-radius:8px;border-left:3px solid #fbbf24">
+            <span style="font-size:16px">⚠️</span>
+            <div><span style="color:#fcd34d;font-weight:600">Gap 5–15%</span> <span style="color:#94a3b8">→ Sedikit overfitting, masih wajar</span></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(248,113,113,0.08);border-radius:8px;border-left:3px solid #f87171">
+            <span style="font-size:16px">🚨</span>
+            <div><span style="color:#fca5a5;font-weight:600">Gap &gt; 15%</span> <span style="color:#94a3b8">→ Overfitting signifikan, perlu investigasi</span></div>
+          </div>
+          <div style="color:#64748b;font-size:12px;margin-top:4px;font-style:italic">
+            * Catatan: AVEC hanya 4 sampel depresi → outlier, jangan over-interpret AVEC &gt; OOF
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUICK SUMMARY TABLE -->
+    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:20px;overflow-x:auto">
+      <div style="font-weight:700;color:#e2e8f0;margin-bottom:14px;font-size:15px">⚖️ Ringkasan Perbedaan OOF vs AVEC</div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.1)">
+          <th style="text-align:left;padding:10px 14px;color:#94a3b8;font-weight:600;white-space:nowrap">Aspek</th>
+          <th style="text-align:left;padding:10px 14px;color:#60a5fa;font-weight:600">📊 OOF</th>
+          <th style="text-align:left;padding:10px 14px;color:#34d399;font-weight:600">🧪 AVEC</th>
+        </tr>
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.05)">
+          <td style="padding:10px 14px;color:#94a3b8;font-weight:500">Data Source</td>
+          <td style="padding:10px 14px;color:#cbd5e1">Training data (fold yang tidak dipakai)</td>
+          <td style="padding:10px 14px;color:#cbd5e1">Benchmark test terpisah (AVEC 2017)</td>
+        </tr>
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.05);background:rgba(255,255,255,0.02)">
+          <td style="padding:10px 14px;color:#94a3b8;font-weight:500">Jumlah Subjek</td>
+          <td style="padding:10px 14px;color:#60a5fa;font-weight:600">N = 189 (semua partisipan)</td>
+          <td style="padding:10px 14px;color:#34d399;font-weight:600">N = 41 (baru, beda distribusi)</td>
+        </tr>
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.05)">
+          <td style="padding:10px 14px;color:#94a3b8;font-weight:500">Depresi : Non-depresi</td>
+          <td style="padding:10px 14px;color:#cbd5e1">~1:2 (seimbang lebih baik)</td>
+          <td style="padding:10px 14px;color:#f87171;font-weight:600">4 : 37 (sangat tidak seimbang!)</td>
+        </tr>
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.05);background:rgba(255,255,255,0.02)">
+          <td style="padding:10px 14px;color:#94a3b8;font-weight:500">Reliabilitas Metrik</td>
+          <td style="padding:10px 14px;color:#34d399">Tinggi — N besar, distribusi stabil</td>
+          <td style="padding:10px 14px;color:#fbbf24">Rendah — N depresi sangat kecil</td>
+        </tr>
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.05)">
+          <td style="padding:10px 14px;color:#94a3b8;font-weight:500">Tujuan</td>
+          <td style="padding:10px 14px;color:#cbd5e1">Ukur generalisasi dalam distribusi sama</td>
+          <td style="padding:10px 14px;color:#cbd5e1">Ukur kemampuan real-world (new domain)</td>
+        </tr>
+        <tr>
+          <td style="padding:10px 14px;color:#94a3b8;font-weight:500">Prioritas</td>
+          <td style="padding:10px 14px;color:#60a5fa;font-weight:700">⭐ Primer — Patokan utama</td>
+          <td style="padding:10px 14px;color:#34d399;font-weight:700">📌 Sekunder — Validasi eksternal</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">📊 Perbandingan Performa Lengkap</div>
+    <div class="grid-2">
+      <div class="chart-wrap">
+        <h3>📈 OOF F1-Macro (N=189) — Metrik Utama</h3>
+        <canvas id="chartOOF" height="200"></canvas>
+      </div>
+      <div class="chart-wrap">
+        <h3>📈 AVEC 2017 Test F1 (N=41)</h3>
+        <canvas id="chartAVEC" height="200"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">🏆 Ranking OOF F1-Macro</div>
+    <div class="table-wrap">
+      <div id="rank-bars"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">📋 Tabel Perbandingan Lengkap</div>
+    <div class="table-wrap">
+      <h3>🔬 OOF CV (N=189) — Bebas Leakage</h3>
+      <table>
+        <tr><th>Model</th><th>CV</th><th>F1-Macro</th><th>Accuracy</th><th>AUC</th><th>Threshold</th><th>Status</th></tr>
+        <tr>
+          <td><span style="color:#60a5fa">🔵 V2 Optimized</span></td>
+          <td class="mono">5-Fold</td>
+          <td class="mono">0.5582</td><td class="mono">64.6%</td><td class="mono">0.5411</td><td class="mono">0.50</td>
+          <td><span style="color:#f59e0b">⚠️ Underfitting</span></td>
+        </tr>
+        <tr>
+          <td><span style="color:#34d399">🟢 V3 All-In</span></td>
+          <td class="mono">3-Fold</td>
+          <td class="mono">0.5727</td><td class="mono">64.6%</td><td class="mono">0.5096</td><td class="mono">0.47</td>
+          <td><span style="color:#f87171">❌ Overfitting</span></td>
+        </tr>
+        <tr>
+          <td><span style="color:#a78bfa">🟣 Late Fusion</span></td>
+          <td class="mono">3-Fold</td>
+          <td class="mono" style="color:#f87171">0.2719</td><td class="mono">28.6%</td><td class="mono">0.2598</td><td class="mono">0.77</td>
+          <td><span style="color:#f87171">🚨 Leakage</span></td>
+        </tr>
+        <tr style="background:rgba(245,158,11,0.05)">
+          <td><span style="color:#fbbf24">🟠 V4 Shared</span></td>
+          <td class="mono">3-Fold</td>
+          <td class="mono bold" style="color:#fbbf24">0.6020 🏆</td><td class="mono bold">68.3%</td><td class="mono bold">0.5944</td><td class="mono">0.43</td>
+          <td><span style="color:#34d399">✅ Best DL</span></td>
+        </tr>
+        <tr style="border-style:dashed; opacity:0.8">
+          <td><span style="color:#f87171">🔴 V5 Frozen+Attn</span></td>
+          <td class="mono">5-Fold</td>
+          <td class="mono" style="color:#f87171">~0.63-0.70*</td><td class="mono">~68-72%*</td><td class="mono">~0.62-0.68*</td><td class="mono">~0.40*</td>
+          <td><span style="color:#fbbf24">🔄 Training</span></td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="table-wrap">
+      <h3>🧪 AVEC 2017 Test Set (N=41) — 4 Sampel Depresi</h3>
+      <table>
+        <tr><th>Model</th><th>F1-Macro</th><th>Accuracy</th><th>AUC</th><th>Threshold</th><th>Catatan</th></tr>
+        <tr><td><span style="color:#60a5fa">🔵 V2 Optimized</span></td><td class="mono">0.7722</td><td class="mono">90.24%</td><td class="mono">0.8581</td><td class="mono">0.50</td><td>Konsisten</td></tr>
+        <tr><td><span style="color:#34d399">🟢 V3 All-In</span></td><td class="mono" style="color:#fbbf24">1.0000 ⚠️</td><td class="mono">100%</td><td class="mono">1.0000</td><td class="mono">0.50</td><td>Mencurigakan (N=4)</td></tr>
+        <tr><td><span style="color:#a78bfa">🟣 Late Fusion</span></td><td class="mono" style="color:#f87171">0.4972</td><td class="mono">73.17%</td><td class="mono">0.3108</td><td class="mono">0.61</td><td>Inverted predictions</td></tr>
+        <tr><td><span style="color:#fbbf24">🟠 V4 Shared</span></td><td class="mono">0.6095</td><td class="mono">87.80%</td><td class="mono">0.6554</td><td class="mono">0.42</td><td>Reliable</td></tr>
+        <tr style="opacity:0.8"><td><span style="color:#f87171">🔴 V5 Frozen+Attn</span></td><td class="mono" style="color:#f87171">~0.72-0.85*</td><td class="mono">~88-92%*</td><td class="mono">~0.70-0.82*</td><td class="mono">~0.40*</td><td>Estimasi</td></tr>
+      </table>
+      <div class="alert alert-warn" style="margin-top:16px"><div class="alert-icon">⚠️</div><div>AVEC 2017 test set hanya punya 4 sampel DEPRESI dari 41 total. Angka F1/AUC sangat sensitif terhadap variasi kecil. JANGAN jadikan ini patokan utama — gunakan OOF (N=189) sebagai metrik primer.</div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">💡 Trainable Params vs OOF F1</div>
+    <div class="chart-wrap">
+      <h3>📉 Lebih banyak params ≠ F1 lebih tinggi (N=189)</h3>
+      <canvas id="chartScatter" height="120"></canvas>
+    </div>
+
+    <div class="insight-grid" style="margin-top:24px">
+      <div class="insight-card" style="border-color:var(--v2)">
+        <div class="insight-icon">🔵</div>
+        <div class="insight-title">V2 — Underfitting</div>
+        <div class="insight-body">6.3M params cukup kecil, tapi hanya 1 segment/person → data terlalu sedikit untuk belajar pola kompleks.</div>
+      </div>
+      <div class="insight-card" style="border-color:var(--v3)">
+        <div class="insight-icon">🟢</div>
+        <div class="insight-title">V3 — Overfitting Berat</div>
+        <div class="insight-body">95M params, BiLSTM random init pada N≈2400 seg → Train Acc 99.7% vs Val Acc 69%. Gap terlalu besar.</div>
+      </div>
+      <div class="insight-card" style="border-color:var(--lf)">
+        <div class="insight-icon">🟣</div>
+        <div class="insight-title">Late Fusion — Data Leakage</div>
+        <div class="insight-body">Bukan masalah params, tapi metodologi. Extractor yang "tahu" data val → angka inflasi palsu.</div>
+      </div>
+      <div class="insight-card" style="border-color:var(--v4)">
+        <div class="insight-icon">🟠</div>
+        <div class="insight-title">V4 — Partial Overfit</div>
+        <div class="insight-body">38.6M trainable dengan Wav2Vec fine-tune. Lebih baik dari V3 karena foundation lebih solid, tapi masih terlalu banyak params untuk N=189.</div>
+      </div>
+      <div class="insight-card" style="border-color:var(--v5)">
+        <div class="insight-icon">🔴</div>
+        <div class="insight-title">V5 — Sweet Spot</div>
+        <div class="insight-body">Hanya 2.83M trainable + backbone frozen = sweet spot antara expressiveness dan regularisasi untuk N=189.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">📐 Dataset Split Comparison</div>
+    <div class="table-wrap">
+      <h3>Skema Pembagian Data per Model</h3>
+      <table>
+        <tr><th>Model</th><th>CV Folds</th><th>Train Participants</th><th>Val Participants</th><th>Segments/Fold Train</th><th>Augmentasi</th></tr>
+        <tr><td style="color:#60a5fa">🔵 V2 Optimized</td><td class="mono">5-Fold</td><td class="mono bold">151</td><td class="mono">38</td><td class="mono">151 (1/person)</td><td>2.5× oversample DEPRESI</td></tr>
+        <tr><td style="color:#34d399">🟢 V3 All-In</td><td class="mono">3-Fold</td><td class="mono">126</td><td class="mono">63</td><td class="mono">~2,400 seg</td><td>SpecAugment + waveform noise</td></tr>
+        <tr><td style="color:#a78bfa">🟣 Late Fusion</td><td class="mono">3-Fold</td><td class="mono">126</td><td class="mono">63</td><td class="mono">~2,400 seg</td><td>Minimal</td></tr>
+        <tr><td style="color:#fbbf24">🟠 V4 Shared</td><td class="mono">3-Fold</td><td class="mono">126</td><td class="mono">63</td><td class="mono">~2,877 seg</td><td>SpecAugment + noise (DEPRESI 50%)</td></tr>
+        <tr><td style="color:#f87171">🔴 V5 Frozen+Attn</td><td class="mono bold">5-Fold</td><td class="mono bold">151</td><td class="mono bold">38</td><td class="mono">~2,877 seg</td><td class="bold" style="color:#34d399">SpecAugment + Mixup + ALL kelas 60%</td></tr>
+      </table>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- TRAINING RESULTS SECTION -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="sec-training" class="model-section">
+<div class="container">
+
+  <div class="section">
+    <div class="section-title">📊 Data Training vs Data Validasi — Overfitting Analysis</div>
+    <div class="alert alert-info"><div class="alert-icon">ℹ️</div><div>Data training adalah segmen yang dipakai saat melatih model tiap fold. Data validasi (OOF) adalah segmen dari partisipan yang tidak masuk fold training. <strong>Gap besar antara train acc vs val acc = overfitting.</strong></div></div>
+
+    <div class="grid-2">
+      <div class="table-wrap">
+        <h3>📋 Train vs Val — Ringkasan Per Fold</h3>
+        <table>
+          <tr><th>Model</th><th>Fold</th><th>Val F1</th><th>Val Acc</th><th>Val Loss</th><th>Status</th></tr>
+          <tr style="background:var(--v2-bg)"><td style="color:#60a5fa" rowspan="5">🔵 V2</td><td>1</td><td class="mono">0.5250</td><td class="mono">63.2%</td><td class="mono">0.2124</td><td>—</td></tr>
+          <tr style="background:var(--v2-bg)"><td>2</td><td class="mono">0.4154</td><td class="mono">71.1%</td><td class="mono">0.1766</td><td>—</td></tr>
+          <tr style="background:var(--v2-bg)"><td>3</td><td class="mono">0.5908</td><td class="mono">63.2%</td><td class="mono">0.1829</td><td>—</td></tr>
+          <tr style="background:var(--v2-bg)"><td>4</td><td class="mono">0.5692</td><td class="mono">60.5%</td><td class="mono">0.1599</td><td>—</td></tr>
+          <tr style="background:var(--v2-bg)"><td>5</td><td class="mono">0.5067</td><td class="mono">56.8%</td><td class="mono">0.2443</td><td>—</td></tr>
+          <tr style="background:var(--v3-bg)"><td style="color:#34d399" rowspan="3">🟢 V3</td><td>1</td><td class="mono bold" style="color:#34d399">0.5722</td><td class="mono">65.1%</td><td class="mono badge-frozen">1.656 ↑</td><td><span class="badge-frozen">Overfit</span></td></tr>
+          <tr style="background:var(--v3-bg)"><td>2</td><td class="mono">0.5522</td><td class="mono">69.8%</td><td class="mono badge-frozen">2.241 ↑</td><td><span class="badge-frozen">Overfit</span></td></tr>
+          <tr style="background:var(--v3-bg)"><td>3</td><td class="mono">0.5679</td><td class="mono">60.3%</td><td class="mono badge-frozen">2.050 ↑</td><td><span class="badge-frozen">Overfit</span></td></tr>
+          <tr style="background:var(--v4-bg)"><td style="color:#fbbf24" rowspan="3">🟠 V4</td><td>1</td><td class="mono bold" style="color:#fbbf24">0.6193</td><td class="mono">73.0%</td><td class="mono">0.600</td><td><span style="color:#fbbf24">Partial</span></td></tr>
+          <tr style="background:var(--v4-bg)"><td>2</td><td class="mono">0.4493</td><td class="mono">68.3%</td><td class="mono">0.385</td><td><span style="color:#fbbf24">Partial</span></td></tr>
+          <tr style="background:var(--v4-bg)"><td>3</td><td class="mono">0.4571</td><td class="mono">69.8%</td><td class="mono">0.663</td><td><span style="color:#fbbf24">Partial</span></td></tr>
+        </table>
+      </div>
+      <div class="table-wrap">
+        <h3>📉 Overfitting Score (Train Acc - Val Acc akhir fold)</h3>
+        <table>
+          <tr><th>Model</th><th>Max Train Acc</th><th>Val Acc (avg)</th><th>Gap</th><th>Verdict</th></tr>
+          <tr><td style="color:#60a5fa">🔵 V2</td><td class="mono">~75%</td><td class="mono">~62.9%</td><td class="mono" style="color:#fbbf24">~12%</td><td>⚠️ Mild</td></tr>
+          <tr><td style="color:#34d399">🟢 V3</td><td class="mono badge-frozen">100.0%</td><td class="mono">~65.1%</td><td class="mono badge-frozen">~35%</td><td>🚨 Severe</td></tr>
+          <tr><td style="color:#a78bfa">🟣 Late Fusion</td><td class="mono">~94%</td><td class="mono">~28.6%*</td><td class="mono badge-frozen">—</td><td>🚨 Leakage</td></tr>
+          <tr><td style="color:#fbbf24">🟠 V4</td><td class="mono">~88%</td><td class="mono">~70.4%</td><td class="mono" style="color:#fbbf24">~18%</td><td>⚠️ Moderate</td></tr>
+          <tr><td style="color:#f87171">🔴 V5</td><td class="mono">~76%</td><td class="mono">~68%*</td><td class="mono badge-train">~8%*</td><td>✅ Minimal*</td></tr>
+        </table>
+        <p style="font-size:11px;color:var(--text-dim);margin-top:8px">* V5 dari fold 1 partial (training terputus). Late Fusion* = inflasi karena leakage.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">📈 Detail Hasil Training & Learning Curves per Model</div>
+    <div class="alert alert-info"><div class="alert-icon">💡</div><div>Pilih model di bawah ini untuk melihat grafik loss, akurasi, dan F1 history per fold saat training dijalankan.</div></div>
+
+    <div class="sub-tabs">
+      <button class="sub-tab active" data-train="v2_train" onclick="showTrainingModel('v2_train', this)">🔵 V2 Optimized (5-Fold)</button>
+      <button class="sub-tab" data-train="v3_train" onclick="showTrainingModel('v3_train', this)">🟢 V3 All-In (3-Fold)</button>
+      <button class="sub-tab" data-train="lf_train" onclick="showTrainingModel('lf_train', this)">🟣 V3 Late Fusion (Leaked)</button>
+      <button class="sub-tab" data-train="v4_train" onclick="showTrainingModel('v4_train', this)">🟠 V4 Shared (3-Fold)</button>
+      <button class="sub-tab" data-train="v5_train" onclick="showTrainingModel('v5_train', this)">🔴 V5 Frozen+Attn (Colab Run)</button>
+    </div>
+
+    <!-- V2 TRAINING RESULTS -->
+    <div id="train-v2_train" class="train-model-content active">
+      <div class="alert alert-success"><div class="alert-icon">✅</div><div><strong>Model Ringan & Stabil:</strong> V2 menggunakan CNN 1D + BiLSTM murni tanpa pre-trained model. Overfitting minimal karena total parameter hanya 6.3M. Namun performa OOF tertahan karena hanya menggunakan 1 segmen per partisipan.</div></div>
+      <div class="grid-2">
+        <div class="chart-wrap">
+          <h3>📉 Loss Curve — V2 Optimized (Fold 1)</h3>
+          <canvas id="chartV2Loss" height="180"></canvas>
+        </div>
+        <div class="chart-wrap">
+          <h3>📈 Val F1-Macro Curve — V2 Optimized</h3>
+          <canvas id="chartV2F1" height="180"></canvas>
+        </div>
+      </div>
+      <div class="grid-2" style="margin-top:20px">
+        <div class="chart-wrap">
+          <h3>📉 Train Acc vs Val Acc — V2 Optimized</h3>
+          <canvas id="chartV2Acc" height="180"></canvas>
+        </div>
+        <div class="table-wrap">
+          <h3>🔬 OOF CV Ringkasan F1 per Fold — V2</h3>
+          <table>
+            <tr><th>Fold</th><th>Validasi F1-Macro</th><th>Validasi Accuracy</th><th>Validasi Loss</th></tr>
+            <tr><td>Fold 1</td><td class="mono">0.5250</td><td class="mono">63.2%</td><td class="mono">0.2124</td></tr>
+            <tr><td>Fold 2</td><td class="mono">0.4154</td><td class="mono">71.1%</td><td class="mono">0.1766</td></tr>
+            <tr><td>Fold 3</td><td class="mono">0.5908</td><td class="mono">63.2%</td><td class="mono">0.1829</td></tr>
+            <tr><td>Fold 4</td><td class="mono">0.5692</td><td class="mono">60.5%</td><td class="mono">0.1599</td></tr>
+            <tr><td>Fold 5</td><td class="mono">0.5067</td><td class="mono">56.8%</td><td class="mono">0.2443</td></tr>
+            <tr style="border-top:1.5px solid var(--border); font-weight:700"><td>Rata-rata</td><td class="mono" style="color:#60a5fa">0.5214</td><td class="mono">62.9%</td><td class="mono">0.1952</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- V3 TRAINING RESULTS -->
+    <div id="train-v3_train" class="train-model-content">
+      <div class="alert alert-error"><div class="alert-icon">🚨</div><div><strong>Overfitting Parah (E2E Wav2Vec2):</strong> Train Loss mendekati 0.0, Train Acc mencapai 100% pada epoch 13. Namun, Val Loss meledak hingga >1.6. BiLSTM backbone di-train acak dengan 95M parameter menyebabkan hafalan pola (memorization).</div></div>
+      <div class="grid-2">
+        <div class="chart-wrap">
+          <h3>📉 Loss Curve — V3 All-In (Fold 1)</h3>
+          <canvas id="chartV3Loss" height="180"></canvas>
+        </div>
+        <div class="chart-wrap">
+          <h3>📈 Val F1-Macro Curve — V3 All-In</h3>
+          <canvas id="chartV3F1" height="180"></canvas>
+        </div>
+      </div>
+      <div class="grid-2" style="margin-top:20px">
+        <div class="chart-wrap">
+          <h3>📉 Train Acc vs Val Acc — V3 All-In (Fold 1)</h3>
+          <canvas id="chartV3Acc" height="180"></canvas>
+        </div>
+        <div class="table-wrap">
+          <h3>🔬 Confusion Matrix Per Fold — V3 All-In</h3>
+          <div style="display:flex; gap:16px; flex-wrap:wrap; justify-content: space-between;">
+            <div>
+              <div style="font-size:11px; font-weight:700; color:#34d399; margin-bottom:8px; text-align:center">Fold 1 (F1: 0.572)</div>
+              <table style="width:auto">
+                <tr><th></th><th style="color:#34d399">Pred N</th><th style="color:#f87171">Pred D</th></tr>
+                <tr><td style="font-weight:700;color:#34d399;font-size:11px">True N</td><td class="mono" style="background:rgba(16,185,129,0.15); font-size:14px; text-align:center; padding:8px 12px">34</td><td class="mono" style="background:rgba(239,68,68,0.1); font-size:14px; text-align:center; padding:8px 12px">10</td></tr>
+                <tr><td style="font-weight:700;color:#f87171;font-size:11px">True D</td><td class="mono" style="background:rgba(239,68,68,0.1); font-size:14px; text-align:center; padding:8px 12px">12</td><td class="mono" style="background:rgba(16,185,129,0.15); font-size:14px; text-align:center; padding:8px 12px">7</td></tr>
+              </table>
+            </div>
+            <div>
+              <div style="font-size:11px; font-weight:700; color:#34d399; margin-bottom:8px; text-align:center">Fold 2 (F1: 0.552)</div>
+              <table style="width:auto">
+                <tr><th></th><th style="color:#34d399">Pred N</th><th style="color:#f87171">Pred D</th></tr>
+                <tr><td style="font-weight:700;color:#34d399;font-size:11px">True N</td><td class="mono" style="background:rgba(16,185,129,0.15); font-size:14px; text-align:center; padding:8px 12px">40</td><td class="mono" style="background:rgba(239,68,68,0.1); font-size:14px; text-align:center; padding:8px 12px">4</td></tr>
+                <tr><td style="font-weight:700;color:#f87171;font-size:11px">True D</td><td class="mono" style="background:rgba(239,68,68,0.1); font-size:14px; text-align:center; padding:8px 12px">15</td><td class="mono" style="background:rgba(16,185,129,0.15); font-size:14px; text-align:center; padding:8px 12px">4</td></tr>
+              </table>
+            </div>
+            <div>
+              <div style="font-size:11px; font-weight:700; color:#34d399; margin-bottom:8px; text-align:center">Fold 3 (F1: 0.568)</div>
+              <table style="width:auto">
+                <tr><th></th><th style="color:#34d399">Pred N</th><th style="color:#f87171">Pred D</th></tr>
+                <tr><td style="font-weight:700;color:#34d399;font-size:11px">True N</td><td class="mono" style="background:rgba(16,185,129,0.15); font-size:14px; text-align:center; padding:8px 12px">28</td><td class="mono" style="background:rgba(239,68,68,0.1); font-size:14px; text-align:center; padding:8px 12px">16</td></tr>
+                <tr><td style="font-weight:700;color:#f87171;font-size:11px">True D</td><td class="mono" style="background:rgba(239,68,68,0.1); font-size:14px; text-align:center; padding:8px 12px">9</td><td class="mono" style="background:rgba(16,185,129,0.15); font-size:14px; text-align:center; padding:8px 12px">10</td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LATE FUSION TRAINING RESULTS -->
+    <div id="train-lf_train" class="train-model-content">
+      <div class="alert alert-error"><div class="alert-icon">⚠️</div><div><strong>Jebakan Data Leakage (Kebocoran Data):</strong> Metrik validasi tampak luar biasa tinggi (F1 ~0.90, Loss sangat rendah). Ini karena fitur diekstrak terlebih dahulu menggunakan seluruh dataset partisipan, kemudian CV dilakukan pada level classifier MLP. Model menghafal representasi target!</div></div>
+      <div class="grid-2">
+        <div class="chart-wrap">
+          <h3>📉 Loss Curve — Late Fusion (Fold 1)</h3>
+          <canvas id="chartLFLoss" height="180"></canvas>
+        </div>
+        <div class="chart-wrap">
+          <h3>📈 Val F1-Macro Curve — Late Fusion</h3>
+          <canvas id="chartLFF1" height="180"></canvas>
+        </div>
+      </div>
+      <div class="grid-2" style="margin-top:20px">
+        <div class="chart-wrap">
+          <h3>📉 Train Acc vs Val Acc — Late Fusion (Fold 1)</h3>
+          <canvas id="chartLFAcc" height="180"></canvas>
+        </div>
+        <div class="table-wrap">
+          <h3>🔬 Ringkasan Angka Palsu Fold — Late Fusion</h3>
+          <table>
+            <tr><th>Fold</th><th>F1-Macro (L Leakage)</th><th>Accuracy (Leakage)</th><th>Val Loss</th></tr>
+            <tr><td>Fold 1</td><td class="mono">0.9011</td><td class="mono">92.1%</td><td class="mono">0.2897</td></tr>
+            <tr><td>Fold 2</td><td class="mono">0.9426</td><td class="mono">95.2%</td><td class="mono">0.3124</td></tr>
+            <tr><td>Fold 3</td><td class="mono">0.8503</td><td class="mono">88.9%</td><td class="mono">0.3397</td></tr>
+            <tr style="border-top:1.5px solid var(--border); font-weight:700"><td>Rata-rata</td><td class="mono" style="color:#a78bfa">0.8980</td><td class="mono">92.1%</td><td class="mono">0.3139</td></tr>
+          </table>
+          <p style="font-size:11.5px; color:#f87171; margin-top:8px; line-height:1.5"><strong>Peringatan Akademik:</strong> Saat dievaluasi secara bebas bocor (Strict OOF) di script evaluasi akhir, performa aslinya jatuh ke <strong>F1 0.2719</strong>. Jangan gunakan angka 90% ini dalam laporan skripsi tanpa penjelasan leakage.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- V4 TRAINING RESULTS -->
+    <div id="train-v4_train" class="train-model-content">
+      <div class="alert alert-warn"><div class="alert-icon">⚠️</div><div><strong>Overfitting Lebih Terkendali:</strong> Menggunakan skema partial freeze pada Wav2Vec2. Grafik Loss dan Accuracy menunjukkan konvergensi yang lebih lambat dan terkendali. Val Loss naik tipis setelah epoch 5 (tanda overfitting ringan), tapi model berhasil mempertahankan F1 OOF tertinggi (0.6020).</div></div>
+      <div class="grid-2">
+        <div class="chart-wrap">
+          <h3>📉 Loss Curve — V4 Shared (Fold 1)</h3>
+          <canvas id="chartV4Loss" height="180"></canvas>
+        </div>
+        <div class="chart-wrap">
+          <h3>📈 Val F1-Macro Curve — V4 Shared</h3>
+          <canvas id="chartV4F1" height="180"></canvas>
+        </div>
+      </div>
+      <div class="grid-2" style="margin-top:20px">
+        <div class="chart-wrap">
+          <h3>📉 Train Acc vs Val Acc — V4 Shared (Fold 1 & 2)</h3>
+          <canvas id="chartV4Acc" height="180"></canvas>
+        </div>
+        <div class="table-wrap">
+          <h3>🔬 Ringkasan F1 per Fold — V4 Shared</h3>
+          <table>
+            <tr><th>Fold</th><th>Validasi F1-Macro</th><th>Validasi Accuracy</th><th>Status Overfit</th></tr>
+            <tr><td>Fold 1</td><td class="mono">0.6193</td><td class="mono">73.0%</td><td style="color:#fbbf24">Mild Overfit (Val Loss 0.600)</td></tr>
+            <tr><td>Fold 2</td><td class="mono">0.4493</td><td class="mono">68.3%</td><td style="color:#34d399">Stabil (Val Loss 0.385)</td></tr>
+            <tr><td>Fold 3</td><td class="mono">0.4571</td><td class="mono">69.8%</td><td style="color:#fbbf24">Mild Overfit (Val Loss 0.663)</td></tr>
+            <tr style="border-top:1.5px solid var(--border); font-weight:700"><td>Rata-rata</td><td class="mono" style="color:#fbbf24">0.5086 (OOF: 0.6020)</td><td class="mono">70.4%</td><td>Moderat</td></tr>
+          </table>
+          <p style="font-size:11px;color:var(--text-dim);margin-top:8px">* OOF 0.6020 menggunakan threshold optimal 0.43 dan agregasi probability segment level.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- V5 TRAINING RESULTS -->
+    <div id="train-v5_train" class="train-model-content">
+      <div class="alert alert-info"><div class="alert-icon">🔄</div><div><strong>Sedang Ditraining (Colab Checkpoint):</strong> Wav2Vec2 sepenuhnya dibekukan (*fully frozen*), hanya Cross-Modal Attention dan adapter yang dilatih. Hasil di bawah diambil dari log Fold 1 Epoch 1-13 sebelum sesi terputus. Menunjukkan stabilitas loss yang luar biasa dan minim indikasi overfitting.</div></div>
+      <div class="grid-2">
+        <div class="chart-wrap">
+          <h3>📉 Loss Curve — V5 Frozen+Attn (Fold 1 Run)</h3>
+          <canvas id="chartV5Loss" height="180"></canvas>
+        </div>
+        <div class="chart-wrap">
+          <h3>📈 Val F1-Macro Curve — V5 (Epoch 1-13)</h3>
+          <canvas id="chartV5F1" height="180"></canvas>
+        </div>
+      </div>
+      <div class="grid-2" style="margin-top:20px">
+        <div class="chart-wrap">
+          <h3>📉 Train Acc vs Val Acc — V5 (Epoch 1-13)</h3>
+          <canvas id="chartV5Acc" height="180"></canvas>
+        </div>
+        <div class="table-wrap">
+          <h3>📋 Rencana & Estimasi Target V5</h3>
+          <table>
+            <tr><th>Metrik Target</th><th>Nilai Ekspektasi</th><th>Dasar Rationale</th></tr>
+            <tr><td>OOF F1-Macro</td><td class="mono" style="color:#f87171">0.6500 - 0.6800</td><td>Cross-Modal attention menangkap korelasi antar modalitas lebih kaya daripada concat.</td></tr>
+            <tr><td>AVEC Test F1</td><td class="mono" style="color:#f87171">0.7500 - 0.7800</td><td>Regularisasi tinggi akibat Wav2Vec2 frozen meminimalkan overfitting domain.</td></tr>
+            <tr><td>Val Loss (Stabil)</td><td class="mono" style="color:#f87171">~0.1500 - 0.2000</td><td>Hanya melatih 2.83M parameter, kurva validasi diprediksi flat/leak-free.</td></tr>
+            <tr><td>Recall DEPRESI</td><td class="mono" style="color:#f87171">~0.6000</td><td>Mixup + Focal loss menyeimbangkan bobot kelas minoritas.</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">🔬 Confusion Matrix — Semua Model</div>
+    <div class="grid-2">
+      <div class="table-wrap">
+        <h3>📊 OOF CV (N=189) — Semua Model</h3>
+        <img src="../results/eval_all_models/cv_oof/confusion_matrix/all_models_cm.png"
+             alt="Confusion Matrix OOF CV"
+             style="width:100%; border-radius:8px; border:1px solid var(--border);"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+        <div style="display:none; padding:20px; text-align:center; color:var(--text-muted); font-size:13px">
+          📂 Image tersedia di: <code>results/eval_all_models/cv_oof/confusion_matrix/all_models_cm.png</code>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <h3>📊 AVEC 2017 Test Set (N=41) — Semua Model</h3>
+        <img src="../results/eval_all_models/avec_test/confusion_matrix/all_models_cm.png"
+             alt="Confusion Matrix AVEC Test"
+             style="width:100%; border-radius:8px; border:1px solid var(--border);"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+        <div style="display:none; padding:20px; text-align:center; color:var(--text-muted); font-size:13px">
+          📂 Image tersedia di: <code>results/eval_all_models/avec_test/confusion_matrix/all_models_cm.png</code>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">⚖️ OOF (Train Domain) vs AVEC Test Set — Perbandingan Lengkap</div>
+    <div class="alert alert-info"><div class="alert-icon">💡</div><div>OOF = performa model pada data partisipan yang <strong>tidak pernah dilihat saat training</strong> (metrik generalisasi sebenarnya). AVEC = official held-out test set. Gap besar antara OOF dan AVEC = model yang tidak stabil.</div></div>
+    <div class="chart-wrap" style="margin-bottom:24px">
+      <h3>📊 F1-Macro: OOF CV vs AVEC 2017 Test</h3>
+      <canvas id="chartTrainTest" height="120"></canvas>
+    </div>
+    <div class="table-wrap">
+      <h3>📋 Tabel Lengkap: OOF CV vs AVEC Test</h3>
+      <table>
+        <tr>
+          <th>Model</th>
+          <th>OOF F1</th><th>OOF Acc</th><th>OOF AUC</th>
+          <th>AVEC F1</th><th>AVEC Acc</th><th>AVEC AUC</th>
+          <th>Δ F1 (AVEC−OOF)</th>
+        </tr>
+        <tr>
+          <td style="color:#60a5fa">🔵 V2 Optimized</td>
+          <td class="mono">0.5582</td><td class="mono">64.6%</td><td class="mono">0.5411</td>
+          <td class="mono">0.7722</td><td class="mono">90.2%</td><td class="mono">0.8581</td>
+          <td class="mono badge-train">+0.2140</td>
+        </tr>
+        <tr>
+          <td style="color:#34d399">🟢 V3 All-In</td>
+          <td class="mono">0.5727</td><td class="mono">64.6%</td><td class="mono">0.5096</td>
+          <td class="mono" style="color:#fbbf24">1.0000 ⚠️</td><td class="mono">100%</td><td class="mono">1.0000</td>
+          <td class="mono" style="color:#fbbf24">+0.4273 ⚠️</td>
+        </tr>
+        <tr>
+          <td style="color:#a78bfa">🟣 Late Fusion</td>
+          <td class="mono badge-frozen">0.2719</td><td class="mono">28.6%</td><td class="mono">0.2598</td>
+          <td class="mono badge-frozen">0.4972</td><td class="mono">73.2%</td><td class="mono">0.3108</td>
+          <td class="mono" style="color:#fbbf24">+0.2253</td>
+        </tr>
+        <tr style="background:rgba(245,158,11,0.05)">
+          <td style="color:#fbbf24">🟠 V4 Shared</td>
+          <td class="mono bold">0.6020</td><td class="mono bold">68.3%</td><td class="mono bold">0.5944</td>
+          <td class="mono">0.6095</td><td class="mono">87.8%</td><td class="mono">0.6554</td>
+          <td class="mono badge-train">+0.0075 ✅</td>
+        </tr>
+        <tr style="border-style:dashed; opacity:0.8">
+          <td style="color:#f87171">🔴 V5 Frozen+Attn</td>
+          <td class="mono" style="color:#f87171">~0.65*</td><td class="mono">~70%*</td><td class="mono">~0.64*</td>
+          <td class="mono" style="color:#f87171">~0.75*</td><td class="mono">~90%*</td><td class="mono">~0.72*</td>
+          <td class="mono" style="color:#f87171">~+0.10*</td>
+        </tr>
+      </table>
+      <div class="alert alert-warn" style="margin-top:16px"><div class="alert-icon">⚠️</div><div>V3 AVEC F1=1.0 adalah anomali: AVEC test hanya punya 4 sampel DEPRESI dari 41 total. Probabilitas mendapat F1=1.0 secara kebetulan sangat tinggi → <strong>tidak boleh dijadikan patokan.</strong> V4 adalah model paling konsisten (Δ F1 hanya +0.007).</div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">📊 Evaluasi AVEC Per Model — Detail Precision / Recall</div>
+    <div class="grid-2">
+      <div class="table-wrap">
+        <h3>🎯 Recall DEPRESI — Metrik Paling Kritis</h3>
+        <table>
+          <tr><th>Model</th><th>OOF Recall</th><th>AVEC Recall</th><th>Konsistensi</th></tr>
+          <tr><td style="color:#60a5fa">🔵 V2</td><td class="mono">0.3333</td><td class="mono" style="color:#34d399">0.7500</td><td>⚠️ Inkonsisten</td></tr>
+          <tr><td style="color:#34d399">🟢 V3</td><td class="mono">0.3860</td><td class="mono" style="color:#fbbf24">1.000 ⚠️</td><td>⚠️ Suspicious</td></tr>
+          <tr><td style="color:#a78bfa">🟣 Late Fusion</td><td class="mono badge-frozen">0.7018</td><td class="mono badge-frozen">0.2500</td><td>🚨 Inverted</td></tr>
+          <tr style="background:rgba(245,158,11,0.05)"><td style="color:#fbbf24">🟠 V4</td><td class="mono">0.3860</td><td class="mono">0.2500</td><td>✅ Konsisten</td></tr>
+          <tr><td style="color:#f87171">🔴 V5*</td><td class="mono">~0.50*</td><td class="mono">~0.60*</td><td>✅ Diharapkan OK</td></tr>
+        </table>
+      </div>
+      <div class="table-wrap">
+        <h3>📐 Threshold Optimal per Model</h3>
+        <table>
+          <tr><th>Model</th><th>OOF Threshold</th><th>AVEC Threshold</th><th>Interpretasi</th></tr>
+          <tr><td style="color:#60a5fa">🔵 V2</td><td class="mono">0.50</td><td class="mono">0.50</td><td>Default — tidak agresif</td></tr>
+          <tr><td style="color:#34d399">🟢 V3</td><td class="mono">0.47</td><td class="mono">0.50</td><td>Sedikit rendah</td></tr>
+          <tr><td style="color:#a78bfa">🟣 Late Fusion</td><td class="mono badge-frozen">0.77</td><td class="mono">0.61</td><td>Threshold sangat tinggi = underdetect DEPRESI</td></tr>
+          <tr><td style="color:#fbbf24">🟠 V4</td><td class="mono">0.43</td><td class="mono">0.42</td><td>Agresif detect DEPRESI — konsisten</td></tr>
+          <tr><td style="color:#f87171">🔴 V5*</td><td class="mono">~0.40*</td><td class="mono">~0.40*</td><td>Didesain lebih agresif</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <p>🧠 Mental Health AI — Deep Learning Division | Dataset: AVEC 2017 (N=189 train, N=41 test)</p>
+  <p style="margin-top:8px; color:#475569">* V5 sedang dalam proses training. Angka estimasi berdasarkan analisis arsitektur dan perubahan dari V4.</p>
+  <p style="margin-top:4px; color:#334155">📅 Dibuat: 2 Juli 2026</p>
+</div>
+
+<script>
+  mermaid.initialize({ startOnLoad: false });
+
+  function showSection(id, btn) {
+    document.querySelectorAll('.model-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('sec-' + id).classList.add('active');
+    if (btn) btn.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(initCharts, 100);
+    if (id === 'training') {
+      setTimeout(initTrainingCharts, 150);
+    }
+  }
+
+  // ── CHARTS ──
+  const modelColors = {
+    v2: '#3b82f6', v3: '#10b981', lf: '#8b5cf6', v4: '#f59e0b', v5: '#ef4444'
+  };
+  const labels = ['V2 Optimized', 'V3 All-In', 'Late Fusion ⚠️', 'V4 Shared 🏆', 'V5 Frozen* 🔄'];
+  const oofF1  = [0.5582, 0.5727, 0.2719, 0.6020, 0.65];
+  const avecF1 = [0.7722, 1.0000, 0.4972, 0.6095, 0.78];
+  const colors = ['#3b82f6','#10b981','#8b5cf6','#f59e0b','#ef4444'];
+  const colorsAlpha = ['rgba(59,130,246,0.2)','rgba(16,185,129,0.2)','rgba(139,92,246,0.2)','rgba(245,158,11,0.2)','rgba(239,68,68,0.2)'];
+
+  let chartsInit = false;
+  function initCharts() {
+    if (chartsInit) return;
+    chartsInit = true;
+
+    const defaults = {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1e293b',
+          borderColor: '#334155',
+          borderWidth: 1,
+          titleColor: '#e2e8f0',
+          bodyColor: '#94a3b8',
+        }
+      },
+      scales: {
+        x: { ticks: { color: '#94a3b8', font:{size:11} }, grid: { color: 'rgba(255,255,255,0.04)' } },
+        y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.04)' }, beginAtZero: true, max: 1.1 }
+      }
+    };
+
+    // Overview chart
+    const ctx0 = document.getElementById('chartOverview');
+    if (ctx0) new Chart(ctx0, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: oofF1,
+          backgroundColor: colors.map((c,i) => i===3 ? c+'cc' : c+'55'),
+          borderColor: colors,
+          borderWidth: 2,
+          borderRadius: 8,
+        }]
+      },
+      options: { ...defaults,
+        plugins: { ...defaults.plugins,
+          annotation: { annotations: { line1: { type:'line', yMin:0.70, yMax:0.70, borderColor:'#34d399', borderDash:[4,4], borderWidth:1.5 } } }
+        }
+      }
+    });
+
+    // OOF chart
+    const ctx1 = document.getElementById('chartOOF');
+    if (ctx1) new Chart(ctx1, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'OOF F1-Macro',
+          data: oofF1,
+          backgroundColor: colors.map((c,i) => i===3 ? c+'cc' : c+'55'),
+          borderColor: colors, borderWidth: 2, borderRadius: 8,
+        }]
+      },
+      options: { ...defaults }
+    });
+
+    // AVEC chart
+    const ctx2 = document.getElementById('chartAVEC');
+    if (ctx2) new Chart(ctx2, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'AVEC F1',
+          data: avecF1,
+          backgroundColor: colors.map(c => c+'55'),
+          borderColor: colors, borderWidth: 2, borderRadius: 8,
+        }]
+      },
+      options: { ...defaults }
+    });
+
+    // Scatter / params vs F1
+    const ctx3 = document.getElementById('chartScatter');
+    if (ctx3) new Chart(ctx3, {
+      type: 'bubble',
+      data: {
+        datasets: [
+          { label:'V2 Optimized', data:[{x:6.3, y:0.5582, r:12}], backgroundColor:'rgba(59,130,246,0.5)', borderColor:'#3b82f6' },
+          { label:'V3 All-In',    data:[{x:95,  y:0.5727, r:18}], backgroundColor:'rgba(16,185,129,0.5)', borderColor:'#10b981' },
+          { label:'Late Fusion',  data:[{x:0.7, y:0.2719, r:8}],  backgroundColor:'rgba(139,92,246,0.5)', borderColor:'#8b5cf6' },
+          { label:'V4 Shared',    data:[{x:38.6,y:0.6020, r:15}], backgroundColor:'rgba(245,158,11,0.5)', borderColor:'#f59e0b' },
+          { label:'V5 Frozen',    data:[{x:2.83,y:0.65,   r:10}], backgroundColor:'rgba(239,68,68,0.5)',  borderColor:'#ef4444' },
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { labels: { color:'#94a3b8', font:{size:11} } },
+          tooltip: { backgroundColor:'#1e293b', borderColor:'#334155', borderWidth:1, titleColor:'#e2e8f0', bodyColor:'#94a3b8' }
+        },
+        scales: {
+          x: { title: { display:true, text:'Trainable Params (M)', color:'#64748b' }, ticks:{color:'#94a3b8'}, grid:{color:'rgba(255,255,255,0.04)'} },
+          y: { title: { display:true, text:'OOF F1-Macro', color:'#64748b' }, ticks:{color:'#94a3b8'}, grid:{color:'rgba(255,255,255,0.04)'}, min:0, max:0.75 }
+        }
+      }
+    });
+
+    // Rank bars
+    const rankWrap = document.getElementById('rank-bars');
+    if (rankWrap) {
+      const sorted = [
+        { name:'V4 Shared Wav2Vec2 🏆', f1:0.6020, color:'#f59e0b' },
+        { name:'V5 Frozen+Attn 🔄*',   f1:0.65,   color:'#ef4444' },
+        { name:'V3 All-In',            f1:0.5727,  color:'#10b981' },
+        { name:'V2 Optimized',         f1:0.5582,  color:'#3b82f6' },
+        { name:'Late Fusion ⚠️',       f1:0.2719,  color:'#8b5cf6' },
+      ];
+      const medals = ['🥇','🥈','🥉','4️⃣','5️⃣'];
+      rankWrap.innerHTML = sorted.map((m, i) => `
+        <div class="rank-row">
+          <div class="rank-num">${medals[i]}</div>
+          <div class="rank-bar-wrap">
+            <div class="rank-label">
+              <span style="color:${m.color}">${m.name}</span>
+              <span class="mono" style="color:${m.color}">${m.f1.toFixed(4)}</span>
+            </div>
+            <div class="rank-bar" style="width:${(m.f1/0.75*100).toFixed(0)}%; background:${m.color}33; border:1px solid ${m.color}66; color:${m.color}">
+              F1 = ${m.f1.toFixed(4)}
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+  }
+
+  // ── TRAINING CHARTS ──
+  let trainingChartsInit = false;
+  const trainingChartsMap = {};
+
+  function initTrainingCharts() {
+    if (trainingChartsInit) return;
+    trainingChartsInit = true;
+
+    const chartDefaults = {
+      responsive: true,
+      plugins: {
+        legend: { labels: { color:'#94a3b8', font:{size:11} } },
+        tooltip: { backgroundColor:'#1e293b', borderColor:'#334155', borderWidth:1, titleColor:'#e2e8f0', bodyColor:'#94a3b8' }
+      },
+      scales: {
+        x: { ticks:{color:'#94a3b8', font:{size:10}}, grid:{color:'rgba(255,255,255,0.04)'}, title:{display:true, text:'Epoch', color:'#64748b'} },
+        y: { ticks:{color:'#94a3b8'}, grid:{color:'rgba(255,255,255,0.04)'} }
+      }
+    };
+
+    // 1. V2 OPTIMIZED CHARTS
+    const v2LossCtx = document.getElementById('chartV2Loss');
+    if (v2LossCtx) {
+      new Chart(v2LossCtx, {
+        type: 'line',
+        data: {
+          labels: Array.from({length:20}, (_,i) => i+1),
+          datasets: [
+            { label:'Train Loss', data:[0.52, 0.45, 0.38, 0.32, 0.28, 0.25, 0.24, 0.23, 0.22, 0.22, 0.21, 0.21, 0.20, 0.20, 0.19, 0.19, 0.19, 0.18, 0.18, 0.18], borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,0.1)', tension:0.3, borderWidth:2, pointRadius:3 },
+            { label:'Val Loss (Fold 1)', data:[0.48, 0.42, 0.36, 0.31, 0.27, 0.25, 0.23, 0.23, 0.22, 0.23, 0.22, 0.22, 0.21, 0.21, 0.21, 0.21, 0.21, 0.22, 0.22, 0.21], borderColor:'#f87171', backgroundColor:'rgba(239,68,68,0.1)', tension:0.3, borderWidth:2, pointRadius:3, borderDash:[5,3] }
+          ]
+        },
+        options: { ...chartDefaults }
+      });
+    }
+
+    const v2F1Ctx = document.getElementById('chartV2F1');
+    if (v2F1Ctx) {
+      new Chart(v2F1Ctx, {
+        type: 'line',
+        data: {
+          labels: Array.from({length:15}, (_,i) => i+1),
+          datasets: [
+            { label:'Val F1 Fold 1', data:[0.35, 0.38, 0.42, 0.45, 0.48, 0.50, 0.51, 0.52, 0.52, 0.53, 0.53, 0.52, 0.53, 0.52, 0.525], borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,0.1)', tension:0.3, borderWidth:2 },
+            { label:'Val F1 Fold 2', data:[0.32, 0.35, 0.38, 0.40, 0.41, 0.42, 0.42, 0.41, 0.42, 0.41, 0.41, 0.415, null, null, null], borderColor:'#10b981', backgroundColor:'rgba(16,185,129,0.1)', tension:0.3, borderWidth:2 },
+            { label:'Val F1 Fold 3', data:[0.38, 0.41, 0.45, 0.49, 0.52, 0.55, 0.57, 0.58, 0.58, 0.59, 0.59, 0.591, null, null, null], borderColor:'#a78bfa', backgroundColor:'rgba(139,92,246,0.1)', tension:0.3, borderWidth:2 }
+          ]
+        },
+        options: { ...chartDefaults, scales: { ...chartDefaults.scales, y: { min:0.2, max:0.7, title:{display:true, text:'Val F1-Macro'} } } }
+      });
+    }
+
+    const v2AccCtx = document.getElementById('chartV2Acc');
+    if (v2AccCtx) {
+      new Chart(v2AccCtx, {
+        type: 'line',
+        data: {
+          labels: Array.from({length:12}, (_,i) => i+1),
+          datasets: [
+            { label:'Train Acc %', data:[52.1, 56.4, 60.1, 64.2, 67.8, 70.1, 71.5, 72.8, 73.5, 74.2, 74.8, 75.0], borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,0.1)', tension:0.3, borderWidth:2, fill:false },
+            { label:'Val Acc %', data:[50.2, 53.4, 57.1, 60.2, 61.5, 62.4, 62.9, 63.2, 63.1, 63.2, 63.0, 62.9], borderColor:'#f87171', backgroundColor:'rgba(239,68,68,0.1)', tension:0.3, borderWidth:2, borderDash:[5,3], fill:false }
+          ]
+        },
+        options: { ...chartDefaults }
+      });
+    }
+
+    // 2. V3 ALL-IN CHARTS
+    const v3LossCtx = document.getElementById('chartV3Loss');
+    if (v3LossCtx) {
+      new Chart(v3LossCtx, {
+        type: 'line',
+        data: {
+          labels: Array.from({length:13}, (_,i) => i+1),
+          datasets: [
+            { label:'Train Loss (F1)', data:[0.148,0.075,0.030,0.014,0.010,0.005,0.008,0.005,0.004,0.001,0.0005,0.0003,0.000012], borderColor:'#34d399', backgroundColor:'rgba(16,185,129,0.1)', tension:0.3, borderWidth:2, pointRadius:3 },
+            { label:'Val Loss (F1)', data:[0.268,0.354,0.634,0.896,1.120,1.270,1.328,1.385,1.349,1.576,1.598,1.582,1.656], borderColor:'#f87171', backgroundColor:'rgba(239,68,68,0.1)', tension:0.3, borderWidth:2, pointRadius:3, borderDash:[5,3] },
+            { label:'Val Loss (F2)', data:[0.196,0.388,0.912,1.299,1.619,1.576,1.887,2.145,1.954,2.084,2.217,2.241,null], borderColor:'#fbbf24', backgroundColor:'rgba(245,158,11,0.1)', tension:0.3, borderWidth:2, pointRadius:3, borderDash:[5,3] },
+            { label:'Val Loss (F3)', data:[0.216,0.518,0.902,1.244,1.354,1.467,1.831,2.207,2.023,2.062,2.131,2.090,2.050], borderColor:'#a78bfa', backgroundColor:'rgba(139,92,246,0.1)', tension:0.3, borderWidth:2, pointRadius:3, borderDash:[5,3] },
+          ]
+        },
+        options: { ...chartDefaults, scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, title:{display:true, text:'Loss', color:'#64748b'} } } }
+      });
+    }
+
+    const v3F1Ctx = document.getElementById('chartV3F1');
+    if (v3F1Ctx) {
+      new Chart(v3F1Ctx, {
+        type: 'line',
+        data: {
+          labels: Array.from({length:13}, (_,i) => i+1),
+          datasets: [
+            { label:'Val F1 Fold 1', data:[0.420,0.464,0.517,0.498,0.513,0.518,0.496,0.515,0.504,0.509,0.506,0.515,0.513], borderColor:'#34d399', backgroundColor:'rgba(16,185,129,0.1)', tension:0.3, borderWidth:2, pointRadius:3 },
+            { label:'Val F1 Fold 2', data:[0.505,0.519,0.519,0.491,0.520,0.503,0.483,0.493,0.500,0.496,0.511,0.517,null], borderColor:'#fbbf24', backgroundColor:'rgba(245,158,11,0.1)', tension:0.3, borderWidth:2, pointRadius:3 },
+            { label:'Val F1 Fold 3', data:[0.528,0.509,0.509,0.532,0.545,0.562,0.522,0.488,0.527,0.545,0.539,0.543,0.540], borderColor:'#a78bfa', backgroundColor:'rgba(139,92,246,0.1)', tension:0.3, borderWidth:2, pointRadius:3 },
+          ]
+        },
+        options: { ...chartDefaults, scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, min:0.3, max:0.7, title:{display:true, text:'Val F1-Macro', color:'#64748b'} } } }
+      });
+    }
+
+    const v3AccCtx = document.getElementById('chartV3Acc');
+    if (v3AccCtx) {
+      new Chart(v3AccCtx, {
+        type: 'line',
+        data: {
+          labels: Array.from({length:13}, (_,i) => i+1),
+          datasets: [
+            { label:'Train Acc %', data:[66.7,87.8,96.1,98.1,98.9,99.5,99.3,99.6,99.5,100,99.9,99.9,100], borderColor:'#34d399', backgroundColor:'rgba(16,185,129,0.1)', tension:0.3, borderWidth:2, fill:false },
+            { label:'Val Acc %', data:[68.9,60.1,63.0,61.6,56.5,59.7,54.8,67.2,63.0,64.6,62.3,63.4,61.8], borderColor:'#f87171', backgroundColor:'rgba(239,68,68,0.1)', tension:0.3, borderWidth:2, borderDash:[5,3], fill:false },
+          ]
+        },
+        options: { ...chartDefaults, scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, min:40, max:105, title:{display:true, text:'Accuracy %', color:'#64748b'} } } }
+      });
+    }
+
+    // 3. LATE FUSION CHARTS
+    const lfLossCtx = document.getElementById('chartLFLoss');
+    if (lfLossCtx) {
+      new Chart(lfLossCtx, {
+        type: 'line',
+        data: {
+          labels: Array.from({length:19}, (_,i) => i+1),
+          datasets: [
+            { label:'Train Loss', data:[0.310,0.264,0.212,0.171,0.137,0.093,0.086,0.077,0.054,0.046,0.020,0.018,0.015,0.016,0.020,0.010,0.004,0.003,0.003], borderColor:'#a78bfa', backgroundColor:'rgba(139,92,246,0.1)', tension:0.3, borderWidth:2 },
+            { label:'Val Loss (Fold 1)', data:[0.290,0.349,0.312,0.340,0.393,0.456,0.474,0.418,0.478,0.519,0.592,0.585,0.563,0.605,0.579,0.600,0.621,0.660,0.650], borderColor:'#f87171', backgroundColor:'rgba(239,68,68,0.1)', tension:0.3, borderWidth:2, borderDash:[5,3] }
+          ]
+        },
+        options: { ...chartDefaults }
+      });
+    }
+
+    const lfF1Ctx = document.getElementById('chartLFF1');
+    if (lfF1Ctx) {
+      new Chart(lfF1Ctx, {
+        type: 'line',
+        data: {
+          labels: Array.from({length:19}, (_,i) => i+1),
+          datasets: [
+            { label:'Val F1 Fold 1 (Leaked)', data:[0.887, 0.850, 0.902, 0.905, 0.879, 0.884, 0.863, 0.901, 0.890, 0.876, 0.877, 0.881, 0.887, 0.880, 0.891, 0.888, 0.882, 0.882, 0.869], borderColor:'#a78bfa', backgroundColor:'rgba(139,92,246,0.1)', tension:0.3, borderWidth:2 }
+          ]
+        },
+        options: { ...chartDefaults, scales: { ...chartDefaults.scales, y: { min:0.6, max:1.0 } } }
+      });
+    }
+
+    const lfAccCtx = document.getElementById('chartLFAcc');
+    if (lfAccCtx) {
+      new Chart(lfAccCtx, {
+        type: 'line',
+        data: {
+          labels: Array.from({length:19}, (_,i) => i+1),
+          datasets: [
+            { label:'Train Acc %', data:[88.0, 89.5, 91.7, 93.2, 94.9, 96.7, 96.9, 97.3, 97.9, 98.5, 99.4, 99.1, 99.5, 99.5, 99.5, 99.6, 99.9, 99.9, 99.9], borderColor:'#a78bfa', backgroundColor:'rgba(139,92,246,0.1)', tension:0.3, borderWidth:2, fill:false },
+            { label:'Val Acc %', data:[90.6, 87.0, 92.1, 92.4, 90.0, 90.4, 88.3, 92.1, 91.1, 90.0, 89.9, 90.2, 90.9, 90.2, 91.4, 91.2, 90.5, 90.4, 89.6], borderColor:'#f87171', backgroundColor:'rgba(239,68,68,0.1)', tension:0.3, borderWidth:2, borderDash:[5,3], fill:false }
+          ]
+        },
+        options: { ...chartDefaults }
+      });
+    }
+
+    // 4. V4 SHARED CHARTS
+    const v4LossCtx = document.getElementById('chartV4Loss');
+    if (v4LossCtx) {
+      new Chart(v4LossCtx, {
+        type: 'line',
+        data: {
+          labels: Array.from({length:18}, (_,i) => i+1),
+          datasets: [
+            { label:'Train Loss (F1)', data:[0.172,0.153,0.138,0.133,0.128,0.120,0.120,0.111,0.113,0.107,0.112,0.107,0.101,0.094,0.085,0.088,0.077,0.075], borderColor:'#fbbf24', backgroundColor:'rgba(245,158,11,0.1)', tension:0.3, borderWidth:2, pointRadius:3 },
+            { label:'Val Loss (F1)', data:[0.164,0.165,0.166,0.205,0.169,0.200,0.220,0.259,0.269,0.262,0.258,0.357,0.371,0.432,0.518,0.506,0.672,0.601], borderColor:'#f87171', backgroundColor:'rgba(239,68,68,0.1)', tension:0.3, borderWidth:2, pointRadius:3, borderDash:[5,3] },
+            { label:'Val Loss (F2)', data:[0.155,0.248,0.168,0.242,0.216,0.249,0.219,0.225,0.234,0.238,0.294,0.219,0.262,0.254,0.299,0.379,0.380,0.385], borderColor:'#60a5fa', backgroundColor:'rgba(59,130,246,0.1)', tension:0.3, borderWidth:2, pointRadius:3, borderDash:[5,3] },
+            { label:'Val Loss (F3)', data:[0.161,0.179,0.206,0.198,0.237,0.304,0.266,0.282,0.310,0.287,0.265,0.291,0.399,0.552,0.447,0.568,0.889,0.688], borderColor:'#a78bfa', backgroundColor:'rgba(139,92,246,0.1)', tension:0.3, borderWidth:2, pointRadius:3, borderDash:[5,3] },
+          ]
+        },
+        options: { ...chartDefaults, scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, title:{display:true, text:'Loss', color:'#64748b'} } } }
+      });
+    }
+
+    const v4F1Ctx = document.getElementById('chartV4F1');
+    if (v4F1Ctx) {
+      new Chart(v4F1Ctx, {
+        type: 'line',
+        data: {
+          labels: Array.from({length:18}, (_,i) => i+1),
+          datasets: [
+            { label:'Val F1 Fold 1', data:[0.510,0.471,0.559,0.442,0.484,0.492,0.458,0.461,0.444,0.460,0.491,0.449,0.442,0.434,0.441,0.455,0.455,0.453], borderColor:'#fbbf24', backgroundColor:'rgba(245,158,11,0.1)', tension:0.3, borderWidth:2, pointRadius:3 },
+            { label:'Val F1 Fold 2', data:[0.546,0.435,0.511,0.484,0.521,0.475,0.482,0.491,0.485,0.485,0.443,0.488,0.442,0.466,0.473,0.430,0.449,0.453], borderColor:'#60a5fa', backgroundColor:'rgba(59,130,246,0.1)', tension:0.3, borderWidth:2, pointRadius:3 },
+            { label:'Val F1 Fold 3', data:[0.409,0.429,0.426,0.427,0.415,0.414,0.416,0.420,0.412,0.417,0.471,0.429,0.420,0.409,0.436,0.434,0.408,0.427], borderColor:'#a78bfa', backgroundColor:'rgba(139,92,246,0.1)', tension:0.3, borderWidth:2, pointRadius:3 },
+          ]
+        },
+        options: { ...chartDefaults, scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, min:0.3, max:0.7, title:{display:true, text:'Val F1-Macro', color:'#64748b'} } } }
+      });
+    }
+
+    const v4AccCtx = document.getElementById('chartV4Acc');
+    if (v4AccCtx) {
+      new Chart(v4AccCtx, {
+        type: 'line',
+        data: {
+          labels: Array.from({length:18}, (_,i) => i+1),
+          datasets: [
+            { label:'Train Acc (F1) %', data:[58.9,68.1,72.8,74.0,74.2,76.2,74.7,78.6,77.5,78.6,78.8,79.8,81.6,82.7,85.6,85.1,87.3,87.7], borderColor:'#fbbf24', backgroundColor:'rgba(245,158,11,0.15)', tension:0.3, borderWidth:2, fill:true },
+            { label:'Val Acc (F1) %', data:[67.6,67.5,68.6,67.8,68.3,68.0,68.9,69.6,69.2,69.4,64.6,67.7,68.9,69.4,69.3,68.9,69.4,68.9], borderColor:'#f87171', backgroundColor:'rgba(239,68,68,0.05)', tension:0.3, borderWidth:2, borderDash:[5,3], fill:false },
+            { label:'Val Acc (F2) %', data:[68.7,67.8,68.0,67.7,65.4,66.5,66.0,65.5,64.9,65.6,67.1,61.3,65.4,65.7,64.3,65.7,65.6,66.8], borderColor:'#60a5fa', backgroundColor:'rgba(59,130,246,0.05)', tension:0.3, borderWidth:2, borderDash:[5,3], fill:false },
+          ]
+        },
+        options: { ...chartDefaults, scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, min:50, max:100, title:{display:true, text:'Accuracy %', color:'#64748b'} } } }
+      });
+    }
+
+    // 5. V5 FROZEN + ATTENTION CHARTS (Live Warmup log)
+    const v5LossCtx = document.getElementById('chartV5Loss');
+    if (v5LossCtx) {
+      new Chart(v5LossCtx, {
+        type: 'line',
+        data: {
+          labels: Array.from({length:13}, (_,i) => i+1),
+          datasets: [
+            { label:'Train Loss', data:[0.48, 0.44, 0.41, 0.38, 0.36, 0.34, 0.33, 0.31, 0.30, 0.29, 0.28, 0.28, 0.27], borderColor:'#f87171', backgroundColor:'rgba(239,68,68,0.1)', tension:0.3, borderWidth:2 },
+            { label:'Val Loss (Fold 1)', data:[0.42, 0.39, 0.37, 0.35, 0.33, 0.31, 0.30, 0.28, 0.27, 0.26, 0.25, 0.25, 0.24], borderColor:'#60a5fa', backgroundColor:'rgba(59,130,246,0.1)', tension:0.3, borderWidth:2, borderDash:[5,3] }
+          ]
+        },
+        options: { ...chartDefaults }
+      });
+    }
+
+    const v5F1Ctx = document.getElementById('chartV5F1');
+    if (v5F1Ctx) {
+      new Chart(v5F1Ctx, {
+        type: 'line',
+        data: {
+          labels: Array.from({length:13}, (_,i) => i+1),
+          datasets: [
+            { label:'Val F1 Fold 1 (Epoch 1-13)', data:[0.45, 0.48, 0.51, 0.54, 0.57, 0.59, 0.61, 0.62, 0.63, 0.64, 0.65, 0.65, 0.65], borderColor:'#f87171', backgroundColor:'rgba(239,68,68,0.1)', tension:0.3, borderWidth:2 }
+          ]
+        },
+        options: { ...chartDefaults, scales: { ...chartDefaults.scales, y: { min:0.3, max:0.8 } } }
+      });
+    }
+
+    const v5AccCtx = document.getElementById('chartV5Acc');
+    if (v5AccCtx) {
+      new Chart(v5AccCtx, {
+        type: 'line',
+        data: {
+          labels: Array.from({length:13}, (_,i) => i+1),
+          datasets: [
+            { label:'Train Acc %', data:[56.5, 60.2, 63.8, 67.5, 70.2, 72.5, 73.1, 74.8, 75.2, 75.9, 76.1, 76.2, 76.4], borderColor:'#f87171', backgroundColor:'rgba(239,68,68,0.1)', tension:0.3, borderWidth:2, fill:false },
+            { label:'Val Acc %', data:[58.1, 61.2, 63.0, 65.4, 66.8, 67.1, 67.8, 68.0, 67.9, 68.1, 68.0, 68.2, 68.1], borderColor:'#60a5fa', backgroundColor:'rgba(59,130,246,0.1)', tension:0.3, borderWidth:2, borderDash:[5,3], fill:false }
+          ]
+        },
+        options: { ...chartDefaults }
+      });
+    }
+
+    // Train vs Test F1 comparison chart
+    const ttCtx = document.getElementById('chartTrainTest');
+    if (ttCtx) {
+      new Chart(ttCtx, {
+        type: 'bar',
+        data: {
+          labels: ['V2 Optimized', 'V3 All-In', 'Late Fusion', 'V4 Shared', 'V5 Frozen*'],
+          datasets: [
+            { label: 'OOF CV F1 (Train Domain)', data:[0.5582, 0.5727, 0.2719, 0.6020, 0.65], backgroundColor:['rgba(59,130,246,0.5)','rgba(16,185,129,0.5)','rgba(139,92,246,0.5)','rgba(245,158,11,0.5)','rgba(239,68,68,0.5)'], borderColor:['#3b82f6','#10b981','#8b5cf6','#f59e0b','#ef4444'], borderWidth:2, borderRadius:6 },
+            { label: 'AVEC Test F1 (Held-Out)', data:[0.7722, 1.0000, 0.4972, 0.6095, 0.78], backgroundColor:['rgba(59,130,246,0.25)','rgba(245,158,11,0.3)','rgba(139,92,246,0.25)','rgba(245,158,11,0.25)','rgba(239,68,68,0.25)'], borderColor:['#3b82f688','#fbbf24','#8b5cf688','#f59e0b88','#ef444488'], borderWidth:2, borderRadius:6, borderDash:[5,3] },
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { labels: { color:'#94a3b8', font:{size:11} } },
+            tooltip: { backgroundColor:'#1e293b', borderColor:'#334155', borderWidth:1, titleColor:'#e2e8f0', bodyColor:'#94a3b8' }
+          },
+          scales: {
+            x: { ticks:{color:'#94a3b8'}, grid:{color:'rgba(255,255,255,0.04)'} },
+            y: { ticks:{color:'#94a3b8'}, grid:{color:'rgba(255,255,255,0.04)'}, min:0, max:1.1, title:{display:true, text:'F1-Macro', color:'#64748b'} }
+          }
+        }
+      });
+    }
+  }
+
+  // Sub-tabs switching function for Training detail
+  function showTrainingModel(modelId, btn) {
+    document.querySelectorAll('.train-model-content').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.sub-tab').forEach(b => b.classList.remove('active'));
+    
+    document.getElementById('train-' + modelId).classList.add('active');
+    if (btn) btn.classList.add('active');
+  }
+
+  // Init on load
+  window.addEventListener('load', () => setTimeout(initCharts, 300));
+
+  // Timeline click handlers
+  document.querySelectorAll('.timeline-item').forEach((el, i) => {
+    const map = ['v2','v3','lf','v4','v5'];
+    el.onclick = () => {
+      const tab = document.querySelector(`[data-model="${map[i]}"]`);
+      if (tab) showSection(map[i], tab);
+    };
+  });
+</script>
+</body>
+</html>

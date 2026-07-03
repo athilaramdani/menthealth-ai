@@ -1,0 +1,21 @@
+{
+  "version": "v80",
+  "preprocessing": "PCA+RobustScaler",
+  "smoteenn_only": true,
+  "best_cv": {
+    "scenario": "S3_Wav2Vec",
+    "model": "LogisticRegression",
+    "cv_f1": 0.6842,
+    "test_f1": 0.596,
+    "pca": 30,
+    "scaler": "standard"
+  },
+  "best_test": {
+    "scenario": "S1_Spectrogram",
+    "model": "RandomForest",
+    "cv_f1": 0.6042,
+    "test_f1": 0.6419
+  },
+  "target_075_cv": false,
+  "target_075_test": false
+}

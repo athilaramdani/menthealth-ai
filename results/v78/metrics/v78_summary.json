@@ -1,0 +1,18 @@
+{
+  "version": "v78",
+  "no_bal_none": true,
+  "best_cv": {
+    "scenario": "S5_FusionEng",
+    "model": "RandomForest",
+    "cv_f1": 0.8366,
+    "test_f1": 0.4949
+  },
+  "best_test": {
+    "scenario": "S5_FusionEng",
+    "model": "SVM",
+    "cv_f1": 0.697,
+    "test_f1": 0.697
+  },
+  "target_075_cv": true,
+  "target_075_test": false
+}
