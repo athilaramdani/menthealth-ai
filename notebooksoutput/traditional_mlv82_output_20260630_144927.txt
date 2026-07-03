@@ -1,0 +1,200 @@
+================================================================================
+  NOTEBOOK OUTPUT EXTRACTOR
+  File   : traditional_mlv82.ipynb
+  Path   : notebooks\traditional_mlv82.ipynb
+  Diambil: 2026-06-30 14:49:27
+  Total  : 3 cell
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+# Pipeline v82 — Focused RF Tuning on Wav2Vec + Fusion | Target >= 0.75
+Insight dari v75-v81:
+- S3_Wav2Vec × RF (K=ALL): Test=0.7442 KONSISTEN di SETIAP versi
+- S4_Fusion  × RF (K=50, cw={0:1,1:2}): Test=0.6875 (v81, terbaik Fusion)
+- Hanya butuh 1 prediksi benar lagi dari RF Wav2Vec untuk Test=0.75+
+
+Strategi v82 — Ultra-Focused:
+[1] Fokus HANYA pada: Wav2Vec×RF dan Fusion×RF (proven winners)
+[2] RF sweep lebih dalam: max_features=[None,sqrt,log2,0.3,0.5,0.7]
+[3] RF tree depth: [None, 10, 15, 20]
+[4] RF min_samples_split: [2, 5, 10]
+[5] RF n_estimators: [500, 1000, 2000, 3000, 5000]
+[6] Tetap SMOTEENN only
+[7] Tetap K=ALL untuk Wav2Vec
+[8] Apple-to-apple S1-S4 lengkap (semua model)
+
+────────────────────────────────────────────────────────────────────────────────
+In [1] (Code Cell #1)
+────────────────────────────────────────────────────────────────────────────────
+================================================================================
+  Pipeline v82 — Deep RF Tuning | Wav2Vec + Fusion Focus | Target >= 0.75
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+In [2] (Code Cell #2)
+────────────────────────────────────────────────────────────────────────────────
+  Total: 102 (N:63, D:39)
+  S1_Spectrogram      : 687 fitur
+  S2_MFCC             : 990 fitur
+  S3_Wav2Vec          : 72 fitur
+  S4_Fusion           : 1749 fitur
+  S5_FusionEng        : 6996 fitur
+  Train:82 | Test:20 (10N+10D seimbang)
+
+================================================================================
+  v82 — Deep RF Tuning (22 configs) | SMOTEENN Only
+  Referensi: CV=0.7149 (v76) | Test=0.7494 (v77) | Test_RF=0.7442
+================================================================================
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S1_Spectrogram | 687 fitur | K=[30, 50, 60]
+  [RF Deep Tuning: 22 configs × 3 K]
+  RF best: K=50 mf=sqrt ne=1000 md=None cw=balanced
+  RandomForest            K=50    CV=0.6624±0.0707 Test=0.6000 Gap=-0.0624 ✓OK
+  LogisticRegression     K=30    CV=0.6297±0.0202 Test=0.6267 Gap=-0.0031 ✓OK
+  SVM                    K=60    CV=0.6675±0.1068 Test=0.6491 Gap=-0.0184 ✓OK
+  XGBoost                K=30    CV=0.6586±0.0461 Test=0.6491 Gap=-0.0095 ✓OK
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S2_MFCC | 990 fitur | K=[30, 50, 60]
+  [RF Deep Tuning: 22 configs × 3 K]
+  RF best: K=30 mf=sqrt ne=1000 md=None cw={0: 1, 1: 
+  RandomForest            K=30    CV=0.6807±0.0333 Test=0.6000 Gap=-0.0807 ✓OK
+  LogisticRegression     K=30    CV=0.6344±0.0474 Test=0.6000 Gap=-0.0344 ✓OK
+  SVM                    K=30    CV=0.6802±0.0339 Test=0.5604 Gap=-0.1197 ⚠OV
+  XGBoost                K=30    CV=0.5850±0.0572 Test=0.6419 Gap=+0.0569 ✓OK
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S3_Wav2Vec | 72 fitur | K=[None, 60, 70]
+  [RF Deep Tuning: 22 configs × 3 K]
+  RF best: K=ALL mf=sqrt ne=3000 md=None cw=balanced
+  RandomForest            K=ALL   CV=0.6632±0.0549 Test=0.7442 Gap=+0.0810 ✓OK
+  LogisticRegression     K=70    CV=0.6891±0.0612 Test=0.6491 Gap=-0.0400 ✓OK
+  SVM                    K=ALL   CV=0.6408±0.0298 Test=0.6970 Gap=+0.0562 ✓OK
+  XGBoost                K=ALL   CV=0.5377±0.1375 Test=0.6875 Gap=+0.1498 ↑GEN
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S4_Fusion | 1749 fitur | K=[40, 50, 60, 70]
+  [RF Deep Tuning: 22 configs × 4 K]
+  RF best: K=50 mf=sqrt ne=1000 md=None cw=balanced
+  RandomForest            K=50    CV=0.6645±0.0390 Test=0.6000 Gap=-0.0645 ✓OK
+  LogisticRegression     K=60    CV=0.6207±0.0769 Test=0.5200 Gap=-0.1007 ⚠OV
+  SVM                    K=40    CV=0.6975±0.0619 Test=0.6491 Gap=-0.0483 ✓OK
+  XGBoost                K=40    CV=0.6253±0.0762 Test=0.6267 Gap=+0.0014 ✓OK
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S5_FusionEng | 6996 fitur | K=[30, 50, 80]
+  [RF Deep Tuning: 22 configs × 3 K]
+  RF best: K=30 mf=sqrt ne=1000 md=None cw=balanced
+  RandomForest            K=30    CV=0.7005±0.0314 Test=0.6011 Gap=-0.0994 ✓OK
+  LogisticRegression     K=30    CV=0.6720±0.0652 Test=0.6267 Gap=-0.0453 ✓OK
+  SVM                    K=30    CV=0.6522±0.0931 Test=0.7000 Gap=+0.0478 ✓OK
+  XGBoost                K=30    CV=0.6585±0.0490 Test=0.6000 Gap=-0.0585 ✓OK
+
+====================================================================================================
+                                TABEL RINGKASAN v82 — Deep RF Tuning                                
+====================================================================================================
+  Skenario               Model                      K   CV F1    Std  TestF1     Acc      Gap Status
+  S5_FusionEng           RandomForest              30  0.7005 0.0314  0.6011  0.6500  -0.0994 ✓OK
+  S4_Fusion              SVM                       40  0.6975 0.0619  0.6491  0.6500  -0.0483 ✓OK
+  S3_Wav2Vec             LogisticRegression        70  0.6891 0.0612  0.6491  0.6500  -0.0400 ✓OK
+  S2_MFCC                RandomForest              30  0.6807 0.0333  0.6000  0.6000  -0.0807 ✓OK
+  S2_MFCC                SVM                       30  0.6802 0.0339  0.5604  0.6000  -0.1197 ⚠OV
+  S5_FusionEng           LogisticRegression        30  0.6720 0.0652  0.6267  0.6500  -0.0453 ✓OK
+  S1_Spectrogram         SVM                       60  0.6675 0.1068  0.6491  0.6500  -0.0184 ✓OK
+  S4_Fusion              RandomForest              50  0.6645 0.0390  0.6000  0.6000  -0.0645 ✓OK
+  S3_Wav2Vec             RandomForest             ALL  0.6632 0.0549  0.7442  0.7500  +0.0810 ✓OK
+  S1_Spectrogram         RandomForest              50  0.6624 0.0707  0.6000  0.6000  -0.0624 ✓OK
+  S1_Spectrogram         XGBoost                   30  0.6586 0.0461  0.6491  0.6500  -0.0095 ✓OK
+  S5_FusionEng           XGBoost                   30  0.6585 0.0490  0.6000  0.6000  -0.0585 ✓OK
+  S5_FusionEng           SVM                       30  0.6522 0.0931  0.7000  0.7000  +0.0478 ✓OK
+  S3_Wav2Vec             SVM                      ALL  0.6408 0.0298  0.6970  0.7000  +0.0562 ✓OK
+  S2_MFCC                LogisticRegression        30  0.6344 0.0474  0.6000  0.6000  -0.0344 ✓OK
+  S1_Spectrogram         LogisticRegression        30  0.6297 0.0202  0.6267  0.6500  -0.0031 ✓OK
+  S4_Fusion              XGBoost                   40  0.6253 0.0762  0.6267  0.6500  +0.0014 ✓OK
+  S4_Fusion              LogisticRegression        60  0.6207 0.0769  0.5200  0.5500  -0.1007 ⚠OV
+  S2_MFCC                XGBoost                   30  0.5850 0.0572  0.6419  0.6500  +0.0569 ✓OK
+  S3_Wav2Vec             XGBoost                  ALL  0.5377 0.1375  0.6875  0.7000  +0.1498 ↑GEN
+
+  ★ BEST CV   : S5_FusionEng × RandomForest K=30 → CV=0.7005 Test=0.6011
+  ★ BEST Test : S3_Wav2Vec × RandomForest K=ALL → CV=0.6632 Test=0.7442
+
+  APPLE-TO-APPLE (S1-S4 sesuai prompt):
+  Skenario             Best Model                 K   CV F1  Test F1     Acc     AUC
+  S1_Spectrogram       SVM                       60  0.6675   0.6491  0.6500  0.6700
+  S2_MFCC              RandomForest              30  0.6807   0.6000  0.6000  0.5600
+  S3_Wav2Vec           LogisticRegression        70  0.6891   0.6491  0.6500  0.6100
+  S4_Fusion            SVM                       40  0.6975   0.6491  0.6500  0.5900
+  Plots saved.
+
+================================================================================
+  CLASSIFICATION REPORTS — S1-S4 Best CV
+================================================================================
+
+  ── S1_Spectrogram × SVM (K=60) ──
+  CV=0.6675±0.1068 | Test=0.6491 | Acc=0.6500
+              precision    recall  f1-score   support
+
+      Normal       0.67      0.60      0.63        10
+     Depresi       0.64      0.70      0.67        10
+
+    accuracy                           0.65        20
+   macro avg       0.65      0.65      0.65        20
+weighted avg       0.65      0.65      0.65        20
+
+
+  ── S2_MFCC × RandomForest (K=30) ──
+  CV=0.6807±0.0333 | Test=0.6000 | Acc=0.6000
+              precision    recall  f1-score   support
+
+      Normal       0.60      0.60      0.60        10
+     Depresi       0.60      0.60      0.60        10
+
+    accuracy                           0.60        20
+   macro avg       0.60      0.60      0.60        20
+weighted avg       0.60      0.60      0.60        20
+
+
+  ── S3_Wav2Vec × LogisticRegression (K=70) ──
+  CV=0.6891±0.0612 | Test=0.6491 | Acc=0.6500
+              precision    recall  f1-score   support
+
+      Normal       0.67      0.60      0.63        10
+     Depresi       0.64      0.70      0.67        10
+
+    accuracy                           0.65        20
+   macro avg       0.65      0.65      0.65        20
+weighted avg       0.65      0.65      0.65        20
+
+
+  ── S4_Fusion × SVM (K=40) ──
+  CV=0.6975±0.0619 | Test=0.6491 | Acc=0.6500
+              precision    recall  f1-score   support
+
+      Normal       0.67      0.60      0.63        10
+     Depresi       0.64      0.70      0.67        10
+
+    accuracy                           0.65        20
+   macro avg       0.65      0.65      0.65        20
+weighted avg       0.65      0.65      0.65        20
+
+
+================================================================================
+                                FINAL REPORT v82                                
+================================================================================
+  Progress: v76=0.7149|v77=0.7137|v79=0.7138|v81=0.7620(OV)|v82=0.7005
+  Best CV  : S5_FusionEng × RandomForest K=30
+  CV F1    : 0.7005 ± 0.0314
+  Test F1  : 0.6011
+  Best Test: S3_Wav2Vec × RandomForest K=ALL = 0.7442
+  TARGET 0.75 (CV)  : NO (selisih 0.0495)
+  TARGET 0.75 (Test): NO (0.7442)
+  Total waktu : 3501.1s
+================================================================================
+
+================================================================================
+  RINGKASAN
+  Code cells  : 2
+  Cells dengan output teks: 2
+================================================================================

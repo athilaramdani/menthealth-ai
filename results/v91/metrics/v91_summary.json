@@ -1,0 +1,14 @@
+{
+  "version": "v91",
+  "strategy": "SMOTE+Tomek + Cost-Sensitive + LDA + Expanded_PCA",
+  "smote_available": true,
+  "best_single": {
+    "model": "XGB",
+    "scenario": "S2_MFCC",
+    "n": 30,
+    "f1_oof": 0.5238
+  },
+  "overall_best": 0.5238,
+  "target_070": false,
+  "v89_ref": 0.6011
+}

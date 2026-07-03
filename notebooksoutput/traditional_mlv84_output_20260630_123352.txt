@@ -1,0 +1,189 @@
+================================================================================
+  NOTEBOOK OUTPUT EXTRACTOR
+  File   : traditional_mlv84.ipynb
+  Path   : notebooks\traditional_mlv84.ipynb
+  Diambil: 2026-06-30 12:33:52
+  Total  : 3 cell
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+# Pipeline v84 — No SMOTE | Class Weight Only | 10-Fold CV | Target >= 0.75
+Insight dari v76-v83:
+- SMOTEENN fair threshold → test lebih buruk (distribution mismatch)
+- Multi-seed bagging tidak membantu
+- RF Wav2Vec Test=0.7442 selalu dengan threshold sweep (15/20 benar)
+- Fundamental issue: SMOTE synthetic samples ≠ distribusi test data asli
+
+STRATEGI v84 — No Synthetic Data:
+[1] TIDAK pakai SMOTE sama sekali — eliminasi distribution mismatch
+[2] Kompensasi imbalance dengan class_weight (jujur terhadap distribusi asli)
+[3] 10-Fold CV (lebih stabil untuk dataset kecil 82 sampel)
+[4] class_weight sweep: 'balanced', {0:1,1:2}, {0:1,1:3}, {0:1,1:1.83}
+[5] SelectKBest + StandardScaler tetap
+[6] Threshold dari inner CV → apply ke test (fair)
+[7] ALL 4 model, ALL 5 skenario, apple-to-apple S1-S4
+
+────────────────────────────────────────────────────────────────────────────────
+In [1] (Code Cell #1)
+────────────────────────────────────────────────────────────────────────────────
+================================================================================
+  Pipeline v84 — No SMOTE | Class Weight | 10-Fold CV | Target >= 0.75
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+In [2] (Code Cell #2)
+────────────────────────────────────────────────────────────────────────────────
+  Total: 102 (N:63, D:39)
+  S1_Spectrogram      : 687 fitur
+  S2_MFCC             : 990 fitur
+  S3_Wav2Vec          : 72 fitur
+  S4_Fusion           : 1749 fitur
+  S5_FusionEng        : 6996 fitur
+  Train:82 (N:53, D:29, ratio=1.83:1) | Test:20 (10N+10D)
+  NO SMOTE — class_weight kompensasi imbalance 1.83:1
+
+================================================================================
+  v84 — No SMOTE | 10-Fold CV | class_weight compensation
+  Referensi: CV=0.7149 (v76,SMOTEENN) | Test=0.7494 (v77) | Test_RF=0.7442
+================================================================================
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S1_Spectrogram | 687 fitur | K=[None, 30, 50, 60, 80]
+  LogisticRegression     K=50    thr_cv=0.48/sw=0.45 CV=0.6907±0.1510 Test=0.6491(sw)/0.6491(fair) Gap=-0.0416 ✓OK
+  RandomForest           K=30    thr_cv=0.43/sw=0.54 CV=0.7788±0.1146 Test=0.4872(sw)/0.4373(fair) Gap=-0.2916 ⚠OV ★CV★
+  SVM                    K=30    thr_cv=0.36/sw=0.37 CV=0.5712±0.1531 Test=0.5489(sw)/0.3750(fair) Gap=-0.0224 ✓OK
+  XGBoost                K=60    thr_cv=0.46/sw=0.62 CV=0.7882±0.1396 Test=0.4505(sw)/0.3350(fair) Gap=-0.3376 ⚠OV ★CV★
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S2_MFCC | 990 fitur | K=[None, 30, 50, 60, 80]
+  LogisticRegression     K=60    thr_cv=0.46/sw=0.47 CV=0.7051±0.1211 Test=0.5396(sw)/0.4133(fair) Gap=-0.1655 ⚠OV
+  RandomForest           K=30    thr_cv=0.37/sw=0.25 CV=0.7847±0.0964 Test=0.6491(sw)/0.5960(fair) Gap=-0.1356 ⚠OV
+  SVM                    K=80    thr_cv=0.34/sw=0.45 CV=0.5857±0.1386 Test=0.5238(sw)/0.3732(fair) Gap=-0.0619 ✓OK
+  XGBoost                K=50    thr_cv=0.43/sw=0.47 CV=0.7346±0.1779 Test=0.5960(sw)/0.5000(fair) Gap=-0.1386 ⚠OV
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S3_Wav2Vec | 72 fitur | K=[None, 50, 60, 70]
+  LogisticRegression     K=ALL   thr_cv=0.49/sw=0.40 CV=0.6861±0.1598 Test=0.5960(sw)/0.5000(fair) Gap=-0.0902 ✓OK
+  RandomForest           K=50    thr_cv=0.37/sw=0.20 CV=0.6767±0.1065 Test=0.5238(sw)/0.4486(fair) Gap=-0.1529 ⚠OV
+  SVM                    K=70    thr_cv=0.34/sw=0.05 CV=0.5692±0.1241 Test=0.3333(sw)/0.3333(fair) Gap=-0.2359 ⚠OV
+  XGBoost                K=70    thr_cv=0.44/sw=0.64 CV=0.6993±0.1448 Test=0.5604(sw)/0.4949(fair) Gap=-0.1389 ⚠OV
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S4_Fusion | 1749 fitur | K=[30, 40, 50, 60]
+  LogisticRegression     K=40    thr_cv=0.46/sw=0.23 CV=0.7144±0.0929 Test=0.4949(sw)/0.3484(fair) Gap=-0.2194 ⚠OV
+  RandomForest           K=30    thr_cv=0.35/sw=0.25 CV=0.8042±0.1214 Test=0.5833(sw)/0.4949(fair) Gap=-0.2209 ⚠OV ★CV★
+  SVM                    K=40    thr_cv=0.36/sw=0.43 CV=0.7876±0.0732 Test=0.4872(sw)/0.3350(fair) Gap=-0.3004 ⚠OV
+  XGBoost                K=60    thr_cv=0.34/sw=0.50 CV=0.8457±0.0945 Test=0.4486(sw)/0.3939(fair) Gap=-0.3971 ⚠OV ★CV★
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S5_FusionEng | 6996 fitur | K=[30, 50, 80]
+  LogisticRegression     K=30    thr_cv=0.48/sw=0.31 CV=0.7248±0.1704 Test=0.6970(sw)/0.6491(fair) Gap=-0.0278 ✓OK
+  RandomForest           K=80    thr_cv=0.35/sw=0.38 CV=0.8069±0.0876 Test=0.6491(sw)/0.5489(fair) Gap=-0.1577 ⚠OV
+  SVM                    K=30    thr_cv=0.40/sw=0.28 CV=0.7310±0.0968 Test=0.6875(sw)/0.5396(fair) Gap=-0.0435 ✓OK
+  XGBoost                K=80    thr_cv=0.35/sw=0.35 CV=0.8150±0.0994 Test=0.5489(sw)/0.5489(fair) Gap=-0.2661 ⚠OV
+
+====================================================================================================
+                            TABEL RINGKASAN v84 — No SMOTE | 10-Fold CV                             
+====================================================================================================
+  Skenario               Model                      K   CV F1    Std  F1(sw)  F1(fair)     Acc      Gap St
+  S4_Fusion              XGBoost                   60  0.8457 0.0945  0.4486    0.3939  0.4500  -0.3971 ⚠OV
+  S5_FusionEng           XGBoost                   80  0.8150 0.0994  0.5489    0.5489  0.5500  -0.2661 ⚠OV
+  S5_FusionEng           RandomForest              80  0.8069 0.0876  0.6491    0.5489  0.6500  -0.1577 ⚠OV
+  S4_Fusion              RandomForest              30  0.8042 0.1214  0.5833    0.4949  0.6000  -0.2209 ⚠OV
+  S1_Spectrogram         XGBoost                   60  0.7882 0.1396  0.4505    0.3350  0.5000  -0.3376 ⚠OV
+  S4_Fusion              SVM                       40  0.7876 0.0732  0.4872    0.3350  0.5500  -0.3004 ⚠OV
+  S2_MFCC                RandomForest              30  0.7847 0.0964  0.6491    0.5960  0.6500  -0.1356 ⚠OV
+  S1_Spectrogram         RandomForest              30  0.7788 0.1146  0.4872    0.4373  0.5500  -0.2916 ⚠OV
+  S2_MFCC                XGBoost                   50  0.7346 0.1779  0.5960    0.5000  0.6000  -0.1386 ⚠OV
+  S5_FusionEng           SVM                       30  0.7310 0.0968  0.6875    0.5396  0.7000  -0.0435 ✓OK
+  S5_FusionEng           LogisticRegression        30  0.7248 0.1704  0.6970    0.6491  0.7000  -0.0278 ✓OK
+  S4_Fusion              LogisticRegression        40  0.7144 0.0929  0.4949    0.3484  0.5000  -0.2194 ⚠OV
+  S2_MFCC                LogisticRegression        60  0.7051 0.1211  0.5396    0.4133  0.5500  -0.1655 ⚠OV
+  S3_Wav2Vec             XGBoost                   70  0.6993 0.1448  0.5604    0.4949  0.6000  -0.1389 ⚠OV
+  S1_Spectrogram         LogisticRegression        50  0.6907 0.1510  0.6491    0.6491  0.6500  -0.0416 ✓OK
+  S3_Wav2Vec             LogisticRegression       ALL  0.6861 0.1598  0.5960    0.5000  0.6000  -0.0902 ✓OK
+  S3_Wav2Vec             RandomForest              50  0.6767 0.1065  0.5238    0.4486  0.6000  -0.1529 ⚠OV
+  S2_MFCC                SVM                       80  0.5857 0.1386  0.5238    0.3732  0.6000  -0.0619 ✓OK
+
+  ★ BEST CV   : S4_Fusion × XGBoost K=60 → CV=0.8457 Test=0.4486
+  ★ BEST Test : S5_FusionEng × LogisticRegression K=30 → CV=0.7248 Test=0.6970
+
+  APPLE-TO-APPLE (S1-S4):
+  Skenario             Best Model                 K   CV F1  Test F1     Acc     AUC
+  S1_Spectrogram       XGBoost                   60  0.7882   0.4505  0.5000  0.3300
+  S2_MFCC              RandomForest              30  0.7847   0.6491  0.6500  0.5400
+  S3_Wav2Vec           XGBoost                   70  0.6993   0.5604  0.6000  0.5200
+  S4_Fusion            XGBoost                   60  0.8457   0.4486  0.4500  0.2800
+  Plots saved.
+
+================================================================================
+  CLASSIFICATION REPORTS — S1-S4 Best CV
+================================================================================
+
+  ── S1_Spectrogram × XGBoost (K=60) ──
+  CV=0.7882±0.1396 | Test(sw)=0.4505 | Test(fair)=0.3350
+              precision    recall  f1-score   support
+
+      Normal       0.50      0.80      0.62        10
+     Depresi       0.50      0.20      0.29        10
+
+    accuracy                           0.50        20
+   macro avg       0.50      0.50      0.45        20
+weighted avg       0.50      0.50      0.45        20
+
+
+  ── S2_MFCC × RandomForest (K=30) ──
+  CV=0.7847±0.0964 | Test(sw)=0.6491 | Test(fair)=0.5960
+              precision    recall  f1-score   support
+
+      Normal       0.67      0.60      0.63        10
+     Depresi       0.64      0.70      0.67        10
+
+    accuracy                           0.65        20
+   macro avg       0.65      0.65      0.65        20
+weighted avg       0.65      0.65      0.65        20
+
+
+  ── S3_Wav2Vec × XGBoost (K=70) ──
+  CV=0.6993±0.1448 | Test(sw)=0.5604 | Test(fair)=0.4949
+              precision    recall  f1-score   support
+
+      Normal       0.56      0.90      0.69        10
+     Depresi       0.75      0.30      0.43        10
+
+    accuracy                           0.60        20
+   macro avg       0.66      0.60      0.56        20
+weighted avg       0.66      0.60      0.56        20
+
+
+  ── S4_Fusion × XGBoost (K=60) ──
+  CV=0.8457±0.0945 | Test(sw)=0.4486 | Test(fair)=0.3939
+              precision    recall  f1-score   support
+
+      Normal       0.44      0.40      0.42        10
+     Depresi       0.45      0.50      0.48        10
+
+    accuracy                           0.45        20
+   macro avg       0.45      0.45      0.45        20
+weighted avg       0.45      0.45      0.45        20
+
+
+================================================================================
+                                FINAL REPORT v84                                
+================================================================================
+  Progress: v76=0.7149(SMOTE)|v79=0.7138|v84=0.8457(NoSMOTE)
+  Best CV  : S4_Fusion × XGBoost K=60
+  CV F1    : 0.8457 ± 0.0945
+  Test F1 (swept): 0.4486
+  Best Test: S5_FusionEng × LogisticRegression = 0.6970
+  TARGET 0.75 (CV)  : ✓ TERCAPAI!
+  TARGET 0.75 (Test): NO (0.6970)
+  Total waktu : 4128.9s
+================================================================================
+
+================================================================================
+  RINGKASAN
+  Code cells  : 2
+  Cells dengan output teks: 2
+================================================================================

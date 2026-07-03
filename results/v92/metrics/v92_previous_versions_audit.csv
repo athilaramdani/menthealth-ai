@@ -1,0 +1,17 @@
+version,overall_best,best_model,best_scenario,best_single_f1
+v75,,,,
+v76,,,,
+v77,,,,
+v78,,,,
+v79,,,,
+v80,,,,
+v81,,,,
+v82,,,,
+v83,,,,
+v84,,,,
+v85,,,,
+v86,0.7494,,,
+v87,0.8,XGB,S3_Wav2Vec,0.7494
+v89,0.7494,LR,S1_Spectrogram,0.6011
+v90,0.6267,SVM,S3_Wav2Vec,0.6267
+v91,0.5238,XGB,S2_MFCC,0.5238

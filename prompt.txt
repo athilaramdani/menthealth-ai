@@ -1,27 +1,46 @@
-Saya sedang mengembangkan model Machine Learning tradisional untuk analisis data audio menggunakan dataset **DAIC-WOZ** secara keseluruhan. Saat ini eksperimen sudah mencapai versi 47, namun akurasi/F1-score belum menyentuh angka **0,7 ke atas**. Tugas kamu adalah melanjutkan eksperimen ini secara iteratif hingga performa model mencapai target tersebut.
+Subjek: Eksperimen Iteratif Audio-Only DAIC-WOZ (Melanjutkan Versi 85)
 
-**Technical Specifications yang wajib ada di versi selanjutnya:**
+Saya sedang mengembangkan model Machine Learning untuk analisis data audio menggunakan dataset DAIC-WOZ secara keseluruhan (audio-only, tidak multimodal). Saat ini eksperimen berada di versi 85, namun akurasi/F1-score belum stabil di atas 0,75. 
 
-1. **Feature Extraction (3 Fitur):** * MFCC
-* Spectrogram
-* Wav2Vec
+Tugas kamu adalah menyusun kembali pipeline eksperimen ini secara terstruktur dengan membandingkan 4 skenario fitur secara apple-to-apple:
+1. Spectrogram saja
+2. MFCC saja
+3. Wav2Vec saja
+4. Feature Fusion (Gabungan Ketiganya: Spectrogram + MFCC + Wav2Vec)
 
-2. **Data Splitting:**
-* Proporsi: **80% Training, 20% Testing** (pastikan pembagian testing seimbang, misalnya jika total 20 data test, bagi rata menjadi masing-masing 10 untuk tiap kelas/kategori terkait).
-
-data harus digunakan semua
-
-### **Workflow & Pipeline (Revisi):**
-
-1. **Buat Script Python Baru:** Buat file script Python (`.py`) versi terbaru di dalam folder `D:\repositories\menthealth-ai\notebooks` dengan format penamaan `tradisional_mlv[NomorVersiTerbaru].py` (melanjutkan dari versi terakhir).
-2. **Konversi ke Notebook:** Setelah script `.py` siap, gunakan *tool* konverter `D:\repositories\menthealth-ai\app\py_to_ipynb.py` (atau script/utilitas konversi yang sudah disediakan di repositori) untuk mengubah file `.py` tersebut menjadi file Jupyter Notebook (`.ipynb`) di dalam folder `notebook/`.
-3. **Eksekusi & Ekstrak Output:** Jalankan notebook hasil konversi tersebut. Setelah selesai, gunakan script yang ada di folder `D:\repositories\menthealth-ai\notebooksoutput\extract_notebook_output.py` untuk mengekstrak hasil output dan performanya.
-4. **Analisis Hasil:** Periksa metrik performa model pada hasil ekstraksi, terutama **Akurasi** dan **F1-Score**.
+BATASAN KETAT (JANGAN DIUBAH):
+- JANGAN mengubah total jumlah dataset yang digunakan saat ini.
+- JANGAN mengubah metode ekstraksi fitur dasar (gunakan fitur yang sudah diekstrak).
+- JANGAN mengubah konfigurasi Data Splitting (Wajib 80:20, seimbang di data test).
+- JANGAN mengubah baseline algoritma ML yang sudah ditentukan.
 
 ---
 
-**Iterative Instruction:**
+I. STRUKTUR EKSPERIMEN & PIPELINE BARU (4 SKENARIO FITUR)
 
-* Jika hasil evaluasi (Akurasi atau F1-Score) **masih di bawah 0,8**, lakukan analisis kesalahan (*error analysis*), sesuaikan pendekatan Machine Learning kamu (misal: tuning hyperparameter, seleksi fitur, atau ganti algoritma ML tradisional lainnya), lalu buat versi notebook baru berikutnya.
-* Ulangi proses ini secara otomatis atau iteratif **sampai target Akurasi atau F1-Score $\ge$ 0,8 terpenuhi**.
-* cek juga versi2 sebelumnya agar melihat akurasi terbaik dari versi sebelumnya dipegang versi ke berapa?
+Kamu harus melakukan evaluasi apple-to-apple secara ketat untuk 4 skenario berikut:
+
+1. Analisis & Pencatatan Dimensi Fitur:
+   - Catat secara eksplisit jumlah (dimensi) fitur dari masing-masing metode tunggal: Spectrogram, MFCC, dan Wav2Vec.
+   - Lakukan Feature Fusion (penggabungan/concatenation matriks ketiga fitur tersebut) dan catat total dimensi fitur setelah digabung.
+
+2. Pemodelan Skenario 1, 2, dan 3 (Single Feature Evaluation):
+   - Traditional Machine Learning: Jalankan algoritma Random Forest, SVM, Logistic Regression, dan XGBoost untuk masing-masing fitur secara terpisah.
+
+3. Pemodelan Skenario 4 (Feature Fusion Evaluation):
+   - Jalankan seluruh model di atas (4 ML tradisional) menggunakan fitur gabungan (Spectrogram + MFCC + Wav2Vec).
+   - Bandingkan hasil fusion ini dengan hasil dari 3 skenario fitur tunggal secara apple-to-apple dalam satu tabel ringkasan performa.
+
+II. TECHNICAL SPECIFICATIONS WENANG (WAJIB)
+- Data Splitting: Gunakan proporsi 80% Training, 20% Testing. Pastikan pembagian data test seimbang (misal: jika ada 20 data test, bagi rata menjadi masing-masing 10 untuk tiap kelas/kategori terkait).
+- Validasi: Gunakan K-Fold Cross Validation pada data training untuk mendeteksi dan mencegah overfitting.
+- Visualisasi Overfitting: Buat grafik Learning Curve (kurva pelatihan) untuk setiap eksperimen model terbaik guna melihat proses training dan indikasi overfitting/underfitting.
+
+III. WORKFLOW & INTEGRASI REPOSITORI (OTOMATISASI SCRIPT)
+1. Cek Versi Sebelumnya: Analisis log/output dari versi sebelum versi 85 untuk mengidentifikasi versi terbaik sejauh ini dan algoritma yang digunakan.
+2. Buat Script Python Baru: Tulis file script Python (.py) versi terbaru di folder `D:\repositories\menthealth-ai\notebooks` dengan format penamaan `tradisional_mlv[NomorVersiTerbaru].py` (melanjutkan dari versi terakhir, misal v48).
+3. Konversi ke Notebook: Jalankan tool konverter `D:\repositories\menthealth-ai\app\py_to_ipynb.py` untuk mengubah file .py tersebut menjadi file Jupyter Notebook (.ipynb) di folder `notebooks/`.
+4. Eksekusi & Ekstrak Output: Jalankan notebook tersebut, lalu gunakan script di `D:\repositories\menthealth-ai\notebooksoutput\extract_notebook_output.py` untuk mengekstrak hasil output dan performanya.
+5. Analisis Hasil & Iterasi: Periksa metrik Akurasi dan F1-Score. Jika hasilnya di bawah 0,75, lakukan error analysis dan hyperparameter tuning (tanpa mengubah dataset/splitting/algoritma dasar), lalu siapkan struktur untuk versi berikutnya (v85, dst.) secara iteratif, TANPA DISURUH ULANG.
+
+Berikan kode Python lengkap yang terstruktur rapi, modular, dan siap dieksekusi berdasarkan instruksi pipeline di atas.

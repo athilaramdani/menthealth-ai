@@ -1,0 +1,32 @@
+{
+  "version": "v83",
+  "multi_seed_smoteenn": [
+    42,
+    123,
+    456,
+    789,
+    1234
+  ],
+  "fair_threshold": true,
+  "best_cv": {
+    "scenario": "S1_Spectrogram",
+    "model": "LogisticRegression",
+    "cv_f1": 0.7173,
+    "test_f1_fair": 0.6,
+    "K": "30"
+  },
+  "best_test": {
+    "scenario": "S3_Wav2Vec",
+    "model": "XGBoost",
+    "cv_f1": 0.6099,
+    "test_f1": 0.6491
+  },
+  "best_swept": {
+    "scenario": "S3_Wav2Vec",
+    "model": "XGBoost",
+    "test_f1_swept": 0.7
+  },
+  "target_075_cv": false,
+  "target_075_test_fair": false,
+  "target_075_test_swept": false
+}

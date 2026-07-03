@@ -1,0 +1,137 @@
+=== v75 ===
+----------------------------------------
+=== v76 ===
+                                FINAL REPORT v76                                
+================================================================================
+  Referensi: v75=0.7068 | v76=0.7149
+  Best CV : S5_FusionEng × RandomForest K=30
+  CV F1   : 0.7149 ± 0.0588
+  Test F1 : 0.6703
+  TARGET 0.75 (CV)  : NO — lanjut v77 (selisih 0.0351)
+  TARGET 0.75 (Test): NO — 0.7442
+  Total waktu : 2017.0s
+----------------------------------------
+=== v77 ===
+                                FINAL REPORT v77                                
+================================================================================
+  Referensi: v75=0.7068 | v76=0.7149 | v77=0.8478
+  Best CV : S5_FusionEng × XGBoost
+  CV F1   : 0.8478 ± 0.0556
+  Test F1 : 0.5489
+  Best Test: S3_Wav2Vec × LogisticRegression = 0.7494
+  TARGET 0.75 (CV)  : ✓ TERCAPAI!
+  TARGET 0.75 (Test): NO (0.7494)
+  Total waktu : 4219.2s
+----------------------------------------
+=== v78 ===
+                                FINAL REPORT v78                                
+================================================================================
+  Referensi: v75=0.7068 | v76=0.7149 | v77(honest)=0.7137 | v78=0.8366
+  Best CV : S5_FusionEng × RandomForest
+  CV F1   : 0.8366 ± 0.0342
+  Test F1 : 0.4949
+  Best Test: S5_FusionEng × SVM = 0.6970
+  TARGET 0.75 (CV)  : ✓ TERCAPAI!
+  TARGET 0.75 (Test): NO (0.6970)
+  Total waktu : 3403.0s
+----------------------------------------
+=== v79 ===
+                                FINAL REPORT v79                                
+================================================================================
+  v75=0.7068 | v76=0.7149 | v77(honest)=0.7137 | v79=0.7138
+  Best CV  : S4_Fusion × WtdVoting K=30
+  CV F1    : 0.7138 ± 0.0496
+  Test F1  : 0.5489
+  Best Test: S3_Wav2Vec × RandomForest = 0.7442
+  TARGET 0.75 (CV)  : NO (selisih 0.0362)
+  TARGET 0.75 (Test): NO (0.7442)
+  Total waktu : 2042.5s
+----------------------------------------
+=== v80 ===
+                                FINAL REPORT v80                                
+================================================================================
+  Progress: v75=0.7068|v76=0.7149|v77(honest)=0.7137|v79=0.7138|v80=0.6842
+  Best CV  : S3_Wav2Vec × LogisticRegression PCA=30
+  CV F1    : 0.6842 ± 0.0738
+  Test F1  : 0.5960
+  Best Test: S1_Spectrogram × RandomForest = 0.6419
+  TARGET 0.75 (CV)  : NO (selisih 0.0658)
+  TARGET 0.75 (Test): NO (0.6419)
+  Total waktu : 1146.9s
+----------------------------------------
+=== v81 ===
+                                FINAL REPORT v81                                
+================================================================================
+  Progress: v75=0.7068|v76=0.7149|v77=0.7137|v79=0.7138|v80=0.6842|v81=0.7620
+  Best CV  : S7_Wav2VecPoly × RandomForest K=50
+  CV F1    : 0.7620 ± 0.0683
+  Test F1  : 0.5604
+  Best Test: S3_Wav2Vec × RandomForest = 0.7442
+  TARGET 0.75 (CV)  : ✓ TERCAPAI!
+  TARGET 0.75 (Test): NO (0.7442)
+  Total waktu : 2391.5s
+----------------------------------------
+=== v82 ===
+                                FINAL REPORT v82                                
+================================================================================
+  Progress: v76=0.7149|v77=0.7137|v79=0.7138|v81=0.7620(OV)|v82=0.7005
+  Best CV  : S5_FusionEng × RandomForest K=30
+  CV F1    : 0.7005 ± 0.0314
+  Test F1  : 0.6011
+  Best Test: S3_Wav2Vec × RandomForest K=ALL = 0.7442
+  TARGET 0.75 (CV)  : NO (selisih 0.0495)
+  TARGET 0.75 (Test): NO (0.7442)
+  Total waktu : 3501.1s
+----------------------------------------
+=== v83 ===
+                                FINAL REPORT v83                                
+================================================================================
+  Progress: v76=0.7149|v79=0.7138|v82=0.7005|v83=0.7173
+  Best CV  : S1_Spectrogram × LogisticRegression K=30
+  CV F1    : 0.7173 ± 0.0695
+  Test F1 (fair): 0.6000
+  Best Test(fair): S3_Wav2Vec × XGBoost = 0.6491
+  Best Test(sw)  : S3_Wav2Vec × XGBoost = 0.7000
+  TARGET 0.75 (CV)      : NO (selisih 0.0327)
+  TARGET 0.75 (Test)    : NO (0.6491)
+  Total waktu : 3026.4s
+----------------------------------------
+=== v84 ===
+                                FINAL REPORT v84                                
+================================================================================
+  Progress: v76=0.7149(SMOTE)|v79=0.7138|v84=0.8457(NoSMOTE)
+  Best CV  : S4_Fusion × XGBoost K=60
+  CV F1    : 0.8457 ± 0.0945
+  Test F1 (swept): 0.4486
+  Best Test: S5_FusionEng × LogisticRegression = 0.6970
+  TARGET 0.75 (CV)  : ✓ TERCAPAI!
+  TARGET 0.75 (Test): NO (0.6970)
+  Total waktu : 4128.9s
+----------------------------------------
+=== v85 ===
+                                FINAL REPORT v85                                
+================================================================================
+  v84 Referensi: CV=0.8457(overfit) | Test(fair)=0.6970 | Test(sw)=0.6970
+  v85 Best CV  : S2_MFCC × SVM n=10 → 0.7448 ± 0.0881
+  v85 Best Test: S3_Wav2Vec × LogisticRegression n=30 → Test(fair)=0.7442
+  v85 Best Ens : Ensemble(All-4) → F1(fair)=0.6970
+  Overall Best : 0.7442
+
+  TARGET 0.75 (Test/fair): NO (0.7442)
+  Total waktu  : 770.8s
+----------------------------------------
+=== v86 ===
+                                FINAL REPORT v86                                
+================================================================================
+  v85 Referensi : Test(fair)=0.7442 (S3_Wav2Vec × LR n=30)
+  v86 Best CV   : S2_MFCC × SVM n=10 → 0.7448
+  v86 Best Test : S2_MFCC × XGBoost n=10 → 0.7333
+  CalibSVM Best : CalibSVM(C=0.1,k=linear) n=30 → 0.7494
+  Best Ensemble : LogisticRegression+XGBoost → 0.7494
+  OVERALL BEST  : 0.7494
+
+  TARGET 0.75   : NO (gap: 0.0006)
+  Total waktu   : 905.6s
+----------------------------------------
+=== v87 ===
+----------------------------------------

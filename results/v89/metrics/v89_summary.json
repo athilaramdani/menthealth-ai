@@ -1,0 +1,71 @@
+{
+  "version": "v89",
+  "strategy": "Weighted_Ensemble + OOF_Stacking",
+  "best_single": {
+    "model": "LR",
+    "scenario": "S1_Spectrogram",
+    "n": 10,
+    "f1_oof": 0.6011
+  },
+  "best_weighted_ens": {
+    "alpha": 0.3,
+    "f1_oof": 0.45054945054945056,
+    "f1_sw": 0.6419437340153453,
+    "auc": 0.5800000000000001,
+    "preds": [
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      1,
+      0,
+      0
+    ],
+    "oof_thr": 0.445
+  },
+  "best_stacking": {
+    "C": 0.01,
+    "cw": "balanced",
+    "f1_oof": 0.4791666666666667,
+    "f1_sw": 0.4791666666666667,
+    "auc": 0.48,
+    "preds": [
+      0,
+      1,
+      1,
+      1,
+      0,
+      0,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0,
+      1,
+      1
+    ]
+  },
+  "overall_best": 0.7494,
+  "target_075": false,
+  "v88_ref": 0.7494
+}

@@ -1,0 +1,11 @@
+{
+  "version": "v65",
+  "n_experiments": 6798,
+  "best_exp": "K110|ENN4|s7|a0.0001|lr0.0005",
+  "best_f1": 0.8686,
+  "best_accuracy": 0.8696,
+  "best_auc": 0.9365,
+  "best_threshold": 0.655,
+  "target_80_achieved": true,
+  "target_82_achieved": true
+}

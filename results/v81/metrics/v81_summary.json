@@ -1,0 +1,21 @@
+{
+  "version": "v81",
+  "preprocessing": "SelectKBest+CW+Poly",
+  "smoteenn_only": true,
+  "best_cv": {
+    "scenario": "S7_Wav2VecPoly",
+    "model": "RandomForest",
+    "cv_f1": 0.762,
+    "test_f1": 0.5604,
+    "K": "50",
+    "cw": "balanced"
+  },
+  "best_test": {
+    "scenario": "S3_Wav2Vec",
+    "model": "RandomForest",
+    "cv_f1": 0.6441,
+    "test_f1": 0.7442
+  },
+  "target_075_cv": true,
+  "target_075_test": false
+}

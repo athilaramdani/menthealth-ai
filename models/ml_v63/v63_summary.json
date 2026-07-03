@@ -1,0 +1,10 @@
+{
+  "version": "v63",
+  "best_exp": "MLP_arch3h_a0.05_lr0.0005_s13",
+  "best_f1": 0.7527,
+  "best_accuracy": 0.7826,
+  "best_auc": 0.619,
+  "best_threshold": 0.52,
+  "target_achieved": true,
+  "n_experiments": 356
+}

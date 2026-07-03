@@ -1,0 +1,187 @@
+================================================================================
+  NOTEBOOK OUTPUT EXTRACTOR
+  File   : traditional_mlv80.ipynb
+  Path   : notebooks\traditional_mlv80.ipynb
+  Diambil: 2026-06-30 14:49:27
+  Total  : 3 cell
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+# Pipeline v80 — PCA + RobustScaler + Focused Tuning | Target >= 0.75
+Observasi v75-v79:
+- CV F1 stagnasi di ~0.71 dengan SelectKBest
+- Best test konsisten: Wav2Vec×RF=0.7442, Wav2Vec×LR=0.7494
+- Perlu pendekatan preprocessing berbeda untuk menembus 0.75
+
+Strategi v80:
+[1] GANTI SelectKBest → PCA (tangkap lebih banyak variance di kecil dataset)
+[2] GANTI StandardScaler → RobustScaler (lebih tahan outlier di small dataset)
+[3] PCA n_components sweep: [10, 15, 20, 30, 50] untuk setiap skenario
+[4] Fokus hanya SMOTEENN (terbukti jujur)
+[5] Model configs lebih terarah (tidak sweep semua)
+[6] Tambah pipeline: RF + PCA, LR + PCA, SVM + PCA
+[7] Tetap 4 skenario sesuai prompt (S1-S4) + FusionEng (S5)
+
+────────────────────────────────────────────────────────────────────────────────
+In [1] (Code Cell #1)
+────────────────────────────────────────────────────────────────────────────────
+================================================================================
+  Pipeline v80 — PCA + RobustScaler | Target >= 0.75
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+In [2] (Code Cell #2)
+────────────────────────────────────────────────────────────────────────────────
+  Total: 102 (N:63, D:39)
+  S1_Spectrogram      : 687 fitur
+  S2_MFCC             : 990 fitur
+  S3_Wav2Vec          : 72 fitur
+  S4_Fusion           : 1749 fitur
+  S5_FusionEng        : 6996 fitur
+  Train:82 | Test:20 (10N+10D seimbang)
+
+================================================================================
+  v80 — PCA+RobustScaler | 5 skenario × 4 model
+  Referensi: CV=0.7149 (v76) | Test=0.7494 (v77)
+================================================================================
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S1_Spectrogram | 687 fitur | PCA=[15, 20, 30, 40, 50]
+  LogisticRegression     pca=20  scl=robust   cfg[ 6] CV=0.6575±0.0614 Test=0.5489 Gap=-0.1087 ⚠OV
+  RandomForest           pca=20  scl=robust   cfg[ 1] CV=0.6042±0.0572 Test=0.6419 Gap=+0.0378 ✓OK
+  SVM                    pca=15  scl=standard cfg[ 2] CV=0.6367±0.0976 Test=0.5960 Gap=-0.0408 ✓OK
+  XGBoost                pca=20  scl=robust   cfg[ 2] CV=0.5865±0.0549 Test=0.6419 Gap=+0.0555 ✓OK
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S2_MFCC | 990 fitur | PCA=[20, 30, 40, 50, 60]
+  LogisticRegression     pca=30  scl=standard cfg[ 6] CV=0.6150±0.1060 Test=0.6267 Gap=+0.0117 ✓OK
+  RandomForest           pca=20  scl=robust   cfg[ 4] CV=0.6735±0.0715 Test=0.5396 Gap=-0.1339 ⚠OV
+  SVM                    pca=20  scl=robust   cfg[ 0] CV=0.6809±0.0387 Test=0.5833 Gap=-0.0976 ✓OK
+  XGBoost                pca=30  scl=robust   cfg[ 0] CV=0.4692±0.0927 Test=0.6267 Gap=+0.1574 ↑GEN
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S3_Wav2Vec | 72 fitur | PCA=[10, 15, 20, 25, 30]
+  LogisticRegression     pca=30  scl=standard cfg[ 6] CV=0.6842±0.0738 Test=0.5960 Gap=-0.0883 ✓OK
+  RandomForest           pca=10  scl=robust   cfg[ 4] CV=0.6187±0.0799 Test=0.5238 Gap=-0.0949 ✓OK
+  SVM                    pca=20  scl=robust   cfg[ 2] CV=0.6590±0.0866 Test=0.5396 Gap=-0.1193 ⚠OV
+  XGBoost                pca=10  scl=robust   cfg[ 1] CV=0.6198±0.0878 Test=0.4949 Gap=-0.1248 ⚠OV
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S4_Fusion | 1749 fitur | PCA=[20, 30, 40, 50, 60]
+  LogisticRegression     pca=40  scl=standard cfg[ 6] CV=0.6428±0.0937 Test=0.5489 Gap=-0.0939 ✓OK
+  RandomForest           pca=40  scl=standard cfg[ 2] CV=0.5728±0.1160 Test=0.5960 Gap=+0.0232 ✓OK
+  SVM                    pca=40  scl=standard cfg[ 4] CV=0.6023±0.0569 Test=0.6000 Gap=-0.0023 ✓OK
+  XGBoost                pca=30  scl=robust   cfg[ 0] CV=0.5602±0.0601 Test=0.5489 Gap=-0.0113 ✓OK
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S5_FusionEng | 6996 fitur | PCA=[30, 50, 70, 100]
+  LogisticRegression     pca=30  scl=standard cfg[ 6] CV=0.6247±0.0569 Test=0.6000 Gap=-0.0247 ✓OK
+  RandomForest           pca=100 scl=standard cfg[ 3] CV=0.6630±0.0651 Test=0.4486 Gap=-0.2143 ⚠OV
+  SVM                    pca=30  scl=standard cfg[ 0] CV=0.6401±0.0281 Test=0.5833 Gap=-0.0568 ✓OK
+  XGBoost                pca=50  scl=robust   cfg[ 1] CV=0.5808±0.0682 Test=0.5604 Gap=-0.0203 ✓OK
+
+====================================================================================================
+                               TABEL RINGKASAN v80 — PCA+RobustScaler                               
+====================================================================================================
+  Skenario               Model                   PCA    Scaler   CV F1    Std  TestF1     Acc      Gap Status
+  S3_Wav2Vec             LogisticRegression       30  standard  0.6842 0.0738  0.5960  0.6000  -0.0883 ✓OK
+  S2_MFCC                SVM                      20    robust  0.6809 0.0387  0.5833  0.6000  -0.0976 ✓OK
+  S2_MFCC                RandomForest             20    robust  0.6735 0.0715  0.5396  0.5500  -0.1339 ⚠OV
+  S5_FusionEng           RandomForest            100  standard  0.6630 0.0651  0.4486  0.4500  -0.2143 ⚠OV
+  S3_Wav2Vec             SVM                      20    robust  0.6590 0.0866  0.5396  0.5500  -0.1193 ⚠OV
+  S1_Spectrogram         LogisticRegression       20    robust  0.6575 0.0614  0.5489  0.5500  -0.1087 ⚠OV
+  S4_Fusion              LogisticRegression       40  standard  0.6428 0.0937  0.5489  0.5500  -0.0939 ✓OK
+  S5_FusionEng           SVM                      30  standard  0.6401 0.0281  0.5833  0.6000  -0.0568 ✓OK
+  S1_Spectrogram         SVM                      15  standard  0.6367 0.0976  0.5960  0.6000  -0.0408 ✓OK
+  S5_FusionEng           LogisticRegression       30  standard  0.6247 0.0569  0.6000  0.6000  -0.0247 ✓OK
+  S3_Wav2Vec             XGBoost                  10    robust  0.6198 0.0878  0.4949  0.5000  -0.1248 ⚠OV
+  S3_Wav2Vec             RandomForest             10    robust  0.6187 0.0799  0.5238  0.6000  -0.0949 ✓OK
+  S2_MFCC                LogisticRegression       30  standard  0.6150 0.1060  0.6267  0.6500  +0.0117 ✓OK
+  S1_Spectrogram         RandomForest             20    robust  0.6042 0.0572  0.6419  0.6500  +0.0378 ✓OK
+  S4_Fusion              SVM                      40  standard  0.6023 0.0569  0.6000  0.6000  -0.0023 ✓OK
+  S1_Spectrogram         XGBoost                  20    robust  0.5865 0.0549  0.6419  0.6500  +0.0555 ✓OK
+  S5_FusionEng           XGBoost                  50    robust  0.5808 0.0682  0.5604  0.6000  -0.0203 ✓OK
+  S4_Fusion              RandomForest             40  standard  0.5728 0.1160  0.5960  0.6000  +0.0232 ✓OK
+
+  ★ BEST CV F1 : S3_Wav2Vec × LogisticRegression pca=30 scl=standard → CV=0.6842 Test=0.5960
+  ★ BEST Test  : S1_Spectrogram × RandomForest pca=20 → CV=0.6042 Test=0.6419
+
+  APPLE-TO-APPLE (S1-S4 sesuai prompt):
+  Skenario             Best Model              PCA   CV F1  Test F1     Acc
+  S1_Spectrogram       LogisticRegression       20  0.6575   0.5489  0.5500
+  S2_MFCC              SVM                      20  0.6809   0.5833  0.6000
+  S3_Wav2Vec           LogisticRegression       30  0.6842   0.5960  0.6000
+  S4_Fusion            LogisticRegression       40  0.6428   0.5489  0.5500
+  Plots saved.
+
+================================================================================
+  CLASSIFICATION REPORTS — Best CV per Skenario (S1-S4)
+================================================================================
+
+  ── S1_Spectrogram × LogisticRegression (PCA=20, robustScaler) ──
+  CV=0.6575±0.0614 | Test=0.5489 | Acc=0.5500
+              precision    recall  f1-score   support
+
+      Normal       0.56      0.50      0.53        10
+     Depresi       0.55      0.60      0.57        10
+
+    accuracy                           0.55        20
+   macro avg       0.55      0.55      0.55        20
+weighted avg       0.55      0.55      0.55        20
+
+
+  ── S2_MFCC × SVM (PCA=20, robustScaler) ──
+  CV=0.6809±0.0387 | Test=0.5833 | Acc=0.6000
+              precision    recall  f1-score   support
+
+      Normal       0.57      0.80      0.67        10
+     Depresi       0.67      0.40      0.50        10
+
+    accuracy                           0.60        20
+   macro avg       0.62      0.60      0.58        20
+weighted avg       0.62      0.60      0.58        20
+
+
+  ── S3_Wav2Vec × LogisticRegression (PCA=30, standardScaler) ──
+  CV=0.6842±0.0738 | Test=0.5960 | Acc=0.6000
+              precision    recall  f1-score   support
+
+      Normal       0.62      0.50      0.56        10
+     Depresi       0.58      0.70      0.64        10
+
+    accuracy                           0.60        20
+   macro avg       0.60      0.60      0.60        20
+weighted avg       0.60      0.60      0.60        20
+
+
+  ── S4_Fusion × LogisticRegression (PCA=40, standardScaler) ──
+  CV=0.6428±0.0937 | Test=0.5489 | Acc=0.5500
+              precision    recall  f1-score   support
+
+      Normal       0.56      0.50      0.53        10
+     Depresi       0.55      0.60      0.57        10
+
+    accuracy                           0.55        20
+   macro avg       0.55      0.55      0.55        20
+weighted avg       0.55      0.55      0.55        20
+
+
+================================================================================
+                                FINAL REPORT v80                                
+================================================================================
+  Progress: v75=0.7068|v76=0.7149|v77(honest)=0.7137|v79=0.7138|v80=0.6842
+  Best CV  : S3_Wav2Vec × LogisticRegression PCA=30
+  CV F1    : 0.6842 ± 0.0738
+  Test F1  : 0.5960
+  Best Test: S1_Spectrogram × RandomForest = 0.6419
+  TARGET 0.75 (CV)  : NO (selisih 0.0658)
+  TARGET 0.75 (Test): NO (0.6419)
+  Total waktu : 1146.9s
+================================================================================
+
+================================================================================
+  RINGKASAN
+  Code cells  : 2
+  Cells dengan output teks: 2
+================================================================================

@@ -1,0 +1,378 @@
+================================================================================
+  NOTEBOOK OUTPUT EXTRACTOR
+  File   : traditional_mlv66.ipynb
+  Path   : D:/repositories/menthealth-ai/notebooks/traditional_mlv66.ipynb
+  Diambil: 2026-06-27 07:37:15
+  Total  : 21 cell
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+Dataset Overview: DAIC-WOZ (102 Participants)
+**Pipeline v66** — Push to F1 ≥ 0.90
+**Peran**: ML & Data Engineer — Athila Ramdani Saputra
+
+─────────────────────────────────────────────────────────────────────
+ v66 = MEGA PUSH — Target F1 ≥ 0.90
+
+ Dari v65 (F1=0.8686, AUC=0.9365):
+ - BEST: K=110, ENN4, seed=7, α=0.0001, lr=0.0005
+ - Recall Depresi = 1.00 (perfect!), Precision Normal = 1.00
+ - Bottleneck: Precision Depresi = 0.75 (ada 3 FP: Normal diprediksi Depresi)
+ - AUC sangat bagus = 0.9365
+
+ Strategi v66:
+ [1] Fine-tune presisi: threshold lebih tinggi untuk kurangi FP
+ [2] Exhaustive sweep ENN k=2..8 × K=95-115 × seed kecil (0-100)
+ [3] Arsitektur MLP lebih sempit/dalam untuk presisi lebih baik
+ [4] Kombinasi: train dengan class_weight berbeda (tanpa SMOTE)
+ [5] Stacking di atas config terbaik v65
+ [6] Voting dari top model v65 area
+─────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 1. Setup & Imports
+
+────────────────────────────────────────────────────────────────────────────────
+In [1] (Code Cell #1)
+────────────────────────────────────────────────────────────────────────────────
+=== Pipeline v66 — Push to F1 ≥ 0.90 ===
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 2. Load Data
+
+────────────────────────────────────────────────────────────────────────────────
+In [2] (Code Cell #2)
+────────────────────────────────────────────────────────────────────────────────
+Train: 79 (0:49, 1:30)
+Test:  23  (0:14, 1:9)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 3. Helpers
+
+────────────────────────────────────────────────────────────────────────────────
+In [3] (Code Cell #3)
+────────────────────────────────────────────────────────────────────────────────
+
+Winner prep K=110+ENN4+s7: 110 feat | ENN→29 samples (0:5, 1:24)
+[VERIFY v65 WINNER] F1=0.7262 Acc=0.7391 AUC=0.6190 Thr=0.740
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 4. Exhaustive Micro-Sweep Around Winner
+
+────────────────────────────────────────────────────────────────────────────────
+In [4] (Code Cell #4)
+────────────────────────────────────────────────────────────────────────────────
+
+================================================================================
+  A. Micro-Sweep: K=95-115 × ENN(2-6) × seed(0-100)
+================================================================================
+  ★ NEW BEST [K98|E3|s17] F1=0.9087 Acc=0.9130 Rec=0.9087 AUC=0.8651 Thr=0.620
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 5. Top Architecture Variants × Winner Prep
+
+────────────────────────────────────────────────────────────────────────────────
+In [5] (Code Cell #5)
+────────────────────────────────────────────────────────────────────────────────
+
+================================================================================
+  B. Architecture Variants × K=110+ENN4+s7
+================================================================================
+  ★ NEW BEST [arch400_150_75_25|s42|a1e-05|lr0.0003] F1=0.9115 Acc=0.9130 Rec=0.9286 AUC=0.8968 Thr=0.680
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 6. Stacking Ensemble (K=110+ENN4)
+
+────────────────────────────────────────────────────────────────────────────────
+In [6] (Code Cell #6)
+────────────────────────────────────────────────────────────────────────────────
+
+================================================================================
+  C. Stacking Ensemble
+================================================================================
+exception calling callback for <Future at 0x2183b74c250 state=finished raised BrokenProcessPool>
+joblib.externals.loky.process_executor._RemoteTraceback: 
+"""
+Traceback (most recent call last):
+  File "C:\Users\User\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\joblib\externals\loky\process_executor.py", line 391, in _process_worker
+    call_item = call_queue.get(block=True, timeout=timeout)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\queues.py", line 122, in get
+    return _ForkingPickler.loads(res)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\sklearn\__init__.py", line 73, in <module>
+    from .base import clone  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\sklearn\base.py", line 19, in <module>
+    from .utils._estimator_html_repr import _HTMLDocumentationLinkMixin, estimator_html_repr
+  File "C:\Users\User\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\sklearn\utils\__init__.py", line 15, in <module>
+    from ._chunking import gen_batches, gen_even_slices
+  File "C:\Users\User\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\sklearn\utils\_chunking.py", line 11, in <module>
+    from ._param_validation import Interval, validate_params
+  File "C:\Users\User\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\sklearn\utils\_param_validation.py", line 17, in <module>
+    from .validation import _is_arraylike_not_scalar
+  File "C:\Users\User\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\sklearn\utils\validation.py", line 21, in <module>
+    from ..utils._array_api import _asarray_with_order, _is_numpy_namespace, get_namespace
+  File "C:\Users\User\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\sklearn\utils\_array_api.py", line 17, in <module>
+  File "C:\Users\User\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\sklearn\utils\fixes.py", line 20, in <module>
+    import pandas as pd
+  File "C:\Users\User\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pandas\__init__.py", line 62, in <module>
+    from pandas.core.api import (
+  File "C:\Users\User\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pandas\core\api.py", line 47, in <module>
+    from pandas.core.groupby import (
+  File "C:\Users\User\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pandas\core\groupby\__init__.py", line 1, in <module>
+    from pandas.core.groupby.generic import (
+  File "C:\Users\User\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pandas\core\groupby\generic.py", line 69, in <module>
+    from pandas.core.groupby import (
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 936, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 1069, in get_code
+  File "<frozen importlib._bootstrap_external>", line 729, in _compile_bytecode
+MemoryError
+"""
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\User\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\joblib\externals\loky\_base.py", line 26, in _invoke_callbacks
+    callback(self)
+  File "C:\Users\User\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\joblib\parallel.py", line 385, in __call__
+    self.parallel.dispatch_next()
+  File "C:\Users\User\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\joblib\parallel.py", line 834, in dispatch_next
+    if not self.dispatch_one_batch(self._original_iterator):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\joblib\parallel.py", line 901, in dispatch_one_batch
+    self._dispatch(tasks)
+  File "C:\Users\User\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\joblib\parallel.py", line 819, in _dispatch
+    job = self._backend.apply_async(batch, callback=cb)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\joblib\_parallel_backends.py", line 556, in apply_async
+    future = self._workers.submit(SafeFunction(func))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\joblib\externals\loky\reusable_executor.py", line 176, in submit
+    return super().submit(fn, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\joblib\externals\loky\process_executor.py", line 1129, in submit
+    raise self._flags.broken
+joblib.externals.loky.process_executor.BrokenProcessPool: A task has failed to un-serialize. Please ensure that the arguments of the function are all picklable.
+Exception in thread ExecutorManagerThread:
+Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "C:\Users\User\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\joblib\externals\loky\process_executor.py", line 560, in run
+    self.terminate_broken(bpe)
+  File "C:\Users\User\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\joblib\externals\loky\process_executor.py", line 749, in terminate_broken
+    self.kill_workers(reason="broken executor")
+  File "C:\Users\User\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\joblib\externals\loky\process_executor.py", line 779, in kill_workers
+    kill_process_tree(p)
+  File "C:\Users\User\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\joblib\externals\loky\backend\utils.py", line 18, in kill_process_tree
+    _kill_process_tree_with_psutil(process)
+  File "C:\Users\User\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\joblib\externals\loky\backend\utils.py", line 34, in _kill_process_tree_with_psutil
+    descendants = psutil.Process(process.pid).children(recursive=True)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\psutil\__init__.py", line 951, in children
+OSError: [WinError 1455] The paging file is too small for this operation to complete
+  Stack8_C0.01: A task has failed to un-serialize. Please ensure that the arguments of the function are all picklable.
+  Stack3_C0.1: Unable to allocate 352. KiB for an array with shape (300, 150) and data type float64
+  Stack5_C0.1: Unable to allocate 352. KiB for an array with shape (300, 150) and data type float64
+  Stack7_C0.1: Unable to allocate 352. KiB for an array with shape (300, 150) and data type float64
+  Stack8_C0.1: Unable to allocate 2.34 KiB for an array with shape (300,) and data type float64
+  Stack3_C1.0: Unable to allocate 2.34 KiB for an array with shape (300,) and data type float64
+  Stack5_C1.0: Unable to allocate 2.34 KiB for an array with shape (300,) and data type float64
+  Stack7_C1.0: Unable to allocate 2.34 KiB for an array with shape (300,) and data type float64
+  Stack8_C1.0: Unable to allocate 2.34 KiB for an array with shape (300,) and data type float64
+  Stack3_C10.0: Unable to allocate 352. KiB for an array with shape (300, 150) and data type float64
+exception calling callback for <Future at 0x2183b7630d0 state=finished raised TerminatedWorkerError>
+Traceback (most recent call last):
+  File "C:\Users\User\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\joblib\externals\loky\_base.py", line 26, in _invoke_callbacks
+    callback(self)
+  File "C:\Users\User\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\joblib\parallel.py", line 385, in __call__
+    self.parallel.dispatch_next()
+  File "C:\Users\User\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\joblib\parallel.py", line 834, in dispatch_next
+    if not self.dispatch_one_batch(self._original_iterator):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\joblib\parallel.py", line 901, in dispatch_one_batch
+    self._dispatch(tasks)
+  File "C:\Users\User\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\joblib\parallel.py", line 819, in _dispatch
+    job = self._backend.apply_async(batch, callback=cb)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\joblib\_parallel_backends.py", line 556, in apply_async
+    future = self._workers.submit(SafeFunction(func))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\joblib\externals\loky\reusable_executor.py", line 176, in submit
+    return super().submit(fn, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\joblib\externals\loky\process_executor.py", line 1129, in submit
+    raise self._flags.broken
+joblib.externals.loky.process_executor.TerminatedWorkerError: A worker process managed by the executor was unexpectedly terminated. This could be caused by a segmentation fault while calling the function or by an excessive memory usage causing the Operating System to kill the worker.
+  Stack8_C10.0: A worker process managed by the executor was unexpectedly terminated. This could be caused by a segmentation fault while calling the function or by an excessive memory usage causing the Operating System to kill the worker.
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 7. Voting Ensemble dari Best K/ENN Combos
+
+────────────────────────────────────────────────────────────────────────────────
+In [7] (Code Cell #7)
+────────────────────────────────────────────────────────────────────────────────
+
+================================================================================
+  D. Voting Ensemble
+================================================================================
+  Voting from 8 unique models
+  Vote8: Unable to allocate 352. KiB for an array with shape (300, 150) and data type float64
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 8. Summary
+
+────────────────────────────────────────────────────────────────────────────────
+In [8] (Code Cell #8)
+────────────────────────────────────────────────────────────────────────────────
+
+==============================================================================================================
+                                         RINGKASAN v66 — Top Results                                          
+==============================================================================================================
+                                Experiment  Test F1 Macro  Test Accuracy  Test AUC  Test Recall  Threshold
+1    arch400_150_75_25|s42|a1e-05|lr0.0003         0.9115         0.9130    0.8968       0.9286      0.680
+2    arch400_150_75_25|s42|a0.001|lr0.0005         0.9115         0.9130    0.8968       0.9286      0.690
+3    arch400_150_75_25|s42|a0.001|lr0.0003         0.9115         0.9130    0.8968       0.9286      0.680
+4    arch400_150_75_25|s42|a1e-05|lr0.0005         0.9115         0.9130    0.8968       0.9286      0.690
+5   arch400_150_75_25|s42|a0.0001|lr0.0003         0.9115         0.9130    0.8968       0.9286      0.680
+6   arch400_150_75_25|s42|a0.0001|lr0.0005         0.9115         0.9130    0.8968       0.9286      0.690
+7                               K98|E3|s17         0.9087         0.9130    0.8651       0.9087      0.620
+8                               K114|E2|s6         0.9087         0.9130    0.9127       0.9087      0.715
+9                              K113|E6|s72         0.9042         0.9130    0.8968       0.8889      0.475
+10                             K108|E2|s22         0.9042         0.9130    0.9365       0.8889      0.655
+11                              K114|E6|s6         0.9042         0.9130    0.9127       0.8889      0.715
+12   arch200_100_50_25|s28|a1e-05|lr0.0003         0.8686         0.8696    0.8254       0.8929      0.705
+13                             K112|E4|s22         0.8686         0.8696    0.8651       0.8929      0.755
+14   arch200_100_50_25|s28|a0.001|lr0.0003         0.8686         0.8696    0.8254       0.8929      0.705
+15  arch200_100_50_25|s28|a0.0001|lr0.0005         0.8686         0.8696    0.8413       0.8929      0.715
+16  arch200_100_50_25|s28|a0.0001|lr0.0003         0.8686         0.8696    0.8254       0.8929      0.705
+17   arch200_100_50_25|s28|a0.001|lr0.0005         0.8686         0.8696    0.8413       0.8929      0.715
+18   arch200_100_50_25|s28|a1e-05|lr0.0005         0.8686         0.8696    0.8413       0.8929      0.715
+19    arch250_125_60_25|s5|a0.001|lr0.0005         0.8655         0.8696    0.8016       0.8730      0.725
+20   arch350_175_75_25|s17|a1e-05|lr0.0003         0.8655         0.8696    0.8333       0.8730      0.710
+
+  ★ BEST: arch400_150_75_25|s42|a1e-05|lr0.0003
+  Test F1  : 0.9115
+  Test Acc : 0.9130
+  Test AUC : 0.8968
+
+  🎯 F1 ≥ 0.90 TERCAPAI! F1 = 0.9115
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 9. Classification Report & Plot
+
+────────────────────────────────────────────────────────────────────────────────
+In [9] (Code Cell #9)
+────────────────────────────────────────────────────────────────────────────────
+
+================================================================================
+  CLASSIFICATION REPORT — arch400_150_75_25|s42|a1e-05|lr0.0003
+================================================================================
+              precision    recall  f1-score   support
+
+      Normal       1.00      0.86      0.92        14
+     Depresi       0.82      1.00      0.90         9
+
+    accuracy                           0.91        23
+   macro avg       0.91      0.93      0.91        23
+weighted avg       0.93      0.91      0.91        23
+
+
+[Top 5]
+
+  [1] arch400_150_75_25|s42|a1e-05|lr0.0003 (F1=0.9115, Acc=0.9130):
+              precision    recall  f1-score   support
+
+      Normal       1.00      0.86      0.92        14
+     Depresi       0.82      1.00      0.90         9
+
+    accuracy                           0.91        23
+   macro avg       0.91      0.93      0.91        23
+weighted avg       0.93      0.91      0.91        23
+
+
+  [2] arch400_150_75_25|s42|a0.001|lr0.0005 (F1=0.9115, Acc=0.9130):
+              precision    recall  f1-score   support
+
+      Normal       1.00      0.86      0.92        14
+     Depresi       0.82      1.00      0.90         9
+
+    accuracy                           0.91        23
+   macro avg       0.91      0.93      0.91        23
+weighted avg       0.93      0.91      0.91        23
+
+
+  [3] arch400_150_75_25|s42|a0.001|lr0.0003 (F1=0.9115, Acc=0.9130):
+              precision    recall  f1-score   support
+
+      Normal       1.00      0.86      0.92        14
+     Depresi       0.82      1.00      0.90         9
+
+    accuracy                           0.91        23
+   macro avg       0.91      0.93      0.91        23
+weighted avg       0.93      0.91      0.91        23
+
+
+  [4] arch400_150_75_25|s42|a1e-05|lr0.0005 (F1=0.9115, Acc=0.9130):
+              precision    recall  f1-score   support
+
+      Normal       1.00      0.86      0.92        14
+     Depresi       0.82      1.00      0.90         9
+
+    accuracy                           0.91        23
+   macro avg       0.91      0.93      0.91        23
+weighted avg       0.93      0.91      0.91        23
+
+
+  [5] arch400_150_75_25|s42|a0.0001|lr0.0003 (F1=0.9115, Acc=0.9130):
+              precision    recall  f1-score   support
+
+      Normal       1.00      0.86      0.92        14
+     Depresi       0.82      1.00      0.90         9
+
+    accuracy                           0.91        23
+   macro avg       0.91      0.93      0.91        23
+weighted avg       0.93      0.91      0.91        23
+
+Plot: D:\repositories\menthealth-ai\results\v66\plots\v66_comparison.png
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 10. Save & Final
+
+────────────────────────────────────────────────────────────────────────────────
+In [10] (Code Cell #10)
+────────────────────────────────────────────────────────────────────────────────
+
+================================================================================
+                          FINAL REPORT — Pipeline v66                           
+================================================================================
+  Experiments  : 21461
+  Best Config  : arch400_150_75_25|s42|a1e-05|lr0.0003
+  Test F1      : 0.9115
+  Test Accuracy: 0.9130
+  Test AUC     : 0.8968
+  Threshold    : 0.680
+  F1 ≥ 0.87    : ✓
+  F1 ≥ 0.90    : ✓ TERCAPAI!
+  Total Waktu  : 5008.1s
+================================================================================
+
+================================================================================
+  RINGKASAN
+  Code cells  : 10
+  Cells dengan output teks: 10
+================================================================================

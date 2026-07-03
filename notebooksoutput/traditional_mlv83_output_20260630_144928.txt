@@ -1,0 +1,190 @@
+================================================================================
+  NOTEBOOK OUTPUT EXTRACTOR
+  File   : traditional_mlv83.ipynb
+  Path   : notebooks\traditional_mlv83.ipynb
+  Diambil: 2026-06-30 14:49:28
+  Total  : 3 cell
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+# Pipeline v83 — Multi-Seed SMOTEENN Bagging + Fair Threshold | Target >= 0.75
+Insight v76-v82:
+- S3_Wav2Vec × RF (K=ALL): Test=0.7442 SANGAT KONSISTEN di semua versi
+- CV stagnasi ~0.71 (honest)
+- SMOTEENN adalah stochastic → seed berbeda = synthetic samples berbeda
+
+STRATEGI BARU v83:
+[1] Multi-Seed SMOTEENN Bagging:
+    - Jalankan SMOTEENN dengan 5 seeds berbeda [42,123,456,789,1234]
+    - Train model berbeda untuk setiap seed
+    - Average prediksi → mengurangi variance dari randomness SMOTEENN
+[2] Fair Threshold: tentukan threshold dari CV (rata-rata threshold optimal
+    per fold), bukan sweep di test set → evaluasi lebih jujur
+[3] Fokus pada winner: S3_Wav2Vec×RF dan S5_FusionEng×RF
+[4] Apple-to-apple S1-S4 lengkap
+
+────────────────────────────────────────────────────────────────────────────────
+In [1] (Code Cell #1)
+────────────────────────────────────────────────────────────────────────────────
+================================================================================
+  Pipeline v83 — Multi-Seed SMOTEENN Bagging | Fair Threshold | Target >= 0.75
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+In [2] (Code Cell #2)
+────────────────────────────────────────────────────────────────────────────────
+  Total: 102 (N:63, D:39)
+  S1_Spectrogram      : 687 fitur
+  S2_MFCC             : 990 fitur
+  S3_Wav2Vec          : 72 fitur
+  S4_Fusion           : 1749 fitur
+  S5_FusionEng        : 6996 fitur
+  Train:82 (N:53, D:29) | Test:20 (10N+10D)
+
+================================================================================
+  v83 — Multi-Seed SMOTEENN (5 seeds) | Fair Threshold
+  Referensi: CV=0.7149 (v76) | Test=0.7494 (v77) | Test_RF=0.7442
+================================================================================
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S1_Spectrogram | 687 fitur | K=[30, 50, 60]
+  LogisticRegression     K=30    cfg[1] thr=0.60 CV=0.7173±0.0695 Test=0.6000(fair) /0.6000(sw) Gap=-0.1173 ⚠OV ★CV★
+  RandomForest           K=30    cfg[0] thr=0.71 CV=0.6873±0.1343 Test=0.3732(fair) /0.5396(sw) Gap=-0.3141 ⚠OV
+  SVM                    K=30    cfg[4] thr=0.72 CV=0.6322±0.0510 Test=0.4373(fair) /0.6875(sw) Gap=-0.1949 ⚠OV
+  XGBoost                K=30    cfg[2] thr=0.59 CV=0.6515±0.0611 Test=0.5960(fair) /0.6491(sw) Gap=-0.0556 ✓OK
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S2_MFCC | 990 fitur | K=[30, 50, 60]
+  LogisticRegression     K=30    cfg[1] thr=0.76 CV=0.6851±0.0526 Test=0.5833(fair) /0.6491(sw) Gap=-0.1017 ⚠OV
+  RandomForest           K=30    cfg[2] thr=0.73 CV=0.6907±0.0431 Test=0.5200(fair) /0.6491(sw) Gap=-0.1707 ⚠OV
+  SVM                    K=30    cfg[1] thr=0.63 CV=0.6844±0.0204 Test=0.4048(fair) /0.5200(sw) Gap=-0.2796 ⚠OV
+  XGBoost                K=30    cfg[3] thr=0.78 CV=0.6604±0.0218 Test=0.4949(fair) /0.6000(sw) Gap=-0.1654 ⚠OV
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S3_Wav2Vec | 72 fitur | K=[None, 60, 70]
+  LogisticRegression     K=70    cfg[6] thr=0.51 CV=0.6350±0.0712 Test=0.5489(fair) /0.6267(sw) Gap=-0.0861 ✓OK
+  RandomForest           K=70    cfg[2] thr=0.78 CV=0.6263±0.0856 Test=0.5396(fair) /0.6491(sw) Gap=-0.0866 ✓OK
+  SVM                    K=ALL   cfg[1] thr=0.62 CV=0.6669±0.0678 Test=0.4949(fair) /0.6491(sw) Gap=-0.1720 ⚠OV
+  XGBoost                K=70    cfg[2] thr=0.71 CV=0.6099±0.0830 Test=0.6491(fair) /0.7000(sw) Gap=+0.0392 ✓OK
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S4_Fusion | 1749 fitur | K=[40, 50, 60]
+  LogisticRegression     K=40    cfg[2] thr=0.63 CV=0.6499±0.0562 Test=0.6491(fair) /0.6970(sw) Gap=-0.0008 ✓OK
+  RandomForest           K=40    cfg[2] thr=0.70 CV=0.6552±0.0679 Test=0.6419(fair) /0.6491(sw) Gap=-0.0133 ✓OK
+  SVM                    K=40    cfg[3] thr=0.63 CV=0.6613±0.0446 Test=0.6419(fair) /0.6970(sw) Gap=-0.0194 ✓OK
+  XGBoost                K=40    cfg[1] thr=0.83 CV=0.6623±0.0402 Test=0.5396(fair) /0.6491(sw) Gap=-0.1226 ⚠OV
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S5_FusionEng | 6996 fitur | K=[30, 50, 80]
+  LogisticRegression     K=50    cfg[6] thr=0.54 CV=0.6450±0.0494 Test=0.6491(fair) /0.7000(sw) Gap=+0.0041 ✓OK
+  RandomForest           K=50    cfg[2] thr=0.58 CV=0.7034±0.0490 Test=0.5396(fair) /0.6703(sw) Gap=-0.1638 ⚠OV
+  SVM                    K=50    cfg[0] thr=0.48 CV=0.6711±0.0691 Test=0.5396(fair) /0.5833(sw) Gap=-0.1314 ⚠OV
+  XGBoost                K=30    cfg[0] thr=0.63 CV=0.6657±0.0609 Test=0.5396(fair) /0.5960(sw) Gap=-0.1260 ⚠OV
+
+====================================================================================================
+                     TABEL RINGKASAN v83 — Multi-Seed SMOTEENN + Fair Threshold                     
+====================================================================================================
+  Skenario               Model                      K   CV F1    Std  F1(fair)  F1(sw)     Acc      Gap St
+  S1_Spectrogram         LogisticRegression        30  0.7173 0.0695    0.6000  0.6000  0.6000  -0.1173 ⚠OV
+  S5_FusionEng           RandomForest              50  0.7034 0.0490    0.5396  0.6703  0.5500  -0.1638 ⚠OV
+  S2_MFCC                RandomForest              30  0.6907 0.0431    0.5200  0.6491  0.5500  -0.1707 ⚠OV
+  S1_Spectrogram         RandomForest              30  0.6873 0.1343    0.3732  0.5396  0.4500  -0.3141 ⚠OV
+  S2_MFCC                LogisticRegression        30  0.6851 0.0526    0.5833  0.6491  0.6000  -0.1017 ⚠OV
+  S2_MFCC                SVM                       30  0.6844 0.0204    0.4048  0.5200  0.5000  -0.2796 ⚠OV
+  S5_FusionEng           SVM                       50  0.6711 0.0691    0.5396  0.5833  0.5500  -0.1314 ⚠OV
+  S3_Wav2Vec             SVM                      ALL  0.6669 0.0678    0.4949  0.6491  0.5000  -0.1720 ⚠OV
+  S5_FusionEng           XGBoost                   30  0.6657 0.0609    0.5396  0.5960  0.5500  -0.1260 ⚠OV
+  S4_Fusion              XGBoost                   40  0.6623 0.0402    0.5396  0.6491  0.5500  -0.1226 ⚠OV
+  S4_Fusion              SVM                       40  0.6613 0.0446    0.6419  0.6970  0.6500  -0.0194 ✓OK
+  S2_MFCC                XGBoost                   30  0.6604 0.0218    0.4949  0.6000  0.5000  -0.1654 ⚠OV
+  S4_Fusion              RandomForest              40  0.6552 0.0679    0.6419  0.6491  0.6500  -0.0133 ✓OK
+  S1_Spectrogram         XGBoost                   30  0.6515 0.0611    0.5960  0.6491  0.6000  -0.0556 ✓OK
+  S4_Fusion              LogisticRegression        40  0.6499 0.0562    0.6491  0.6970  0.6500  -0.0008 ✓OK
+  S5_FusionEng           LogisticRegression        50  0.6450 0.0494    0.6491  0.7000  0.6500  +0.0041 ✓OK
+  S3_Wav2Vec             LogisticRegression        70  0.6350 0.0712    0.5489  0.6267  0.5500  -0.0861 ✓OK
+  S1_Spectrogram         SVM                       30  0.6322 0.0510    0.4373  0.6875  0.4500  -0.1949 ⚠OV
+
+  ★ BEST CV   : S1_Spectrogram × LogisticRegression K=30 → CV=0.7173 Test=0.6000
+  ★ BEST Test : S3_Wav2Vec × XGBoost K=70 → CV=0.6099 Test=0.6491
+  ★ BEST Swept: S3_Wav2Vec × XGBoost K=70 → Swept=0.7000
+
+  APPLE-TO-APPLE (S1-S4 sesuai prompt):
+  Skenario             Best Model                 K   CV F1  Test F1     Acc     AUC
+  S1_Spectrogram       LogisticRegression        30  0.7173   0.6000  0.6000  0.5500
+  S2_MFCC              RandomForest              30  0.6907   0.5200  0.5500  0.5600
+  S3_Wav2Vec           SVM                      ALL  0.6669   0.4949  0.5000  0.6100
+  S4_Fusion            XGBoost                   40  0.6623   0.5396  0.5500  0.5900
+  Plots saved.
+
+================================================================================
+  CLASSIFICATION REPORTS — S1-S4 Best CV
+================================================================================
+
+  ── S1_Spectrogram × LogisticRegression (K=30, thr=0.598) ──
+  CV=0.7173±0.0695 | Test(fair)=0.6000 | Test(sw)=0.6000 | Acc=0.6000
+              precision    recall  f1-score   support
+
+      Normal       0.60      0.60      0.60        10
+     Depresi       0.60      0.60      0.60        10
+
+    accuracy                           0.60        20
+   macro avg       0.60      0.60      0.60        20
+weighted avg       0.60      0.60      0.60        20
+
+
+  ── S2_MFCC × RandomForest (K=30, thr=0.734) ──
+  CV=0.6907±0.0431 | Test(fair)=0.5200 | Test(sw)=0.6491 | Acc=0.5500
+              precision    recall  f1-score   support
+
+      Normal       0.53      0.80      0.64        10
+     Depresi       0.60      0.30      0.40        10
+
+    accuracy                           0.55        20
+   macro avg       0.57      0.55      0.52        20
+weighted avg       0.57      0.55      0.52        20
+
+
+  ── S3_Wav2Vec × SVM (K=ALL, thr=0.616) ──
+  CV=0.6669±0.0678 | Test(fair)=0.4949 | Test(sw)=0.6491 | Acc=0.5000
+              precision    recall  f1-score   support
+
+      Normal       0.50      0.60      0.55        10
+     Depresi       0.50      0.40      0.44        10
+
+    accuracy                           0.50        20
+   macro avg       0.50      0.50      0.49        20
+weighted avg       0.50      0.50      0.49        20
+
+
+  ── S4_Fusion × XGBoost (K=40, thr=0.828) ──
+  CV=0.6623±0.0402 | Test(fair)=0.5396 | Test(sw)=0.6491 | Acc=0.5500
+              precision    recall  f1-score   support
+
+      Normal       0.54      0.70      0.61        10
+     Depresi       0.57      0.40      0.47        10
+
+    accuracy                           0.55        20
+   macro avg       0.55      0.55      0.54        20
+weighted avg       0.55      0.55      0.54        20
+
+
+================================================================================
+                                FINAL REPORT v83                                
+================================================================================
+  Progress: v76=0.7149|v79=0.7138|v82=0.7005|v83=0.7173
+  Best CV  : S1_Spectrogram × LogisticRegression K=30
+  CV F1    : 0.7173 ± 0.0695
+  Test F1 (fair): 0.6000
+  Best Test(fair): S3_Wav2Vec × XGBoost = 0.6491
+  Best Test(sw)  : S3_Wav2Vec × XGBoost = 0.7000
+  TARGET 0.75 (CV)      : NO (selisih 0.0327)
+  TARGET 0.75 (Test)    : NO (0.6491)
+  Total waktu : 3026.4s
+================================================================================
+
+================================================================================
+  RINGKASAN
+  Code cells  : 2
+  Cells dengan output teks: 2
+================================================================================

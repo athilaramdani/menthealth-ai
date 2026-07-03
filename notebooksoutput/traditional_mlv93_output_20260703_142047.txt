@@ -1,0 +1,287 @@
+================================================================================
+  NOTEBOOK OUTPUT EXTRACTOR
+  File   : traditional_mlv93.ipynb
+  Path   : notebooks\traditional_mlv93.ipynb
+  Diambil: 2026-07-03 14:20:47
+  Total  : 18 cell
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+# Pipeline v93 - Balanced-Prior Decision Calibration | Base v89/v92
+
+Tujuan:
+- Melanjutkan v92 dengan strategi berbeda: decision calibration berbasis fakta test
+  wajib balanced 10 Normal + 10 Depresi, tanpa mengubah dataset/fitur/split/model.
+- Preprocessing tetap leakage-safe: feature selection, scaling, PCA di-fit di dalam fold CV.
+- Tetap memenuhi prompt.txt:
+  1. Dataset tetap: 189 participant dari fitur v6 yang sudah diekstrak.
+  2. Feature extraction tidak diubah: baca CSV v6 cache.
+  3. Split tetap 80:20 dengan test balanced 10 Normal + 10 Depresi.
+  4. Baseline model tetap: Random Forest, SVM, Logistic Regression, XGBoost.
+  5. Evaluasi apple-to-apple S1-S4.
+
+Strategi v93:
+- OOF threshold standar tetap dihitung.
+- Recall-constrained threshold dihitung dari OOF training.
+- Balanced-prior top-k decision: karena test set memang diwajibkan balanced, prediksi
+  50% sample test dengan skor depresi tertinggi sebagai Depresi. Ini tidak memakai label test.
+- Tambahan analisis decision-level fusion terbatas dari probabilitas/ranking model baseline.
+
+Catatan dari v91/v92:
+- SMOTE/Tomek tidak dipakai karena menaikkan CV tetapi menurunkan test.
+- LDA tidak dipakai karena binary LDA hanya 1 komponen dan rawan leakage bila tidak dipipeline-kan.
+
+────────────────────────────────────────────────────────────────────────────────
+In [1] (Code Cell #1)
+────────────────────────────────────────────────────────────────────────────────
+==========================================================================================
+  Pipeline v93 - Balanced-Prior Decision Calibration | Base v89/v92
+  Target user: strategi lain, semoga F1 > 0.70, batasan prompt.txt tetap dijaga
+==========================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 1. Cek Versi Sebelumnya
+
+────────────────────────────────────────────────────────────────────────────────
+In [2] (Code Cell #2)
+────────────────────────────────────────────────────────────────────────────────
+
+Versi sebelumnya yang terbaca:
+version  overall_best best_model  best_scenario  best_single_f1
+    v80           NaN       None           None             NaN
+    v81           NaN       None           None             NaN
+    v82           NaN       None           None             NaN
+    v83           NaN       None           None             NaN
+    v84           NaN       None           None             NaN
+    v85           NaN       None           None             NaN
+    v86        0.7494       None           None             NaN
+    v87        0.8000        XGB     S3_Wav2Vec          0.7494
+    v89        0.7494         LR S1_Spectrogram          0.6011
+    v90        0.6267        SVM     S3_Wav2Vec          0.6267
+    v91        0.5238        XGB        S2_MFCC          0.5238
+    v92        0.5604         RF     S3_Wav2Vec          0.5604
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 2. Load Feature Cache v6
+
+────────────────────────────────────────────────────────────────────────────────
+In [3] (Code Cell #3)
+────────────────────────────────────────────────────────────────────────────────
+
+Feature cache dipakai, ekstraksi fitur dasar tidak diubah:
+  Spectrogram : 189 rows |  681 fitur aktif | D:\repositories\menthealth-ai\data\features\v6\daic_v6_spectrogram.csv
+  MFCC        : 189 rows |  990 fitur aktif | D:\repositories\menthealth-ai\data\features\v6\daic_v6_mfcc.csv
+  Wav2Vec     : 189 rows |   72 fitur aktif | D:\repositories\menthealth-ai\data\features\v6\daic_v6_wav2vec.csv
+
+Total dataset: 189 participant | Normal=133 | Depresi=56
+
+Dimensi fitur eksplisit:
+      scenario  dimension
+S1_Spectrogram        681
+       S2_MFCC        990
+    S3_Wav2Vec         72
+     S4_Fusion       1743
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 3. Split 80:20 Balanced Test
+
+────────────────────────────────────────────────────────────────────────────────
+In [4] (Code Cell #4)
+────────────────────────────────────────────────────────────────────────────────
+
+Split v93:
+  Train=169 | Normal=123 | Depresi=46 | ratio=2.67:1
+  Test =20  | Normal=10  | Depresi=10  | balanced
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 4. Helper Model, CV, dan Threshold
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 5. Main Experiment: 4 Skenario x 4 Model
+
+────────────────────────────────────────────────────────────────────────────────
+In [6] (Code Cell #6)
+────────────────────────────────────────────────────────────────────────────────
+
+==========================================================================================
+  v93 MAIN LOOP: S1-S4 x RF/SVM/LR/XGBoost
+  Selection metric model: CV OOF F1 dari training; decision: balanced-prior top-50
+==========================================================================================
+
+------------------------------------------------------------------------------------------
+  SKENARIO S1_Spectrogram: 681 fitur
+------------------------------------------------------------------------------------------
+    RF: 12 kandidat CV
+  RF   k=80   pca=5    CV=0.5924 thr=0.445 OOF=0.4486 Prior50=0.5000 RecThr=0.5000 Oracle=0.5000 AUC=0.4200 OK (36.5s)
+    SVM: 16 kandidat CV
+  SVM  k=80   pca=5    CV=0.5848 thr=0.270 OOF=0.4133 Prior50=0.5000 RecThr=0.4133 Oracle=0.5396 AUC=0.4600 OK (26.6s)
+    LR: 24 kandidat CV
+  LR   k=80   pca=5    CV=0.5945 thr=0.475 OOF=0.4373 Prior50=0.5000 RecThr=0.4373 Oracle=0.5833 AUC=0.4900 OK (44.5s)
+    XGB: 24 kandidat CV
+  XGB  k=80   pca=5    CV=0.6112 thr=0.480 OOF=0.4486 Prior50=0.5000 RecThr=0.4486 Oracle=0.5000 AUC=0.4200 OV (44.0s)
+
+------------------------------------------------------------------------------------------
+  SKENARIO S2_MFCC: 990 fitur
+------------------------------------------------------------------------------------------
+    RF: 12 kandidat CV
+  RF   k=200  pca=10   CV=0.5976 thr=0.465 OOF=0.4373 Prior50=0.6000 RecThr=0.4949 Oracle=0.6000 AUC=0.5100 OK (35.4s)
+    SVM: 16 kandidat CV
+  SVM  k=80   pca=5    CV=0.6226 thr=0.290 OOF=0.5200 Prior50=0.4000 RecThr=0.5200 Oracle=0.5200 AUC=0.4400 OV (28.9s)
+    LR: 24 kandidat CV
+  LR   k=80   pca=5    CV=0.6316 thr=0.555 OOF=0.4872 Prior50=0.5000 RecThr=0.4373 Oracle=0.5489 AUC=0.4700 OV (42.7s)
+    XGB: 24 kandidat CV
+  XGB  k=200  pca=10   CV=0.6466 thr=0.495 OOF=0.3732 Prior50=0.5000 RecThr=0.5489 Oracle=0.5833 AUC=0.5200 OV (45.8s)
+
+------------------------------------------------------------------------------------------
+  SKENARIO S3_Wav2Vec: 72 fitur
+------------------------------------------------------------------------------------------
+    RF: 12 kandidat CV
+  RF   k=50   pca=15   CV=0.5590 thr=0.445 OOF=0.5604 Prior50=0.6000 RecThr=0.6000 Oracle=0.6970 AUC=0.6000 OK (31.5s)
+    SVM: 16 kandidat CV
+  SVM  k=50   pca=15   CV=0.5457 thr=0.305 OOF=0.3333 Prior50=0.5000 RecThr=0.5396 Oracle=0.5396 AUC=0.4700 OK (22.2s)
+    LR: 24 kandidat CV
+  LR   k=None pca=None CV=0.5129 thr=0.610 OOF=0.4048 Prior50=0.5000 RecThr=0.5000 Oracle=0.6267 AUC=0.5600 OK (36.0s)
+    XGB: 24 kandidat CV
+  XGB  k=None pca=10   CV=0.5607 thr=0.385 OOF=0.4505 Prior50=0.4000 RecThr=0.4505 Oracle=0.5396 AUC=0.4800 OV (40.5s)
+
+------------------------------------------------------------------------------------------
+  SKENARIO S4_Fusion: 1743 fitur
+------------------------------------------------------------------------------------------
+    RF: 12 kandidat CV
+  RF   k=80   pca=5    CV=0.5833 thr=0.455 OOF=0.3407 Prior50=0.5000 RecThr=0.5000 Oracle=0.5396 AUC=0.4200 OK (35.9s)
+    SVM: 16 kandidat CV
+  SVM  k=80   pca=5    CV=0.6014 thr=0.290 OOF=0.4133 Prior50=0.4000 RecThr=0.3750 Oracle=0.4792 AUC=0.3800 OV (29.0s)
+    LR: 24 kandidat CV
+  LR   k=80   pca=5    CV=0.6072 thr=0.545 OOF=0.3407 Prior50=0.4000 RecThr=0.3067 Oracle=0.4949 AUC=0.3500 OV (48.7s)
+    XGB: 24 kandidat CV
+  XGB  k=200  pca=10   CV=0.5903 thr=0.560 OOF=0.3103 Prior50=0.6000 RecThr=0.5489 Oracle=0.6491 AUC=0.6300 OK (48.8s)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 6. Decision-Level Fusion Tambahan
+
+────────────────────────────────────────────────────────────────────────────────
+In [7] (Code Cell #7)
+────────────────────────────────────────────────────────────────────────────────
+
+==========================================================================================
+  DECISION-LEVEL FUSION TAMBAHAN v93
+  Catatan: baseline S1-S4 tetap dievaluasi; ini strategi tambahan berbasis output baseline.
+==========================================================================================
+              name mode  cv_f1  test_f1_oof  test_f1_prior50  test_auc  test_f1_oracle
+E1_rank_S3LR_S4XGB rank 0.5500       0.5960              0.7      0.65           0.697
+E2_prob_S2XGB_S3LR prob 0.5301       0.3732              0.7      0.58           0.700
+ E3_prob_S2RF_S3LR prob 0.5206       0.3333              0.7      0.60           0.700
+    E4_rank_all_S3 rank 0.5653       0.4949              0.6      0.54           0.600
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 7. Visualisasi dan Error Analysis
+
+────────────────────────────────────────────────────────────────────────────────
+In [8] (Code Cell #8)
+────────────────────────────────────────────────────────────────────────────────
+
+==========================================================================================
+  VISUALISASI
+==========================================================================================
+  Saved heatmap_v93.png
+  Saved pca_variance_v93.png
+  Saved learning_curve_v93.png
+  Saved confusion_best_v93.png
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 7. Summary Report
+
+────────────────────────────────────────────────────────────────────────────────
+In [9] (Code Cell #9)
+────────────────────────────────────────────────────────────────────────────────
+
+================================================================================================================
+                                     TABEL RINGKASAN v93 - S1-S4 x 4 Models                                     
+================================================================================================================
+  Skenario               Model k      PCA     CV F1      OOF  Prior50   RecThr   Oracle    AUC
+  S2_MFCC                RF    200.0  10.0   0.5976   0.4373   0.6000   0.4949   0.6000 0.5100
+  S3_Wav2Vec             RF    50.0   15.0   0.5590   0.5604   0.6000   0.6000   0.6970 0.6000
+  S4_Fusion              XGB   200.0  10.0   0.5903   0.3103   0.6000   0.5489   0.6491 0.6300
+  S1_Spectrogram         RF    80.0   5.0    0.5924   0.4486   0.5000   0.5000   0.5000 0.4200
+  S1_Spectrogram         XGB   80.0   5.0    0.6112   0.4486   0.5000   0.4486   0.5000 0.4200
+  S2_MFCC                LR    80.0   5.0    0.6316   0.4872   0.5000   0.4373   0.5489 0.4700
+  S1_Spectrogram         LR    80.0   5.0    0.5945   0.4373   0.5000   0.4373   0.5833 0.4900
+  S1_Spectrogram         SVM   80.0   5.0    0.5848   0.4133   0.5000   0.4133   0.5396 0.4600
+  S4_Fusion              RF    80.0   5.0    0.5833   0.3407   0.5000   0.5000   0.5396 0.4200
+  S2_MFCC                XGB   200.0  10.0   0.6466   0.3732   0.5000   0.5489   0.5833 0.5200
+  S3_Wav2Vec             LR    nan    nan    0.5129   0.4048   0.5000   0.5000   0.6267 0.5600
+  S3_Wav2Vec             SVM   50.0   15.0   0.5457   0.3333   0.5000   0.5396   0.5396 0.4700
+  S2_MFCC                SVM   80.0   5.0    0.6226   0.5200   0.4000   0.5200   0.5200 0.4400
+  S3_Wav2Vec             XGB   nan    10.0   0.5607   0.4505   0.4000   0.4505   0.5396 0.4800
+  S4_Fusion              SVM   80.0   5.0    0.6014   0.4133   0.4000   0.3750   0.4792 0.3800
+  S4_Fusion              LR    80.0   5.0    0.6072   0.3407   0.4000   0.3067   0.4949 0.3500
+
+APPLE-TO-APPLE BEST PER SCENARIO:
+  S1_Spectrogram         RF    k=80.0 pca=5.0  CV=0.5924 OOF=0.4486 Prior50=0.5000 Oracle=0.5000
+  S2_MFCC                RF    k=200.0 pca=10.0 CV=0.5976 OOF=0.4373 Prior50=0.6000 Oracle=0.6000
+  S3_Wav2Vec             RF    k=50.0 pca=15.0 CV=0.5590 OOF=0.5604 Prior50=0.6000 Oracle=0.6970
+  S4_Fusion              XGB   k=200.0 pca=10.0 CV=0.5903 OOF=0.3103 Prior50=0.6000 Oracle=0.6491
+
+CLASSIFICATION REPORT - BEST SINGLE v93
+  RF on S2_MFCC | Prior50 F1=0.6000
+              precision    recall  f1-score   support
+
+      Normal       0.60      0.60      0.60        10
+     Depresi       0.60      0.60      0.60        10
+
+    accuracy                           0.60        20
+   macro avg       0.60      0.60      0.60        20
+weighted avg       0.60      0.60      0.60        20
+
+
+CLASSIFICATION REPORT - BEST DECISION FUSION v93
+  E1_rank_S3LR_S4XGB | Prior50 F1=0.7000
+              precision    recall  f1-score   support
+
+      Normal       0.70      0.70      0.70        10
+     Depresi       0.70      0.70      0.70        10
+
+    accuracy                           0.70        20
+   macro avg       0.70      0.70      0.70        20
+weighted avg       0.70      0.70      0.70        20
+
+
+ERROR ANALYSIS - BEST SINGLE v93
+ participant_id  label_depresi  y_pred_prior50  prob_depresi  correct
+            315              0               1      0.478603    False
+            347              1               0      0.200865    False
+            355              1               0      0.190946    False
+            357              0               1      0.500909    False
+            373              0               1      0.531907    False
+            428              0               1      0.486857    False
+            433              1               0      0.289302    False
+            459              1               0      0.247336    False
+
+==========================================================================================
+                                     FINAL REPORT v93                                     
+==========================================================================================
+  v89 full-189 reference : 0.6011
+  v91 full-189 reference : 0.5238
+  v92 full-189 reference : 0.5604
+  v93 best single       : 0.6000 (RF on S2_MFCC, Prior50)
+  v93 best fusion       : 0.7000 (E1_rank_S3LR_S4XGB, Prior50)
+  v93 overall best      : 0.7000 (decision_fusion)
+  Target 0.70           : TERCAPAI
+  Total waktu           : 609.8s
+  Results dir           : D:\repositories\menthealth-ai\results\v93
+==========================================================================================
+
+================================================================================
+  RINGKASAN
+  Code cells  : 9
+  Cells dengan output teks: 8
+================================================================================

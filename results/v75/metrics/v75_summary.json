@@ -1,0 +1,39 @@
+{
+  "version": "v75",
+  "scenarios": [
+    "S1_Spectrogram",
+    "S2_MFCC",
+    "S3_Wav2Vec",
+    "S4_Fusion"
+  ],
+  "models": [
+    "RandomForest",
+    "SVM",
+    "LogisticRegression",
+    "XGBoost"
+  ],
+  "n_participants": 102,
+  "train_size": 82,
+  "test_size": 20,
+  "k_folds": 5,
+  "feature_dims": {
+    "Spectrogram": 687,
+    "MFCC": 990,
+    "Wav2Vec": 72,
+    "Fusion": 1749
+  },
+  "best_cv": {
+    "scenario": "S4_Fusion",
+    "model": "RandomForest",
+    "cv_f1": 0.7068,
+    "test_f1": 0.6267
+  },
+  "best_test": {
+    "scenario": "S2_MFCC",
+    "model": "LogisticRegression",
+    "cv_f1": 0.6628,
+    "test_f1": 0.697
+  },
+  "target_075_cv": false,
+  "target_075_test": false
+}

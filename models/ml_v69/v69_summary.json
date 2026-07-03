@@ -1,0 +1,17 @@
+{
+  "version": "v69",
+  "method": "Nested 5-Fold CV (Outer=5, Inner=3)",
+  "n_participants": 102,
+  "n_experiments": 44,
+  "v68_cv_f1": 0.5333,
+  "v66_test_f1": 0.9115,
+  "best_feat": "MFCC",
+  "best_model": "GBM",
+  "best_cv_f1_mean": 0.6734,
+  "best_cv_f1_std": 0.1031,
+  "best_cv_acc": 0.6952,
+  "best_cv_auc": 0.5938,
+  "target_075_achieved": false,
+  "target_070_achieved": false,
+  "overfitting_verdict": "Perlu v70"
+}

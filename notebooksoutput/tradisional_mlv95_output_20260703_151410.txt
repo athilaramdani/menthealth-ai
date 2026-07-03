@@ -1,0 +1,209 @@
+================================================================================
+  NOTEBOOK OUTPUT EXTRACTOR
+  File   : tradisional_mlv95.ipynb
+  Path   : notebooks\tradisional_mlv95.ipynb
+  Diambil: 2026-07-03 15:14:10
+  Total  : 16 cell
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+# Pipeline v95 - Wav2Vec 768 No-PCA + Anti-Leakage Pipeline
+
+Fokus v95 sesuai instruksi:
+- Tetap 4 skenario apple-to-apple: Spectrogram, MFCC, Wav2Vec, Fusion.
+- Gunakan fitur yang sudah diekstrak.
+- Gunakan Wav2Vec v8 768 mean embedding untuk S3 dan S4.
+- S3 Wav2Vec 768 untuk Logistic Regression dan Linear SVM dijalankan TANPA PCA.
+- Skenario/model lainnya memakai sklearn Pipeline: StandardScaler -> PCA -> Classifier.
+- Class imbalance ditangani native: class_weight='balanced' dan scale_pos_weight dinamis.
+- Threshold OOF sweep fokus 0.35-0.45, fallback wider bila perlu.
+
+────────────────────────────────────────────────────────────────────────────────
+In [1] (Code Cell #1)
+────────────────────────────────────────────────────────────────────────────────
+============================================================================================
+  Pipeline v95 - Wav2Vec 768 No-PCA + Anti-Leakage Pipeline
+  Strict S1-S4 apple-to-apple; no cross-scenario model fusion
+============================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 1. Audit Versi Sebelumnya
+
+────────────────────────────────────────────────────────────────────────────────
+In [2] (Code Cell #2)
+────────────────────────────────────────────────────────────────────────────────
+
+Audit versi sebelumnya:
+version  overall best_model  best_scenario  best_f1
+    v85      NaN       None           None      NaN
+    v86   0.7494       None           None      NaN
+    v87   0.8000        XGB     S3_Wav2Vec   0.7494
+    v89   0.7494         LR S1_Spectrogram   0.6011
+    v90   0.6267        SVM     S3_Wav2Vec   0.6267
+    v91   0.5238        XGB        S2_MFCC   0.5238
+    v92   0.5604         RF     S3_Wav2Vec   0.5604
+    v93   0.7000         RF        S2_MFCC   0.6000
+    v94   0.6000         RF        S2_MFCC   0.6000
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 2. Load Fitur Cache
+
+────────────────────────────────────────────────────────────────────────────────
+In [3] (Code Cell #3)
+────────────────────────────────────────────────────────────────────────────────
+
+Feature cache:
+  Spectrogram v6 : 189 rows, 681 fitur aktif
+  MFCC v6        : 189 rows, 990 fitur aktif
+  Wav2Vec v8     : 102 rows, 768 mean embedding
+  Dataset v95    : 189 rows dipertahankan dari basis v6
+  Wav2Vec missing pada basis 189: 87 rows -> diisi 0 agar total dataset tidak berubah
+
+Dimensi fitur v95:
+      scenario  dimension
+S1_Spectrogram        681
+       S2_MFCC        990
+ S3_Wav2Vec768        768
+     S4_Fusion       2439
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 3. Split 80:20 dengan Test Balanced
+
+────────────────────────────────────────────────────────────────────────────────
+In [4] (Code Cell #4)
+────────────────────────────────────────────────────────────────────────────────
+
+Split v95:
+  Train=169 | Normal=123 | Depresi=46 | scale_pos_weight=2.674
+  Test =20  | Normal=10  | Depresi=10  | balanced
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 4. Pipeline, Model, OOF Threshold
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 5. Main Experiment S1-S4 x 4 Model
+
+────────────────────────────────────────────────────────────────────────────────
+In [6] (Code Cell #6)
+────────────────────────────────────────────────────────────────────────────────
+
+============================================================================================
+  v95 MAIN LOOP: S1-S4 x RF/SVM/LR/XGBoost
+  S3 LR + Linear SVM memakai Wav2Vec 768 TANPA PCA
+============================================================================================
+
+--------------------------------------------------------------------------------------------
+  S1_Spectrogram: 681 fitur
+--------------------------------------------------------------------------------------------
+  RF   PCA=10   CV=0.5608 thr=0.505/wide    TestF1=0.4357 Top50=0.6000 AUC=0.6300 (31.5s)
+  SVM  PCA=30   CV=0.5635 thr=0.290/wide    TestF1=0.4505 Top50=0.5000 AUC=0.5400 (18.0s)
+  LR   PCA=10   CV=0.6069 thr=0.565/wide    TestF1=0.5396 Top50=0.5000 AUC=0.4700 (11.5s)
+  XGB  PCA=10   CV=0.5501 thr=0.525/wide    TestF1=0.4872 Top50=0.6000 AUC=0.7000 (8.9s)
+
+--------------------------------------------------------------------------------------------
+  S2_MFCC: 990 fitur
+--------------------------------------------------------------------------------------------
+  RF   PCA=30   CV=0.5535 thr=0.465/wide    TestF1=0.3732 Top50=0.4000 AUC=0.4700 (26.3s)
+  SVM  PCA=10   CV=0.5928 thr=0.300/wide    TestF1=0.4505 Top50=0.5000 AUC=0.4500 (19.2s)
+  LR   PCA=10   CV=0.5879 thr=0.610/wide    TestF1=0.4048 Top50=0.5000 AUC=0.4700 (11.6s)
+  XGB  PCA=10   CV=0.5865 thr=0.495/wide    TestF1=0.6491 Top50=0.7000 AUC=0.6400 (8.9s)
+
+--------------------------------------------------------------------------------------------
+  S3_Wav2Vec768: 768 fitur
+--------------------------------------------------------------------------------------------
+  RF   PCA=20   CV=0.6120 thr=0.430/focused TestF1=0.4792 Top50=0.6000 AUC=0.5400 (27.4s)
+  SVM  NO-PCA   CV=0.5534 thr=0.280/wide    TestF1=0.5396 Top50=0.5000 AUC=0.5700 (3.5s)
+  LR   NO-PCA   CV=0.5788 thr=0.430/focused TestF1=0.6491 Top50=0.6000 AUC=0.5700 (4.5s)
+  XGB  PCA=50   CV=0.6266 thr=0.445/focused TestF1=0.4505 Top50=0.5000 AUC=0.5100 (9.2s)
+
+--------------------------------------------------------------------------------------------
+  S4_Fusion: 2439 fitur
+--------------------------------------------------------------------------------------------
+  RF   PCA=10   CV=0.5818 thr=0.480/wide    TestF1=0.5604 Top50=0.5000 AUC=0.5400 (40.1s)
+  SVM  PCA=20   CV=0.5711 thr=0.310/wide    TestF1=0.4048 Top50=0.5000 AUC=0.5300 (30.6s)
+  LR   PCA=10   CV=0.6407 thr=0.605/wide    TestF1=0.5604 Top50=0.5000 AUC=0.4900 (16.7s)
+  XGB  PCA=10   CV=0.5653 thr=0.515/wide    TestF1=0.4505 Top50=0.4000 AUC=0.4500 (13.2s)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 6. Visualisasi dan Error Analysis
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 7. Summary
+
+────────────────────────────────────────────────────────────────────────────────
+In [8] (Code Cell #8)
+────────────────────────────────────────────────────────────────────────────────
+
+====================================================================================================================
+                                       TABEL RINGKASAN v95 - S1-S4 x 4 Model                                        
+====================================================================================================================
+  Scenario           Model PCA         CV    Thr Src       TestF1    Top50    AUC   Oracle
+  S2_MFCC            XGB  10      0.5865  0.495 wide      0.6491   0.7000 0.6400   0.7000
+  S3_Wav2Vec768      LR   none    0.5788  0.430 focused   0.6491   0.6000 0.5700   0.6491
+  S4_Fusion          RF   10      0.5818  0.480 wide      0.5604   0.5000 0.5400   0.5960
+  S4_Fusion          LR   10      0.6407  0.605 wide      0.5604   0.5000 0.4900   0.5604
+  S3_Wav2Vec768      SVM  none    0.5534  0.280 wide      0.5396   0.5000 0.5700   0.5489
+  S1_Spectrogram     LR   10      0.6069  0.565 wide      0.5396   0.5000 0.4700   0.5960
+  S1_Spectrogram     XGB  10      0.5501  0.525 wide      0.4872   0.6000 0.7000   0.6491
+  S3_Wav2Vec768      RF   20      0.6120  0.430 focused   0.4792   0.6000 0.5400   0.5960
+  S1_Spectrogram     SVM  30      0.5635  0.290 wide      0.4505   0.5000 0.5400   0.5833
+  S3_Wav2Vec768      XGB  50      0.6266  0.445 focused   0.4505   0.5000 0.5100   0.5396
+  S4_Fusion          XGB  10      0.5653  0.515 wide      0.4505   0.4000 0.4500   0.5604
+  S2_MFCC            SVM  10      0.5928  0.300 wide      0.4505   0.5000 0.4500   0.5489
+  S1_Spectrogram     RF   10      0.5608  0.505 wide      0.4357   0.6000 0.6300   0.6267
+  S2_MFCC            LR   10      0.5879  0.610 wide      0.4048   0.5000 0.4700   0.5489
+  S4_Fusion          SVM  20      0.5711  0.310 wide      0.4048   0.5000 0.5300   0.5960
+  S2_MFCC            RF   30      0.5535  0.465 wide      0.3732   0.4000 0.4700   0.6011
+
+APPLE-TO-APPLE BEST PER SCENARIO:
+  S1_Spectrogram     LR   PCA=10 CV=0.6069 TestF1=0.5396 AUC=0.4700
+  S2_MFCC            XGB  PCA=10 CV=0.5865 TestF1=0.6491 AUC=0.6400
+  S3_Wav2Vec768      LR   PCA=none CV=0.5788 TestF1=0.6491 AUC=0.5700
+  S4_Fusion          RF   PCA=10 CV=0.5818 TestF1=0.5604 AUC=0.5400
+
+CLASSIFICATION REPORT - BEST v95
+  XGB on S2_MFCC | F1=0.6491
+              precision    recall  f1-score   support
+
+      Normal       0.64      0.70      0.67        10
+     Depresi       0.67      0.60      0.63        10
+
+    accuracy                           0.65        20
+   macro avg       0.65      0.65      0.65        20
+weighted avg       0.65      0.65      0.65        20
+
+
+ERROR ANALYSIS - BEST v95
+ participant_id  label_depresi  y_pred_oof_thr  prob_depresi  correct
+            315              0               1      0.583915    False
+            347              1               0      0.194877    False
+            355              1               0      0.187544    False
+            373              0               1      0.710479    False
+            426              1               0      0.340522    False
+            459              1               0      0.427411    False
+            487              0               1      0.518827    False
+
+============================================================================================
+                                      FINAL REPORT v95                                      
+============================================================================================
+  Best        : 0.6491 (XGB on S2_MFCC)
+  Top50 diag  : 0.7000
+  Oracle diag : 0.7000
+  Target 0.75 : BELUM
+  Total waktu : 284.3s
+  Results dir : D:\repositories\menthealth-ai\results\v95
+============================================================================================
+
+================================================================================
+  RINGKASAN
+  Code cells  : 8
+  Cells dengan output teks: 6
+================================================================================

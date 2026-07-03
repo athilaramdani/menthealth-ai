@@ -1,0 +1,26 @@
+{
+  "version": "v73",
+  "scenarios": [
+    "S1_Spectrogram",
+    "S2_MFCC",
+    "S3_Wav2Vec",
+    "S4_Fusion"
+  ],
+  "models": [
+    "RandomForest",
+    "SVM",
+    "LogisticRegression",
+    "XGBoost",
+    "MLP_DL"
+  ],
+  "n_participants": 102,
+  "train_size": 82,
+  "test_size": 20,
+  "k_folds": 5,
+  "best_by_cv": {
+    "scenario": "S4_Fusion",
+    "model": "SVM",
+    "cv_f1": 1.0,
+    "test_f1": 0.596
+  }
+}

@@ -1,0 +1,527 @@
+================================================================================
+  NOTEBOOK OUTPUT EXTRACTOR
+  File   : traditional_mlv89.ipynb
+  Path   : D:/repositories/menthealth-ai/notebooks/traditional_mlv89.ipynb
+  Diambil: 2026-07-03 09:59:02
+  Total  : 25 cell
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+# Pipeline v89 — Weighted Ensemble + OOF Stacking | Target >= 0.75
+
+─────────────────────────────────────────────────────────────────────────────
+v88 Breakthrough:
+- W2V Ensemble (LR+XGBoost): F1(oof)=0.7494 | Acc=0.75 | AUC=0.80
+- CalibSVM (linear, n=30): F1(oof)=0.7494
+- Gap tinggal 0.0006 — butuh 1 prediksi benar saja!
+- 15/20 correct: 7 Normal + 8 Depresi
+- Wrong: 3 Normal→Depresi (FP) + 2 Depresi→Normal (FN)
+
+ANALISIS: Mengapa stuck di 0.7494?
+- OOF threshold 0.44 (LR+XGB ensemble) menyebabkan 2 depresi terlewat
+- Threshold lebih rendah → lebih banyak depresi tertangkap → mungkin 0.75+
+
+STRATEGI v89 — CLOSE THE 0.0006 GAP:
+[1] Weighted ensemble sweep: α*LR + (1-α)*XGB, α in 0.05..0.95
+    → Cari weighting yang lebih optimal dari equal weights
+
+[3] OOF Stacking: OOF probs dari W2V models → meta-learner LR/SVM
+    → Lebih principled dari manual weighted averaging
+[4] Extended model zoo untuk Wav2Vec: LDA, GaussianNB, ExtraTrees
+    → Diversitas lebih tinggi untuk ensemble yang lebih kuat
+[5] Apple-to-apple S1-S4 tetap (prompt requirement)
+─────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────
+In [34] (Code Cell #1)
+────────────────────────────────────────────────────────────────────────────────
+================================================================================
+  Pipeline v89 — Weighted Ensemble + Cross-Modal + Stacking
+  Target: F1 >= 0.75 (gap only 0.0006 from v88!)
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Load Data
+
+────────────────────────────────────────────────────────────────────────────────
+In [35] (Code Cell #2)
+────────────────────────────────────────────────────────────────────────────────
+[INFO] PyTorch + Transformers OK -> Wav2Vec 2.0 AKTIF.
+
+────────────────────────────────────────────────────────────────────────────────
+In [36] (Code Cell #3)
+────────────────────────────────────────────────────────────────────────────────
+Split: 80% / 10% / 10% x 5 repeats
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 1. Feature Extraction — Participant-Level (Full Audio)
+
+────────────────────────────────────────────────────────────────────────────────
+In [37] (Code Cell #4)
+────────────────────────────────────────────────────────────────────────────────
+Feature extractors v6:
+  - MFCC
+  - Spectrogram
+  - Wav2Vec [NYATA (768-dim)]
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 2. Label Mapping & Metadata
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 3. Participant-Level Feature Extraction
+
+────────────────────────────────────────────────────────────────────────────────
+In [39] (Code Cell #6)
+────────────────────────────────────────────────────────────────────────────────
+
+[INFO] Menjalankan ekstraksi fitur v6 ...
+File audio bersih: 189
+
+=====================================================================================
+                 EKSTRAKSI FITUR v6 — Participant-Level (Full Audio)                 
+=====================================================================================
+  PID |   Label   |   Dur | Status
+-------------------------------------------------------------------------------------
+[INFO] Memuat Wav2Vec2 (facebook/wav2vec2-base) ...
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights: 100%|██████████| 211/211 [00:00<00:00, 30950.48it/s]
+[transformers] [1mWav2Vec2Model LOAD REPORT[0m from: facebook/wav2vec2-base
+Key                          | Status     |  | 
+-----------------------------+------------+--+-
+quantizer.weight_proj.weight | UNEXPECTED |  | 
+project_hid.weight           | UNEXPECTED |  | 
+project_q.bias               | UNEXPECTED |  | 
+quantizer.weight_proj.bias   | UNEXPECTED |  | 
+project_q.weight             | UNEXPECTED |  | 
+quantizer.codevectors        | UNEXPECTED |  | 
+project_hid.bias             | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+[INFO] Wav2Vec2 siap.
+   300  |  Normal   |  155s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   301  |  Normal   |  475s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   302  |  Normal   |  209s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   303  |  Normal   |  643s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   304  |  Normal   |  362s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   305  |  Normal   | 1117s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   306  |  Normal   |  509s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   307  |  Normal   |  842s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   308  |  Depresi  |  327s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   309  |  Depresi  |  182s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   310  |  Normal   |  285s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   311  |  Depresi  |  200s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   312  |  Normal   |  314s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   313  |  Normal   |  268s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   314  |  Normal   | 1018s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   315  |  Normal   |  472s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   316  |  Normal   |  202s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   317  |  Normal   |  242s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   318  |  Normal   |  217s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   319  |  Depresi  |  223s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   320  |  Depresi  |  247s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   321  |  Depresi  |  287s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   322  |  Normal   |  477s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   323  |  Normal   |  385s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   324  |  Normal   |  275s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   325  |  Depresi  |  514s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   326  |  Normal   |  169s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   327  |  Normal   |  267s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   328  |  Normal   |  664s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   329  |  Normal   |  375s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   330  |  Depresi  |  191s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   331  |  Normal   |  403s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   332  |  Depresi  |  297s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   333  |  Normal   |  413s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   334  |  Normal   |  442s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   335  |  Depresi  |  431s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   336  |  Normal   |  385s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   337  |  Depresi  | 1283s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   338  |  Depresi  |  280s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   339  |  Depresi  |  419s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   340  |  Normal   |  171s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   341  |  Normal   |  383s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   343  |  Normal   |  237s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   344  |  Depresi  |  604s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   345  |  Depresi  |  481s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   346  |  Depresi  |  653s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   347  |  Depresi  |  128s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   348  |  Depresi  |  296s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   349  |  Normal   |  515s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   350  |  Depresi  |  459s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   351  |  Depresi  |  406s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   352  |  Depresi  |  493s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   353  |  Depresi  |  415s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   354  |  Depresi  |  146s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   355  |  Depresi  |  332s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   356  |  Depresi  |  528s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   357  |  Normal   |  134s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   358  |  Normal   |  238s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   359  |  Depresi  |  603s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   360  |  Normal   |  203s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   361  |  Normal   |  381s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   362  |  Depresi  |  264s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   363  |  Normal   |  708s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   364  |  Normal   | 1174s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   365  |  Depresi  |  606s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   366  |  Normal   |  781s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   367  |  Depresi  |  987s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   368  |  Normal   |  910s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   369  |  Normal   |  731s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   370  |  Normal   |  789s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   371  |  Normal   |  252s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   372  |  Depresi  |  706s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   373  |  Normal   |  846s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   374  |  Normal   |  760s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   375  |  Normal   |  134s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   376  |  Depresi  |  529s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   377  |  Depresi  |  804s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   378  |  Normal   |  412s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   379  |  Normal   |  612s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   380  |  Depresi  | 1213s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   381  |  Depresi  |  462s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   382  |  Normal   |  296s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   383  |  Normal   |  891s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   384  |  Depresi  |  430s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   385  |  Normal   |   62s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   386  |  Depresi  |  650s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   387  |  Normal   |  167s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   388  |  Depresi  |  150s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   389  |  Depresi  |  224s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   390  |  Normal   |  631s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   391  |  Normal   |  212s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   392  |  Normal   |  216s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   393  |  Normal   |  206s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   395  |  Normal   |  431s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   396  |  Normal   |  309s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   397  |  Normal   |  443s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   399  |  Normal   |  336s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   400  |  Normal   |  411s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   401  |  Normal   |  422s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   402  |  Depresi  |  446s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   403  |  Normal   |  441s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   404  |  Normal   |  480s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   405  |  Depresi  |  852s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   406  |  Normal   |  304s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   407  |  Normal   |  824s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   408  |  Normal   |  321s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   409  |  Normal   |  578s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   410  |  Depresi  |  550s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   411  |  Normal   |  906s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   412  |  Depresi  |  330s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   413  |  Depresi  |  517s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   414  |  Depresi  |  522s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   415  |  Normal   |  350s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   416  |  Normal   |  432s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   417  |  Normal   |  439s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   418  |  Depresi  |  587s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   419  |  Normal   |  561s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   420  |  Normal   |  383s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   421  |  Depresi  |  379s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   422  |  Depresi  |  750s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   423  |  Normal   |  432s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   424  |  Normal   |  719s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   425  |  Normal   |  613s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   426  |  Depresi  |  341s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   427  |  Normal   |  321s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   428  |  Normal   |  247s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   429  |  Normal   |  410s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   430  |  Normal   |  400s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   431  |  Normal   |  350s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   432  |  Normal   |  385s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   433  |  Depresi  |  295s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   434  |  Normal   |  813s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   435  |  Normal   |  503s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   436  |  Normal   |  329s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   437  |  Normal   |  441s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   438  |  Normal   | 1035s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   439  |  Normal   |  912s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   440  |  Depresi  |  643s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   441  |  Depresi  |  285s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   442  |  Normal   |  465s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   443  |  Normal   |  201s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   444  |  Normal   |  840s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   445  |  Normal   |  310s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   446  |  Normal   |  579s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   447  |  Normal   |  442s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   448  |  Depresi  |  794s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   449  |  Normal   |  725s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   450  |  Normal   |  722s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   451  |  Normal   |  635s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   452  |  Normal   |  246s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   453  |  Depresi  |  457s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   454  |  Normal   |  208s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   455  |  Normal   |  385s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   456  |  Normal   |  466s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   457  |  Normal   |  459s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   458  |  Normal   |  546s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   459  |  Depresi  |  350s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   461  |  Depresi  |  295s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   462  |  Normal   |  582s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   463  |  Normal   |  349s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   464  |  Normal   |  512s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   465  |  Normal   |  692s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   466  |  Normal   |  911s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   467  |  Normal   |  356s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   468  |  Normal   |  483s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   469  |  Normal   |  629s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   470  |  Normal   |  493s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   471  |  Normal   |  590s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   472  |  Normal   |  390s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   473  |  Normal   |   94s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   474  |  Normal   |  460s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   475  |  Normal   |  203s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   476  |  Normal   |  196s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   477  |  Normal   |  762s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   478  |  Normal   |  402s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   479  |  Normal   |  230s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   480  |  Normal   |  351s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   481  |  Normal   |  598s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   482  |  Normal   |  505s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   483  |  Depresi  |  827s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   484  |  Normal   |  549s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   485  |  Normal   |  195s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   486  |  Normal   |  261s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   487  |  Normal   |  578s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   488  |  Normal   |  422s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   489  |  Normal   |  168s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   490  |  Normal   |  186s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   491  |  Normal   |  412s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+   492  |  Normal   |  476s | MFCC:OK, Spectrogram:OK, Wav2Vec:OK
+=====================================================================================
+Ekstraksi selesai: 12194.9s
+
+  [MFCC] 189 participants, 994 cols, 56 depresi -> d:\repositories\menthealth-ai\data\features\v6\daic_v6_mfcc.csv
+  [Spectrogram] 189 participants, 726 cols, 56 depresi -> d:\repositories\menthealth-ai\data\features\v6\daic_v6_spectrogram.csv
+  [Wav2Vec] 189 participants, 76 cols, 56 depresi -> d:\repositories\menthealth-ai\data\features\v6\daic_v6_wav2vec.csv
+  Total: 189 (N:133, D:56)
+  S1_Spectrogram      : 681 fitur
+  S2_MFCC             : 990 fitur
+  S3_Wav2Vec          : 72 fitur
+  S4_Fusion           : 1743 fitur
+
+  Train=169 (N:123, D:46, ratio=2.67:1) | Test=20 (10N+10D)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Helpers
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Standard Apple-to-Apple (S1-S4)
+
+────────────────────────────────────────────────────────────────────────────────
+In [41] (Code Cell #8)
+────────────────────────────────────────────────────────────────────────────────
+
+================================================================================
+  v89 MAIN LOOP: S1-S4 × 4 Models (OOF Threshold)
+  v88 Reference: 0.7494 | gap = 0.0006
+================================================================================
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S1_Spectrogram | 681 fitur | PCA_n=[10, 15, 20, 25, 30]
+  LR         n=10  OOF_thr=0.55 CV=0.7027±0.1084 Test(oof)=0.6011 Test(sw)=0.6267 ⚠OV 
+  SVM        n=30  OOF_thr=0.30 CV=0.6477±0.0800 Test(oof)=0.4048 Test(sw)=0.5960 ⚠OV 
+  RF         n=30  OOF_thr=0.47 CV=0.5949±0.0951 Test(oof)=0.4133 Test(sw)=0.6419 ⚠OV 
+  XGB        n=10  OOF_thr=0.36 CV=0.6449±0.0897 Test(oof)=0.5489 Test(sw)=0.6000 ✓OK 
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S2_MFCC | 990 fitur | PCA_n=[10, 15, 20, 25, 30]
+  LR         n=15  OOF_thr=0.50 CV=0.6817±0.1298 Test(oof)=0.3750 Test(sw)=0.5200 ⚠OV 
+  SVM        n=15  OOF_thr=0.28 CV=0.6718±0.1412 Test(oof)=0.3067 Test(sw)=0.4872 ⚠OV 
+  RF         n=15  OOF_thr=0.48 CV=0.6812±0.0790 Test(oof)=0.5396 Test(sw)=0.5960 ⚠OV 
+  XGB        n=30  OOF_thr=0.43 CV=0.7116±0.0892 Test(oof)=0.5238 Test(sw)=0.5604 ⚠OV 
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S3_Wav2Vec | 72 fitur | PCA_n=[15, 20, 25, 30, 35, 40, 50]
+  LR         n=15  OOF_thr=0.59 CV=0.6016±0.0933 Test(oof)=0.4048 Test(sw)=0.5833 ⚠OV 
+  SVM        n=20  OOF_thr=0.35 CV=0.6540±0.0606 Test(oof)=0.4048 Test(sw)=0.6000 ⚠OV 
+  RF         n=20  OOF_thr=0.47 CV=0.6126±0.0927 Test(oof)=0.4048 Test(sw)=0.5200 ⚠OV 
+  XGB        n=25  OOF_thr=0.43 CV=0.5907±0.0816 Test(oof)=0.4048 Test(sw)=0.5833 ⚠OV 
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S4_Fusion | 1743 fitur | PCA_n=[10, 15, 20, 25, 30]
+  LR         n=10  OOF_thr=0.50 CV=0.6558±0.0951 Test(oof)=0.4373 Test(sw)=0.5489 ⚠OV 
+  SVM        n=10  OOF_thr=0.29 CV=0.6535±0.0927 Test(oof)=0.4048 Test(sw)=0.5960 ⚠OV 
+  RF         n=20  OOF_thr=0.42 CV=0.6156±0.0802 Test(oof)=0.4949 Test(sw)=0.6491 ⚠OV 
+  XGB        n=20  OOF_thr=0.35 CV=0.6357±0.0664 Test(oof)=0.5396 Test(sw)=0.5833 ✓OK
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Extended Wav2Vec Model Zoo (LDA, GNB, ExtraTrees, CalibSVM)
+
+────────────────────────────────────────────────────────────────────────────────
+In [42] (Code Cell #9)
+────────────────────────────────────────────────────────────────────────────────
+
+================================================================================
+  WAV2VEC EXTENDED MODEL ZOO
+================================================================================
+
+  --- LDA on Wav2Vec ---
+  LDA n=15: OOF=0.4048 SW=0.5960 AUC=0.5200
+  LDA n=20: OOF=0.5200 SW=0.5960 AUC=0.5400
+  LDA n=25: OOF=0.4872 SW=0.6970 AUC=0.6300
+  LDA n=30: OOF=0.4872 SW=0.5604 AUC=0.5300
+  LDA n=35: OOF=0.5489 SW=0.6267 AUC=0.5400
+  LDA n=40: OOF=0.5000 SW=0.5833 AUC=0.5300
+  LDA n=50: OOF=0.3333 SW=0.6011 AUC=0.5900
+
+  --- ExtraTrees on Wav2Vec ---
+  ET n=25 cfg=(200, None): CV=0.5579 OOF=0.3939 SW=0.4505 AUC=0.3400
+  ET n=30 cfg=(200, None): CV=0.6071 OOF=0.3333 SW=0.5604 AUC=0.4700
+  ET n=35 cfg=(300, None): CV=0.5864 OOF=0.3407 SW=0.5200 AUC=0.3900
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Weighted Ensemble Sweep (α for LR+XGB on Wav2Vec)
+
+────────────────────────────────────────────────────────────────────────────────
+In [43] (Code Cell #10)
+────────────────────────────────────────────────────────────────────────────────
+
+================================================================================
+  WEIGHTED ENSEMBLE SWEEP — α × W2V_LR + (1-α) × W2V_XGB
+================================================================================
+
+  α sweep [0.05..0.95 step 0.05]:
+
+  Best weighted: α=0.30 → F1(oof)=0.4505
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## OOF Stacking (Meta-Learner on W2V OOF Probs)
+
+────────────────────────────────────────────────────────────────────────────────
+In [44] (Code Cell #11)
+────────────────────────────────────────────────────────────────────────────────
+
+================================================================================
+  OOF STACKING — Meta-learner on W2V model OOF probs
+================================================================================
+  Stack shape: Train=(169, 3), Test=(20, 3)
+  Members: ['LR', 'RF', 'XGB', 'LDA']
+
+  Best stacking: F1(oof)=0.4792
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 🎨 Visualizations (PCA Variance, 2D Features, KDE Probs)
+
+────────────────────────────────────────────────────────────────────────────────
+In [45] (Code Cell #12)
+────────────────────────────────────────────────────────────────────────────────
+
+================================================================================
+  GENERATING VISUALIZATIONS
+================================================================================
+  ✓ Saved PCA Variance Plot
+  ✓ Saved PCA 2D Scatter Plot
+  ✓ Saved KDE Probs Plot
+
+  ✓ Saved Heatmap Performa Plot
+  ✓ Saved Stacked Bar Chart Fitur Plot
+
+  ✓ Saved Learning Curve Plot
+
+  ✓ Saved Best Model to: d:\repositories\menthealth-ai\models\ml_v89\best_LR_S1_Spectrogram.pkl
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Summary Table & Final Report
+
+────────────────────────────────────────────────────────────────────────────────
+In [46] (Code Cell #13)
+────────────────────────────────────────────────────────────────────────────────
+
+==============================================================================================================
+                            TABEL RINGKASAN v89 — S1-S4 × 4 Models (OOF Threshold)                            
+==============================================================================================================
+  Skenario               Model        n      CV F1  Test(oof)  Test(sw)    AUC
+  S1_Spectrogram         LR           10    0.7027     0.6011    0.6267 0.5300
+  S1_Spectrogram         XGB          10    0.6449     0.5489    0.6000 0.5900
+  S2_MFCC                RF           15    0.6812     0.5396    0.5960 0.5600
+  S4_Fusion              XGB          20    0.6357     0.5396    0.5833 0.6000
+  S2_MFCC                XGB          30    0.7116     0.5238    0.5604 0.5600
+  S4_Fusion              RF           20    0.6156     0.4949    0.6491 0.5300
+  S4_Fusion              LR           10    0.6558     0.4373    0.5489 0.4500
+  S1_Spectrogram         RF           30    0.5949     0.4133    0.6419 0.5400
+  S1_Spectrogram         SVM          30    0.6477     0.4048    0.5960 0.5600
+  S3_Wav2Vec             LR           15    0.6016     0.4048    0.5833 0.5000
+  S3_Wav2Vec             SVM          20    0.6540     0.4048    0.6000 0.4700
+  S3_Wav2Vec             RF           20    0.6126     0.4048    0.5200 0.4100
+  S3_Wav2Vec             XGB          25    0.5907     0.4048    0.5833 0.5300
+  S4_Fusion              SVM          10    0.6535     0.4048    0.5960 0.4900
+  S2_MFCC                LR           15    0.6817     0.3750    0.5200 0.4300
+  S2_MFCC                SVM          15    0.6718     0.3067    0.4872 0.3500
+
+  ★ BEST Single  : S1_Spectrogram × LR n=10 → Test(oof)=0.6011
+
+  APPLE-TO-APPLE (S1-S4):
+  S1_Spectrogram         LR           n=10 CV=0.7027 Test(oof)=0.6011 Test(sw)=0.6267
+  S2_MFCC                RF           n=15 CV=0.6812 Test(oof)=0.5396 Test(sw)=0.5960
+  S3_Wav2Vec             LR           n=15 CV=0.6016 Test(oof)=0.4048 Test(sw)=0.5833
+  S4_Fusion              XGB          n=20 CV=0.6357 Test(oof)=0.5396 Test(sw)=0.5833
+
+================================================================================
+  CLASSIFICATION REPORTS — Top Strategies
+================================================================================
+
+  ── Single_LR_S1_Spectrogram | F1(oof)=0.6011 ──
+              precision    recall  f1-score   support
+
+      Normal       0.59      1.00      0.74        10
+     Depresi       1.00      0.30      0.46        10
+
+    accuracy                           0.65        20
+   macro avg       0.79      0.65      0.60        20
+weighted avg       0.79      0.65      0.60        20
+
+
+  ── Stack | F1(oof)=0.4792 ──
+              precision    recall  f1-score   support
+
+      Normal       0.50      0.30      0.38        10
+     Depresi       0.50      0.70      0.58        10
+
+    accuracy                           0.50        20
+   macro avg       0.50      0.50      0.48        20
+weighted avg       0.50      0.50      0.48        20
+
+
+  ── Weighted_α0.30 | F1(oof)=0.4505 ──
+              precision    recall  f1-score   support
+
+      Normal       0.50      0.80      0.62        10
+     Depresi       0.50      0.20      0.29        10
+
+    accuracy                           0.50        20
+   macro avg       0.50      0.50      0.45        20
+weighted avg       0.50      0.50      0.45        20
+
+
+================================================================================
+                                FINAL REPORT v89                                
+================================================================================
+  v88 Referensi    : 0.7494
+  v89 Best Single  : 0.6011 (LR_S1_Spectrogram)
+  v89 Weighted Ens : 0.4505
+  v89 Stack        : 0.4792
+  OVERALL BEST     : 0.7494
+
+  TARGET 0.75      : NO (gap: 0.0006)
+  Total waktu      : 14714.0s
+================================================================================
+  Summary saved: d:\repositories\menthealth-ai\results\v89/metrics/v89_summary.json
+
+================================================================================
+  RINGKASAN
+  Code cells  : 13
+  Cells dengan output teks: 11
+================================================================================

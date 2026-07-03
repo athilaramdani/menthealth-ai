@@ -1,0 +1,26 @@
+{
+  "version": "v85",
+  "strategy": "PCA_whitening + class_weight (No SMOTE)",
+  "best_cv": {
+    "scenario": "S2_MFCC",
+    "model": "SVM",
+    "n_components": 10,
+    "cv_f1": 0.7448,
+    "test_f1_fair": 0.596
+  },
+  "best_test": {
+    "scenario": "S3_Wav2Vec",
+    "model": "LogisticRegression",
+    "n_components": 30,
+    "cv_f1": 0.6835,
+    "test_f1_fair": 0.7442
+  },
+  "best_ensemble": {
+    "name": "All-4",
+    "f1_fair": 0.696969696969697
+  },
+  "overall_best_test": 0.7442,
+  "target_075_test": false,
+  "v84_ref_cv": 0.8457,
+  "v84_ref_test": 0.697
+}

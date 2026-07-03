@@ -1,0 +1,13 @@
+{
+  "version": "v70",
+  "method": "Nested 5-Fold CV (Inner=3)",
+  "n_participants": 102,
+  "n_experiments": 70,
+  "best_feat": "All3",
+  "best_model": "LGB_100",
+  "best_cv_f1": 0.6655,
+  "best_cv_std": 0.0811,
+  "best_cv_acc": 0.7048,
+  "target_075": false,
+  "target_070": false
+}

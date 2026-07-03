@@ -1,0 +1,5 @@
+scenario,dimension
+S1_Spectrogram,681
+S2_MFCC,990
+S3_Wav2Vec,72
+S4_Fusion,1743

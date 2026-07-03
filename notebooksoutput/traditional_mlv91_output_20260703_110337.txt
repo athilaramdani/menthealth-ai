@@ -1,0 +1,202 @@
+================================================================================
+  NOTEBOOK OUTPUT EXTRACTOR
+  File   : traditional_mlv91.ipynb
+  Path   : notebooks\traditional_mlv91.ipynb
+  Diambil: 2026-07-03 11:03:37
+  Total  : 14 cell
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+# Pipeline v91 — SMOTE + Cost-Sensitive + LDA + Expanded PCA | Target >= 0.70
+
+─────────────────────────────────────────────────────────────────────────────
+v89 Diagnosis (189 data, full dataset):
+- Best Single  : S1_Spectrogram × LR n=10 → Test(oof)=0.6011
+- Rasio N:D    : 133:56 = 2.38:1 (imbalanced!)
+- Semua model  : ⚠OV (overfit CV >> Test)
+- Wav2Vec XGB  : 0.4048 (hancur dari 0.7494 di 102-data)
+
+STRATEGI v91 — FIGHT IMBALANCE + SMARTER REDUCTION:
+[A] SMOTE + Tomek Links di setiap fold training
+    → Synthetic minority oversampling untuk kelas Depresi
+    → Tomek Links membuang boundary noise kelas Normal
+[B] scale_pos_weight XGB disesuaikan rasio aktual (2.38)
+    → XGBoost tahu depresi 2.38x lebih berharga
+[C] LDA sebagai alternatif PCA untuk Wav2Vec
+    → Supervised dimensionality reduction (gunakan label)
+[D] Expanded PCA range [5,10,15,20,25,30,40,50]
+    → Variasi lebih besar, butuh lebih banyak komponen di 189 data
+[E] Threshold sweep agresif 0.15-0.50 (fokus recall Depresi)
+    → Dataset imbalanced butuh threshold lebih rendah
+─────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────
+In [1] (Code Cell #1)
+────────────────────────────────────────────────────────────────────────────────
+[INFO] imbalanced-learn OK -> SMOTE + Tomek aktif.
+================================================================================
+  Pipeline v91 — SMOTE + Cost-Sensitive + LDA + Expanded PCA
+  Target: F1 >= 0.70 (dari 0.6011 di v89 189-data)
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Feature Extraction (Participant-Level, dengan caching)
+
+────────────────────────────────────────────────────────────────────────────────
+In [2] (Code Cell #2)
+────────────────────────────────────────────────────────────────────────────────
+[INFO] PyTorch + Transformers OK -> Wav2Vec 2.0 AKTIF.
+
+[INFO] CSV v6 sudah tersedia dan penuh (189 baris). Skip ekstraksi.
+  MFCC: 189 baris -> D:\repositories\menthealth-ai\data\features\v6\daic_v6_mfcc.csv
+  Spectrogram: 189 baris -> D:\repositories\menthealth-ai\data\features\v6\daic_v6_spectrogram.csv
+  Wav2Vec: 189 baris -> D:\repositories\menthealth-ai\data\features\v6\daic_v6_wav2vec.csv
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Load Data
+
+────────────────────────────────────────────────────────────────────────────────
+In [3] (Code Cell #3)
+────────────────────────────────────────────────────────────────────────────────
+  Total: 189 (N:133, D:56)
+  S1_Spectrogram      : 681 fitur
+  S2_MFCC             : 990 fitur
+  S3_Wav2Vec          : 72 fitur
+  S4_Fusion           : 1743 fitur
+
+  Train=169 (N:123, D:46, ratio=2.67:1) | Test=20 (10N+10D)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Helpers & SMOTE Wrapper
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Standard Apple-to-Apple (S1-S4) + SMOTE
+
+────────────────────────────────────────────────────────────────────────────────
+In [5] (Code Cell #5)
+────────────────────────────────────────────────────────────────────────────────
+
+================================================================================
+  v91 MAIN LOOP: S1-S4 x 4 Models (SMOTE + OOF Threshold)
+  v89 Reference: 0.6011 | Target: 0.70+
+  SMOTE aktif: True
+================================================================================
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S1_Spectrogram | 681 fitur | PCA_n=[5, 10, 15, 20, 25, 30, 40]
+  LR         n=5   OOF_thr=0.50 CV=0.6510±0.1393 Test(oof)=0.4949 Test(sw)=0.5489 ⚠OV
+  SVM        n=30  OOF_thr=0.17 CV=0.6013±0.0988 Test(oof)=0.4048 Test(sw)=0.4872 ⚠OV
+  RF         n=5   OOF_thr=0.49 CV=0.6043±0.0933 Test(oof)=0.4505 Test(sw)=0.5200 ⚠OV
+  XGB        n=5   OOF_thr=0.55 CV=0.5608±0.1026 Test(oof)=0.5833 Test(sw)=0.5833 ✓OK
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S2_MFCC | 990 fitur | PCA_n=[5, 10, 15, 20, 25, 30, 40]
+  LR         n=15  OOF_thr=0.52 CV=0.6574±0.1147 Test(oof)=0.3750 Test(sw)=0.4792 ⚠OV
+  SVM        n=40  OOF_thr=0.44 CV=0.6203±0.1410 Test(oof)=0.3732 Test(sw)=0.4792 ⚠OV
+  RF         n=30  OOF_thr=0.53 CV=0.6428±0.0842 Test(oof)=0.5238 Test(sw)=0.6491 ⚠OV
+  XGB        n=30  OOF_thr=0.41 CV=0.6190±0.0639 Test(oof)=0.4949 Test(sw)=0.5960 ⚠OV
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S3_Wav2Vec | 72 fitur | PCA_n=[10, 15, 20, 25, 30, 35, 40, 50]
+  [INFO] S3_Wav2Vec: LDA digunakan sebagai dim. reduction
+  LR         n=10  OOF_thr=0.52 CV=0.8550±0.0942 Test(oof)=0.5238 Test(sw)=0.5238 ⚠OV
+  SVM        n=10  OOF_thr=0.50 CV=0.8241±0.0944 Test(oof)=0.4872 Test(sw)=0.4872 ⚠OV
+  RF         n=10  OOF_thr=0.52 CV=0.7787±0.1157 Test(oof)=0.4872 Test(sw)=0.4872 ⚠OV
+  XGB        n=10  OOF_thr=0.47 CV=0.7768±0.0925 Test(oof)=0.3350 Test(sw)=0.4505 ⚠OV
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S4_Fusion | 1743 fitur | PCA_n=[5, 10, 15, 20, 25, 30, 40]
+  LR         n=5   OOF_thr=0.53 CV=0.6366±0.0902 Test(oof)=0.4505 Test(sw)=0.5396 ⚠OV
+  SVM        n=10  OOF_thr=0.50 CV=0.6352±0.1195 Test(oof)=0.5200 Test(sw)=0.5396 ⚠OV
+  RF         n=5   OOF_thr=0.51 CV=0.5800±0.0872 Test(oof)=0.3732 Test(sw)=0.5000 ⚠OV
+  XGB        n=25  OOF_thr=0.55 CV=0.5544±0.1043 Test(oof)=0.3407 Test(sw)=0.5200 ⚠OV
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Visualizations
+
+────────────────────────────────────────────────────────────────────────────────
+In [6] (Code Cell #6)
+────────────────────────────────────────────────────────────────────────────────
+
+================================================================================
+  GENERATING VISUALIZATIONS
+================================================================================
+  Saved Heatmap
+  Saved PCA Variance Plot
+  Saved Learning Curve
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Summary Table & Final Report
+
+────────────────────────────────────────────────────────────────────────────────
+In [7] (Code Cell #7)
+────────────────────────────────────────────────────────────────────────────────
+
+==============================================================================================================
+                        TABEL RINGKASAN v91 — S1-S4 × 4 Models (SMOTE + OOF Threshold)                        
+==============================================================================================================
+  Skenario               Model        n      CV F1  Test(oof)  Test(sw)    AUC
+  S1_Spectrogram         XGB          5     0.5608     0.5833    0.5833 0.5400
+  S2_MFCC                RF           30    0.6428     0.5238    0.6491 0.6200
+  S3_Wav2Vec             LR           10    0.8550     0.5238    0.5238 0.4100
+  S4_Fusion              SVM          10    0.6352     0.5200    0.5396 0.4150
+  S1_Spectrogram         LR           5     0.6510     0.4949    0.5489 0.4200
+  S2_MFCC                XGB          30    0.6190     0.4949    0.5960 0.5700
+  S3_Wav2Vec             SVM          10    0.8241     0.4872    0.4872 0.4100
+  S3_Wav2Vec             RF           10    0.7787     0.4872    0.4872 0.3900
+  S1_Spectrogram         RF           5     0.6043     0.4505    0.5200 0.4300
+  S4_Fusion              LR           5     0.6366     0.4505    0.5396 0.3700
+  S1_Spectrogram         SVM          30    0.6013     0.4048    0.4872 0.5700
+  S2_MFCC                LR           15    0.6574     0.3750    0.4792 0.4000
+  S2_MFCC                SVM          40    0.6203     0.3732    0.4792 0.3800
+  S4_Fusion              RF           5     0.5800     0.3732    0.5000 0.3600
+  S4_Fusion              XGB          25    0.5544     0.3407    0.5200 0.4400
+  S3_Wav2Vec             XGB          10    0.7768     0.3350    0.4505 0.3850
+
+  BEST Single  : S1_Spectrogram x XGB n=5 -> Test(oof)=0.5833
+
+  APPLE-TO-APPLE (S1-S4):
+  S1_Spectrogram         XGB          n=5 CV=0.5608 Test(oof)=0.5833 Test(sw)=0.5833
+  S2_MFCC                RF           n=30 CV=0.6428 Test(oof)=0.5238 Test(sw)=0.6491
+  S3_Wav2Vec             LR           n=10 CV=0.8550 Test(oof)=0.5238 Test(sw)=0.5238
+  S4_Fusion              SVM          n=10 CV=0.6352 Test(oof)=0.5200 Test(sw)=0.5396
+
+================================================================================
+  CLASSIFICATION REPORT — Best Strategy
+================================================================================
+
+  XGB on S1_Spectrogram | F1(oof)=0.5833
+              precision    recall  f1-score   support
+
+      Normal       0.57      0.80      0.67        10
+     Depresi       0.67      0.40      0.50        10
+
+    accuracy                           0.60        20
+   macro avg       0.62      0.60      0.58        20
+weighted avg       0.62      0.60      0.58        20
+
+
+================================================================================
+                                FINAL REPORT v91                                
+================================================================================
+  v89 Referensi (189 data) : 0.6011
+  v91 Best Single          : 0.5833 (XGB_S1_Spectrogram)
+  SMOTE aktif              : True
+
+  TARGET 0.70              : NO (gap: 0.1167)
+  Total waktu              : 2254.5s
+================================================================================
+  Summary saved: D:\repositories\menthealth-ai\results\v91/metrics/v91_summary.json
+
+================================================================================
+  RINGKASAN
+  Code cells  : 7
+  Cells dengan output teks: 6
+================================================================================

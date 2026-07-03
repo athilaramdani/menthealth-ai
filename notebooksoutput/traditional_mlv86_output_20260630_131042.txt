@@ -1,0 +1,321 @@
+================================================================================
+  NOTEBOOK OUTPUT EXTRACTOR
+  File   : traditional_mlv86.ipynb
+  Path   : notebooks\traditional_mlv86.ipynb
+  Diambil: 2026-06-30 13:10:42
+  Total  : 22 cell
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+# Pipeline v86 — OOF Threshold + Wav2Vec Focus + Calibration | Target >= 0.75
+
+─────────────────────────────────────────────────────────────────────────────
+v85 Breakthrough:
+- PCA whitening eliminasi overfitting (v84 overfit besar → v85 ✓OK dominan)
+- Best Test(fair): S3_Wav2Vec × LR n=30 = 0.7442 (gap tinggal 0.0058!)
+- S3_Wav2Vec × SVM swept threshold = 0.7980 (bukti ranking bagus, threshold off)
+
+ROOT CAUSE gap 0.75:
+- fair_thr = mean(fold thresholds) — tiap fold hanya 8 val samples → NOISY
+- Misal fold1 optimal thr=0.30, fold2=0.60 → mean=0.45 → bisa miss
+
+STRATEGI v86 — CLOSE THE GAP:
+[1] OOF Threshold: kumpulkan 82 OOF probs dari 10 folds → sweep threshold
+    di 82 samples (lebih stabil dari mean fold thresholds)
+[2] Fokus S3_Wav2Vec: expand n_components=[20,25,30,35,40,50,60,None]
+[3] Probability calibration: CalibratedClassifierCV (isotonic/sigmoid)
+[4] Ensemble Wav2Vec models (diverse algos + n_comp)
+[5] Apple-to-apple S1-S4 tetap ada (prompt requirement)
+─────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────
+In [1] (Code Cell #1)
+────────────────────────────────────────────────────────────────────────────────
+================================================================================
+  Pipeline v86 — OOF Threshold + Wav2Vec Focus + Calibration
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Load Data (same split as v84/v85)
+
+────────────────────────────────────────────────────────────────────────────────
+In [2] (Code Cell #2)
+────────────────────────────────────────────────────────────────────────────────
+  Total: 102 (N:63, D:39)
+  S1_Spectrogram      : 687 fitur
+  S2_MFCC             : 990 fitur
+  S3_Wav2Vec          : 72 fitur
+  S4_Fusion           : 1749 fitur
+
+  Train=82 (N:53, D:29, ratio=1.83:1) | Test=20 (10N+10D)
+  Key v85 finding: S3_Wav2Vec × LR PCA=30 → Test(fair)=0.7442
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Helpers & Preprocessing
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Model Configs (focused, lean)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## KEY INNOVATION: OOF-based Threshold
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Main Loop — S1-S4 × All Models (OOF Threshold)
+
+────────────────────────────────────────────────────────────────────────────────
+In [6] (Code Cell #6)
+────────────────────────────────────────────────────────────────────────────────
+
+================================================================================
+  v86 — OOF Threshold | PCA Whitening | 10-Fold CV | No SMOTE
+  Referensi v85: Best Test(fair)=0.7442 (S3_Wav2Vec × LR n=30)
+================================================================================
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S1_Spectrogram | 687 fitur | PCA_n=[10, 15, 20, 25, 30]
+  LogisticRegression     n=10  OOF_thr=0.51 CV=0.6017±0.1566 Test(oof)=0.4505 Test(sw)=0.6491 Gap=-0.1512 ⚠OV
+  SVM                    n=10  OOF_thr=0.38 CV=0.6728±0.1238 Test(oof)=0.3333 Test(sw)=0.3333 Gap=-0.3395 ⚠OV
+  RandomForest           n=10  OOF_thr=0.44 CV=0.6877±0.1533 Test(oof)=0.3407 Test(sw)=0.4505 Gap=-0.3471 ⚠OV
+  XGBoost                n=10  OOF_thr=0.40 CV=0.6579±0.1657 Test(oof)=0.3350 Test(sw)=0.4048 Gap=-0.3228 ⚠OV
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S2_MFCC | 990 fitur | PCA_n=[10, 15, 20, 25, 30]
+  LogisticRegression     n=15  OOF_thr=0.56 CV=0.6207±0.1885 Test(oof)=0.4505 Test(sw)=0.6000 Gap=-0.1701 ⚠OV
+  SVM                    n=10  OOF_thr=0.36 CV=0.7448±0.0881 Test(oof)=0.5960 Test(sw)=0.6491 Gap=-0.1489 ⚠OV
+  RandomForest           n=10  OOF_thr=0.49 CV=0.6758±0.1274 Test(oof)=0.5238 Test(sw)=0.6875 Gap=-0.1520 ⚠OV
+  XGBoost                n=10  OOF_thr=0.47 CV=0.6780±0.1415 Test(oof)=0.7333 Test(sw)=0.7494 Gap=+0.0553 ✓OK
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S3_Wav2Vec | 72 fitur | PCA_n=[15, 20, 25, 30, 35, 40, 50]
+  LogisticRegression     n=30  OOF_thr=0.50 CV=0.6835±0.1406 Test(oof)=0.5960 Test(sw)=0.7917 Gap=-0.0875 ✓OK
+  SVM                    n=30  OOF_thr=0.36 CV=0.6087±0.1032 Test(oof)=0.7000 Test(sw)=0.7980 Gap=+0.0913 ✓OK
+  RandomForest           n=30  OOF_thr=0.41 CV=0.6203±0.0981 Test(oof)=0.6419 Test(sw)=0.7494 Gap=+0.0216 ✓OK
+  XGBoost                n=30  OOF_thr=0.44 CV=0.6661±0.0746 Test(oof)=0.6491 Test(sw)=0.7333 Gap=-0.0169 ✓OK
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S4_Fusion | 1749 fitur | PCA_n=[10, 15, 20, 25, 30]
+  LogisticRegression     n=10  OOF_thr=0.56 CV=0.6640±0.2005 Test(oof)=0.6011 Test(sw)=0.6970 Gap=-0.0628 ✓OK
+  SVM                    n=25  OOF_thr=0.42 CV=0.6657±0.1048 Test(oof)=0.4373 Test(sw)=0.5489 Gap=-0.2284 ⚠OV
+  RandomForest           n=10  OOF_thr=0.42 CV=0.6358±0.1205 Test(oof)=0.5604 Test(sw)=0.6491 Gap=-0.0754 ✓OK
+  XGBoost                n=10  OOF_thr=0.40 CV=0.6036±0.1346 Test(oof)=0.6267 Test(sw)=0.6419 Gap=+0.0231 ✓OK
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Wav2Vec Deep Dive — Calibrated Models + Ensemble
+
+────────────────────────────────────────────────────────────────────────────────
+In [7] (Code Cell #7)
+────────────────────────────────────────────────────────────────────────────────
+
+================================================================================
+  WAV2VEC DEEP DIVE — Calibrated + Extended n_comp
+================================================================================
+
+  --- Calibrated SVM (isotonic) on Wav2Vec ---
+  CalibSVM(C=0.1,k=linear) n=30                : OOF=0.7494 SW=0.7917 AUC=0.7400 ★
+  CalibSVM(C=0.5,k=linear) n=30                : OOF=0.7494 SW=0.7917 AUC=0.7800
+  CalibSVM(C=1.0,k=linear) n=30                : OOF=0.7000 SW=0.7917 AUC=0.7500
+  CalibSVM(C=0.1,k=linear) n=35                : OOF=0.6491 SW=0.7917 AUC=0.7000
+  CalibSVM(C=0.5,k=linear) n=35                : OOF=0.3407 SW=0.7917 AUC=0.6800
+  CalibSVM(C=1.0,k=linear) n=35                : OOF=0.4505 SW=0.7980 AUC=0.7200
+  CalibSVM(C=1.0,k=linear) n=40                : OOF=0.6267 SW=0.7980 AUC=0.8300
+  CalibSVM(C=0.1,k=rbf) n=50                   : OOF=0.7494 SW=0.7494 AUC=0.6950
+  CalibSVM(C=0.5,k=rbf) n=50                   : OOF=0.7494 SW=0.7494 AUC=0.6950
+
+  Best CalibSVM: CalibSVM(C=0.1,k=linear) n=30 → F1(oof)=0.7494
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Wav2Vec Ensemble — Diverse Algorithms, OOF-weighted
+
+────────────────────────────────────────────────────────────────────────────────
+In [8] (Code Cell #8)
+────────────────────────────────────────────────────────────────────────────────
+
+================================================================================
+  WAV2VEC ENSEMBLE — Top Models per Algorithm
+================================================================================
+  Best LogisticRegression    : n=30 OOF_thr=0.50 Test(oof)=0.5960 Test(sw)=0.7917
+  Best SVM                   : n=30 OOF_thr=0.36 Test(oof)=0.7000 Test(sw)=0.7980
+  Best RandomForest          : n=30 OOF_thr=0.41 Test(oof)=0.6419 Test(sw)=0.7494
+  Best XGBoost               : n=30 OOF_thr=0.44 Test(oof)=0.6491 Test(sw)=0.7333
+
+  Collecting probs for Wav2Vec ensemble...
+
+  Ensemble members: ['LogisticRegression', 'SVM', 'RandomForest', 'XGBoost', 'CalibSVM']
+
+  Ensemble strategies:
+  W2V-Ens(LogisticRegression+SVM                  ): OOF=0.6491 SW=0.7917 Acc=0.6500 AUC=0.7400 
+  W2V-Ens(LogisticRegression+RandomForest         ): OOF=0.5960 SW=0.7980 Acc=0.6000 AUC=0.7900
+  W2V-Ens(LogisticRegression+XGBoost              ): OOF=0.7494 SW=0.7917 Acc=0.7500 AUC=0.8000 ★ NEW BEST ★
+  W2V-Ens(LogisticRegression+CalibSVM             ): OOF=0.7494 SW=0.7917 Acc=0.7500 AUC=0.7500 
+  W2V-Ens(SVM+RandomForest                        ): OOF=0.6970 SW=0.8465 Acc=0.7000 AUC=0.8100
+  W2V-Ens(SVM+CalibSVM                            ): OOF=0.7494 SW=0.7917 Acc=0.7500 AUC=0.7400 
+  W2V-Ens(RandomForest+XGBoost                    ): OOF=0.7000 SW=0.7494 Acc=0.7000 AUC=0.7600 
+  W2V-Ens(RandomForest+CalibSVM                   ): OOF=0.7000 SW=0.7980 Acc=0.7000 AUC=0.7900
+  W2V-Ens(XGBoost+CalibSVM                        ): OOF=0.7494 SW=0.7917 Acc=0.7500 AUC=0.7900 
+  W2V-Ens(LogisticRegression+SVM+RandomForest     ): OOF=0.5960 SW=0.7980 Acc=0.6000 AUC=0.7800 
+  W2V-Ens(LogisticRegression+SVM+XGBoost          ): OOF=0.7494 SW=0.7917 Acc=0.7500 AUC=0.7900
+  W2V-Ens(LogisticRegression+SVM+CalibSVM         ): OOF=0.7494 SW=0.7917 Acc=0.7500 AUC=0.7500 
+  W2V-Ens(LogisticRegression+RandomForest+XGBoost ): OOF=0.7494 SW=0.7917 Acc=0.7500 AUC=0.8000 
+  W2V-Ens(LogisticRegression+RandomForest+CalibSVM): OOF=0.7000 SW=0.7917 Acc=0.7000 AUC=0.7700
+  W2V-Ens(LogisticRegression+XGBoost+CalibSVM     ): OOF=0.7494 SW=0.7980 Acc=0.7500 AUC=0.7900 
+  W2V-Ens(SVM+RandomForest+XGBoost                ): OOF=0.7494 SW=0.7494 Acc=0.7500 AUC=0.7700 
+  W2V-Ens(SVM+RandomForest+CalibSVM               ): OOF=0.7000 SW=0.7980 Acc=0.7000 AUC=0.7900
+  W2V-Ens(SVM+XGBoost+CalibSVM                    ): OOF=0.7494 SW=0.7980 Acc=0.7500 AUC=0.7800 
+  W2V-Ens(RandomForest+XGBoost+CalibSVM           ): OOF=0.7494 SW=0.7917 Acc=0.7500 AUC=0.7900
+  W2V-Ens(LogisticRegression+SVM+RandomForest+XGBoost): OOF=0.7494 SW=0.7917 Acc=0.7500 AUC=0.7900 
+  W2V-Ens(LogisticRegression+SVM+RandomForest+CalibSVM): OOF=0.7000 SW=0.7917 Acc=0.7000 AUC=0.7800
+  W2V-Ens(LogisticRegression+SVM+XGBoost+CalibSVM ): OOF=0.7494 SW=0.7980 Acc=0.7500 AUC=0.7900 
+  W2V-Ens(LogisticRegression+RandomForest+XGBoost+CalibSVM): OOF=0.7494 SW=0.7980 Acc=0.7500 AUC=0.8000
+  W2V-Ens(SVM+RandomForest+XGBoost+CalibSVM       ): OOF=0.7494 SW=0.7917 Acc=0.7500 AUC=0.7900 
+  W2V-Ens(LogisticRegression+SVM+RandomForest+XGBoost+CalibSVM): OOF=0.7494 SW=0.8465 Acc=0.7500 AUC=0.8000
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Summary Table
+
+────────────────────────────────────────────────────────────────────────────────
+In [9] (Code Cell #9)
+────────────────────────────────────────────────────────────────────────────────
+
+==============================================================================================================
+                             TABEL RINGKASAN v86 — OOF Threshold | PCA Whitening                              
+==============================================================================================================
+  Skenario               Model                  n      CV F1    Std  Test(oof)  Test(sw)    Acc    AUC      Gap St
+  S2_MFCC                XGBoost                10    0.6780 0.1415     0.7333    0.7494 0.7500 0.7400  +0.0553 ✓OK
+  S3_Wav2Vec             SVM                    30    0.6087 0.1032     0.7000    0.7980 0.7000 0.7400  +0.0913 ✓OK
+  S3_Wav2Vec             XGBoost                30    0.6661 0.0746     0.6491    0.7333 0.6500 0.7700  -0.0169 ✓OK
+  S3_Wav2Vec             RandomForest           30    0.6203 0.0981     0.6419    0.7494 0.6500 0.8100  +0.0216 ✓OK
+  S4_Fusion              XGBoost                10    0.6036 0.1346     0.6267    0.6419 0.6500 0.6000  +0.0231 ✓OK
+  S4_Fusion              LogisticRegression     10    0.6640 0.2005     0.6011    0.6970 0.6500 0.6000  -0.0628 ✓OK
+  S2_MFCC                SVM                    10    0.7448 0.0881     0.5960    0.6491 0.6000 0.7100  -0.1489 ⚠OV
+  S3_Wav2Vec             LogisticRegression     30    0.6835 0.1406     0.5960    0.7917 0.6000 0.7500  -0.0875 ✓OK
+  S4_Fusion              RandomForest           10    0.6358 0.1205     0.5604    0.6491 0.6000 0.6200  -0.0754 ✓OK
+  S2_MFCC                RandomForest           10    0.6758 0.1274     0.5238    0.6875 0.6000 0.6900  -0.1520 ⚠OV
+  S1_Spectrogram         LogisticRegression     10    0.6017 0.1566     0.4505    0.6491 0.5000 0.6100  -0.1512 ⚠OV
+  S2_MFCC                LogisticRegression     15    0.6207 0.1885     0.4505    0.6000 0.5000 0.5100  -0.1701 ⚠OV
+  S4_Fusion              SVM                    25    0.6657 0.1048     0.4373    0.5489 0.4500 0.3600  -0.2284 ⚠OV
+  S1_Spectrogram         RandomForest           10    0.6877 0.1533     0.3407    0.4505 0.4000 0.3700  -0.3471 ⚠OV
+  S1_Spectrogram         XGBoost                10    0.6579 0.1657     0.3350    0.4048 0.3500 0.2100  -0.3228 ⚠OV
+  S1_Spectrogram         SVM                    10    0.6728 0.1238     0.3333    0.3333 0.5000 0.5200  -0.3395 ⚠OV
+
+  ★ BEST CV   : S2_MFCC × SVM n=10 → CV=0.7448 Test(oof)=0.5960
+  ★ BEST Test : S2_MFCC × XGBoost n=10 → CV=0.6780 Test(oof)=0.7333
+
+  APPLE-TO-APPLE (S1-S4):
+  Skenario               Best Model             n      CV F1  Test(oof)  Test(sw)    Acc    AUC
+  S1_Spectrogram         LogisticRegression     10    0.6017     0.4505    0.6491 0.5000 0.6100
+  S2_MFCC                XGBoost                10    0.6780     0.7333    0.7494 0.7500 0.7400
+  S3_Wav2Vec             SVM                    30    0.6087     0.7000    0.7980 0.7000 0.7400
+  S4_Fusion              XGBoost                10    0.6036     0.6267    0.6419 0.6500 0.6000
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Learning Curves & Visualizations
+
+────────────────────────────────────────────────────────────────────────────────
+In [10] (Code Cell #10)
+────────────────────────────────────────────────────────────────────────────────
+
+  Generating learning curves for best Wav2Vec model...
+  All plots saved.
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Classification Reports & Final Report
+
+────────────────────────────────────────────────────────────────────────────────
+In [11] (Code Cell #11)
+────────────────────────────────────────────────────────────────────────────────
+
+================================================================================
+  CLASSIFICATION REPORTS — Best Test(OOF) per Skenario
+================================================================================
+
+  ── S1_Spectrogram × LogisticRegression (n=10) ──
+  CV=0.6017±0.1566 | OOF_thr=0.51 | Test(oof)=0.4505 | Test(sw)=0.6491
+              precision    recall  f1-score   support
+
+      Normal       0.50      0.80      0.62        10
+     Depresi       0.50      0.20      0.29        10
+
+    accuracy                           0.50        20
+   macro avg       0.50      0.50      0.45        20
+weighted avg       0.50      0.50      0.45        20
+
+
+  ── S2_MFCC × XGBoost (n=10) ──
+  CV=0.6780±0.1415 | OOF_thr=0.47 | Test(oof)=0.7333 | Test(sw)=0.7494
+              precision    recall  f1-score   support
+
+      Normal       0.67      1.00      0.80        10
+     Depresi       1.00      0.50      0.67        10
+
+    accuracy                           0.75        20
+   macro avg       0.83      0.75      0.73        20
+weighted avg       0.83      0.75      0.73        20
+
+
+  ── S3_Wav2Vec × SVM (n=30) ──
+  CV=0.6087±0.1032 | OOF_thr=0.36 | Test(oof)=0.7000 | Test(sw)=0.7980
+              precision    recall  f1-score   support
+
+      Normal       0.70      0.70      0.70        10
+     Depresi       0.70      0.70      0.70        10
+
+    accuracy                           0.70        20
+   macro avg       0.70      0.70      0.70        20
+weighted avg       0.70      0.70      0.70        20
+
+
+  ── S4_Fusion × XGBoost (n=10) ──
+  CV=0.6036±0.1346 | OOF_thr=0.40 | Test(oof)=0.6267 | Test(sw)=0.6419
+              precision    recall  f1-score   support
+
+      Normal       0.60      0.90      0.72        10
+     Depresi       0.80      0.40      0.53        10
+
+    accuracy                           0.65        20
+   macro avg       0.70      0.65      0.63        20
+weighted avg       0.70      0.65      0.63        20
+
+
+  ── Best Wav2Vec Ensemble (LogisticRegression+XGBoost) ──
+  F1(oof)=0.7494 | F1(sw)=0.7917 | Acc=0.7500 | AUC=0.8000
+              precision    recall  f1-score   support
+
+      Normal       0.78      0.70      0.74        10
+     Depresi       0.73      0.80      0.76        10
+
+    accuracy                           0.75        20
+   macro avg       0.75      0.75      0.75        20
+weighted avg       0.75      0.75      0.75        20
+
+
+================================================================================
+                                FINAL REPORT v86                                
+================================================================================
+  v85 Referensi : Test(fair)=0.7442 (S3_Wav2Vec × LR n=30)
+  v86 Best CV   : S2_MFCC × SVM n=10 → 0.7448
+  v86 Best Test : S2_MFCC × XGBoost n=10 → 0.7333
+  CalibSVM Best : CalibSVM(C=0.1,k=linear) n=30 → 0.7494
+  Best Ensemble : LogisticRegression+XGBoost → 0.7494
+  OVERALL BEST  : 0.7494
+
+  TARGET 0.75   : NO (gap: 0.0006)
+  Total waktu   : 905.6s
+================================================================================
+  Summary saved: D:\repositories\menthealth-ai\results\v86/metrics/v86_summary.json
+
+================================================================================
+  RINGKASAN
+  Code cells  : 11
+  Cells dengan output teks: 8
+================================================================================

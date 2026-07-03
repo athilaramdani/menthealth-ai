@@ -1,0 +1,198 @@
+================================================================================
+  NOTEBOOK OUTPUT EXTRACTOR
+  File   : traditional_mlv81.ipynb
+  Path   : notebooks\traditional_mlv81.ipynb
+  Diambil: 2026-06-30 14:49:27
+  Total  : 3 cell
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+# Pipeline v81 — Back to SelectKBest | Custom Class Weights | Targeted Winners
+Lesson v80: PCA lebih buruk dari SelectKBest untuk dataset kecil ini
+Lesson keseluruhan (v75-v80):
+- SelectKBest > PCA
+- SMOTEENN > smote > none (untuk kejujuran CV)
+- Winner terbukti: Wav2Vec×LR (K=60, C~0.1-0.3) → CV~0.71, Test~0.70
+- Winner terbukti: FusionEng×RF (K=30) → CV=0.7149 (best honest)
+- Wav2Vec×RF (K=ALL) → Test=0.7442 konsisten
+
+Strategi v81 — Targeted & Clean:
+[1] SelectKBest kembali (terbukti > PCA)
+[2] SMOTEENN only
+[3] Custom class_weight sweep: 'balanced', {0:1,1:2}, {0:1,1:3}
+[4] Fokus hyperparameter pada winner yang sudah terbukti
+[5] Tambah PolynomialFeatures degree=2 interaction_only pada Wav2Vec
+    → fitur interaksi antar 72 fitur Wav2Vec (pattern baru)
+[6] Tambah MFCC×LR (K=60) dengan class weight sweep
+[7] Tetap apple-to-apple S1-S4
+
+────────────────────────────────────────────────────────────────────────────────
+In [1] (Code Cell #1)
+────────────────────────────────────────────────────────────────────────────────
+================================================================================
+  Pipeline v81 — SelectKBest + Custom Weights + PolyFeatures | Target >= 0.75
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+In [2] (Code Cell #2)
+────────────────────────────────────────────────────────────────────────────────
+  Total: 102 (N:63, D:39)
+  S1_Spectrogram      : 687 fitur
+  S2_MFCC             : 990 fitur
+  S3_Wav2Vec          : 72 fitur
+  S4_Fusion           : 1749 fitur
+  S5_FusionEng        : 6996 fitur
+  S7_Wav2VecPoly      : 2628 fitur
+  Train:82 | Test:20 (10N+10D)
+
+================================================================================
+  v81 — SelectKBest + CW-Sweep + PolyFeatures | 6 skenario
+================================================================================
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S1_Spectrogram | 687 fitur | K=[30, 50, 60, 80]
+  LogisticRegression     K=30    cw=balanced        cfg[2] CV=0.6493±0.0304 Test=0.6000 Gap=-0.0493 ✓OK
+  RandomForest           K=30    cw={0: 1, 1: 2}    cfg[4] CV=0.6823±0.0576 Test=0.6419 Gap=-0.0404 ✓OK
+  SVM                    K=80    cw={0: 1, 1: 2}    cfg[1] CV=0.6067±0.0327 Test=0.6491 Gap=+0.0424 ✓OK
+  XGBoost                K=30    cw=spw=2           cfg[2] CV=0.6623±0.0936 Test=0.5489 Gap=-0.1134 ⚠OV
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S2_MFCC | 990 fitur | K=[30, 50, 60, 80]
+  LogisticRegression     K=30    cw=balanced        cfg[7] CV=0.6371±0.0766 Test=0.5604 Gap=-0.0767 ✓OK
+  RandomForest           K=30    cw={0: 1, 1: 3}    cfg[1] CV=0.6807±0.0333 Test=0.6000 Gap=-0.0807 ✓OK
+  SVM                    K=30    cw=balanced        cfg[0] CV=0.6802±0.0339 Test=0.5604 Gap=-0.1197 ⚠OV
+  XGBoost                K=30    cw=spw=2           cfg[1] CV=0.5850±0.0572 Test=0.5960 Gap=+0.0109 ✓OK
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S3_Wav2Vec | 72 fitur | K=[None, 50, 60, 70]
+  LogisticRegression     K=60    cw={0: 1, 1: 2}    cfg[7] CV=0.6571±0.0994 Test=0.6491 Gap=-0.0080 ✓OK
+  RandomForest           K=ALL   cw=balanced        cfg[1] CV=0.6441±0.0522 Test=0.7442 Gap=+0.1001 ↑GEN
+  SVM                    K=ALL   cw=balanced        cfg[3] CV=0.6408±0.0298 Test=0.6970 Gap=+0.0562 ✓OK
+  XGBoost                K=70    cw=spw=2           cfg[0] CV=0.5984±0.1347 Test=0.6970 Gap=+0.0985 ✓OK
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S4_Fusion | 1749 fitur | K=[30, 50, 60]
+  LogisticRegression     K=30    cw={0: 1, 1: 2}    cfg[6] CV=0.6166±0.0852 Test=0.5200 Gap=-0.0966 ✓OK
+  RandomForest           K=50    cw={0: 1, 1: 2}    cfg[2] CV=0.6722±0.0344 Test=0.6875 Gap=+0.0153 ✓OK
+  SVM                    K=50    cw=balanced        cfg[1] CV=0.6387±0.0367 Test=0.5833 Gap=-0.0554 ✓OK
+  XGBoost                K=60    cw=spw=2           cfg[1] CV=0.6633±0.0742 Test=0.5396 Gap=-0.1237 ⚠OV
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S5_FusionEng | 6996 fitur | K=[30, 50, 80]
+  LogisticRegression     K=30    cw={0: 1, 1: 2}    cfg[0] CV=0.6808±0.0839 Test=0.6000 Gap=-0.0808 ✓OK
+  RandomForest           K=30    cw=balanced        cfg[1] CV=0.6623±0.0785 Test=0.6011 Gap=-0.0611 ✓OK
+  SVM                    K=50    cw=balanced        cfg[0] CV=0.6865±0.0414 Test=0.5833 Gap=-0.1032 ⚠OV
+  XGBoost                K=30    cw=spw=2           cfg[2] CV=0.6630±0.0839 Test=0.5960 Gap=-0.0670 ✓OK
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S7_Wav2VecPoly | 2628 fitur | K=[30, 50, 60, 80]
+  LogisticRegression     K=60    cw=balanced        cfg[1] CV=0.7413±0.1134 Test=0.6000 Gap=-0.1413 ⚠OV ★CV★
+  RandomForest           K=50    cw=balanced        cfg[2] CV=0.7620±0.0683 Test=0.5604 Gap=-0.2016 ⚠OV ★CV★
+  SVM                    K=60    cw=balanced        cfg[3] CV=0.7221±0.1066 Test=0.6011 Gap=-0.1209 ⚠OV
+  XGBoost                K=30    cw=spw=2           cfg[1] CV=0.7482±0.0668 Test=0.5960 Gap=-0.1523 ⚠OV
+
+====================================================================================================
+                           TABEL RINGKASAN v81 — SelectKBest + Custom CW                            
+====================================================================================================
+  Skenario               Model                      K   CV F1    Std  TestF1     Acc      Gap Status
+  S7_Wav2VecPoly         RandomForest              50  0.7620 0.0683  0.5604  0.6000  -0.2016 ⚠OV
+  S7_Wav2VecPoly         XGBoost                   30  0.7482 0.0668  0.5960  0.6000  -0.1523 ⚠OV
+  S7_Wav2VecPoly         LogisticRegression        60  0.7413 0.1134  0.6000  0.6000  -0.1413 ⚠OV
+  S7_Wav2VecPoly         SVM                       60  0.7221 0.1066  0.6011  0.6500  -0.1209 ⚠OV
+  S5_FusionEng           SVM                       50  0.6865 0.0414  0.5833  0.6000  -0.1032 ⚠OV
+  S1_Spectrogram         RandomForest              30  0.6823 0.0576  0.6419  0.6500  -0.0404 ✓OK
+  S5_FusionEng           LogisticRegression        30  0.6808 0.0839  0.6000  0.6000  -0.0808 ✓OK
+  S2_MFCC                RandomForest              30  0.6807 0.0333  0.6000  0.6000  -0.0807 ✓OK
+  S2_MFCC                SVM                       30  0.6802 0.0339  0.5604  0.6000  -0.1197 ⚠OV
+  S4_Fusion              RandomForest              50  0.6722 0.0344  0.6875  0.7000  +0.0153 ✓OK
+  S4_Fusion              XGBoost                   60  0.6633 0.0742  0.5396  0.5500  -0.1237 ⚠OV
+  S5_FusionEng           XGBoost                   30  0.6630 0.0839  0.5960  0.6000  -0.0670 ✓OK
+  S1_Spectrogram         XGBoost                   30  0.6623 0.0936  0.5489  0.5500  -0.1134 ⚠OV
+  S5_FusionEng           RandomForest              30  0.6623 0.0785  0.6011  0.6500  -0.0611 ✓OK
+  S3_Wav2Vec             LogisticRegression        60  0.6571 0.0994  0.6491  0.6500  -0.0080 ✓OK
+  S1_Spectrogram         LogisticRegression        30  0.6493 0.0304  0.6000  0.6000  -0.0493 ✓OK
+  S3_Wav2Vec             RandomForest             ALL  0.6441 0.0522  0.7442  0.7500  +0.1001 ↑GEN
+  S3_Wav2Vec             SVM                      ALL  0.6408 0.0298  0.6970  0.7000  +0.0562 ✓OK
+
+  ★ BEST CV F1 : S7_Wav2VecPoly × RandomForest K=50 cw=balanced → CV=0.7620 Test=0.5604
+  ★ BEST Test  : S3_Wav2Vec × RandomForest K=ALL → CV=0.6441 Test=0.7442
+
+  APPLE-TO-APPLE (S1-S4 sesuai prompt):
+  Skenario             Best Model                 K                 CW   CV F1  Test F1
+  S1_Spectrogram       RandomForest              30       {0: 1, 1: 2}  0.6823   0.6419
+  S2_MFCC              RandomForest              30       {0: 1, 1: 3}  0.6807   0.6000
+  S3_Wav2Vec           LogisticRegression        60       {0: 1, 1: 2}  0.6571   0.6491
+  S4_Fusion            RandomForest              50       {0: 1, 1: 2}  0.6722   0.6875
+  Plots saved.
+
+================================================================================
+  CLASSIFICATION REPORTS — Best CV per Skenario (S1-S4)
+================================================================================
+
+  ── S1_Spectrogram × RandomForest (K=30, cw={0: 1, 1: 2}) ──
+  CV=0.6823±0.0576 | Test=0.6419 | Acc=0.6500
+              precision    recall  f1-score   support
+
+      Normal       0.62      0.80      0.70        10
+     Depresi       0.71      0.50      0.59        10
+
+    accuracy                           0.65        20
+   macro avg       0.66      0.65      0.64        20
+weighted avg       0.66      0.65      0.64        20
+
+
+  ── S2_MFCC × RandomForest (K=30, cw={0: 1, 1: 3}) ──
+  CV=0.6807±0.0333 | Test=0.6000 | Acc=0.6000
+              precision    recall  f1-score   support
+
+      Normal       0.60      0.60      0.60        10
+     Depresi       0.60      0.60      0.60        10
+
+    accuracy                           0.60        20
+   macro avg       0.60      0.60      0.60        20
+weighted avg       0.60      0.60      0.60        20
+
+
+  ── S3_Wav2Vec × LogisticRegression (K=60, cw={0: 1, 1: 2}) ──
+  CV=0.6571±0.0994 | Test=0.6491 | Acc=0.6500
+              precision    recall  f1-score   support
+
+      Normal       0.67      0.60      0.63        10
+     Depresi       0.64      0.70      0.67        10
+
+    accuracy                           0.65        20
+   macro avg       0.65      0.65      0.65        20
+weighted avg       0.65      0.65      0.65        20
+
+
+  ── S4_Fusion × RandomForest (K=50, cw={0: 1, 1: 2}) ──
+  CV=0.6722±0.0344 | Test=0.6875 | Acc=0.7000
+              precision    recall  f1-score   support
+
+      Normal       0.64      0.90      0.75        10
+     Depresi       0.83      0.50      0.62        10
+
+    accuracy                           0.70        20
+   macro avg       0.74      0.70      0.69        20
+weighted avg       0.74      0.70      0.69        20
+
+
+================================================================================
+                                FINAL REPORT v81                                
+================================================================================
+  Progress: v75=0.7068|v76=0.7149|v77=0.7137|v79=0.7138|v80=0.6842|v81=0.7620
+  Best CV  : S7_Wav2VecPoly × RandomForest K=50
+  CV F1    : 0.7620 ± 0.0683
+  Test F1  : 0.5604
+  Best Test: S3_Wav2Vec × RandomForest = 0.7442
+  TARGET 0.75 (CV)  : ✓ TERCAPAI!
+  TARGET 0.75 (Test): NO (0.7442)
+  Total waktu : 2391.5s
+================================================================================
+
+================================================================================
+  RINGKASAN
+  Code cells  : 2
+  Cells dengan output teks: 2
+================================================================================

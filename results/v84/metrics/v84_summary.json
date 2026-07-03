@@ -1,0 +1,20 @@
+{
+  "version": "v84",
+  "no_smote": true,
+  "cv_folds": 10,
+  "best_cv": {
+    "scenario": "S4_Fusion",
+    "model": "XGBoost",
+    "cv_f1": 0.8457,
+    "test_f1": 0.4486,
+    "K": "60"
+  },
+  "best_test": {
+    "scenario": "S5_FusionEng",
+    "model": "LogisticRegression",
+    "cv_f1": 0.7248,
+    "test_f1": 0.697
+  },
+  "target_075_cv": true,
+  "target_075_test": false
+}

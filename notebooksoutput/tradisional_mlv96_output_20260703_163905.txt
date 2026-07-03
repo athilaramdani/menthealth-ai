@@ -1,0 +1,241 @@
+================================================================================
+  NOTEBOOK OUTPUT EXTRACTOR
+  File   : tradisional_mlv96.ipynb
+  Path   : notebooks\tradisional_mlv96.ipynb
+  Diambil: 2026-07-03 16:39:05
+  Total  : 16 cell
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+# Pipeline v96 - Focused Tuning + XAI
+
+Fokus v96:
+- Dataset tetap 189 participant.
+- Split tetap 80:20 dengan test balanced 10 Normal + 10 Depresi.
+- Empat skenario tetap apple-to-apple:
+  S1 Spectrogram, S2 MFCC, S3 Wav2Vec768, S4 Fusion.
+- Model baseline tetap: Random Forest, SVM, Logistic Regression, XGBoost.
+- Wav2Vec768 memakai cache bersih v95: 189 participant, 768 mean embedding.
+- Tuning difokuskan pada:
+  S3 Wav2Vec768 + Linear SVM no PCA,
+  S2 MFCC + XGBoost,
+  S4 Fusion + Logistic Regression/Linear SVM fitur utuh.
+- Threshold OOF agresif: 0.30 sampai 0.60 step 0.01.
+- Tambahan visualisasi fitur, learning curve, dan XAI untuk best model.
+
+────────────────────────────────────────────────────────────────────────────────
+In [1] (Code Cell #1)
+────────────────────────────────────────────────────────────────────────────────
+================================================================================================
+  Pipeline v96 - Focused Tuning + Threshold Optimization + XAI
+  Strict S1-S4 apple-to-apple; no cross-scenario model fusion
+================================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 1. Load Fitur dan Nama Fitur
+
+────────────────────────────────────────────────────────────────────────────────
+In [2] (Code Cell #2)
+────────────────────────────────────────────────────────────────────────────────
+
+Dimensi fitur v96:
+      scenario                        group  dimension
+S1_Spectrogram      Spectrogram/GeMAPS-like        681
+       S2_MFCC                MFCC/Prosodic        990
+ S3_Wav2Vec768   Wav2Vec 768 mean embedding        768
+     S4_Fusion Spectrogram + MFCC + Wav2Vec       2439
+
+Dataset:
+  Total=189 | Normal=133 | Depresi=56
+
+Daftar/komponen fitur eksplisit:
+  Spectrogram mencakup statistik mel-band, entropy, centroid, bandwidth, rolloff, flatness, chroma, RMS, ZCR, low-energy.
+  MFCC mencakup MFCC m1-m40, delta, delta-delta, pitch/F0 proxy, RMS, ZCR, low-energy, HNR proxy, spectral entropy, jitter, shimmer, voiced ratio.
+  Wav2Vec memakai dimensi embedding mean w2v_0 sampai w2v_767.
+
+S1 Spectrogram - jumlah fitur: 681
+  Contoh 30 nama fitur pertama:
+  spec_mel1_mean, spec_mel1_std, spec_mel1_min, spec_mel1_max, spec_mel1_p25, spec_mel1_p75, spec_mel1_kurt, spec_mel1_skew, spec_mel1_ent, spec_mel2_mean, spec_mel2_std, spec_mel2_min, spec_mel2_max, spec_mel2_p25, spec_mel2_p75, spec_mel2_kurt, spec_mel2_skew, spec_mel2_ent, spec_mel3_mean, spec_mel3_std, spec_mel3_min, spec_mel3_max, spec_mel3_p25, spec_mel3_p75, spec_mel3_kurt, spec_mel3_skew, spec_mel3_ent, spec_mel4_mean, spec_mel4_std, spec_mel4_min
+  ...
+  Contoh 10 nama fitur terakhir:
+  spec_zcr_mean, spec_zcr_std, spec_zcr_min, spec_zcr_max, spec_zcr_p25, spec_zcr_p75, spec_zcr_kurt, spec_zcr_skew, spec_low_energy_ratio, spec_spec_entropy
+
+S2 MFCC - jumlah fitur: 990
+  Contoh 30 nama fitur pertama:
+  mfcc_m1_mean, mfcc_m1_std, mfcc_m1_min, mfcc_m1_max, mfcc_m1_p25, mfcc_m1_p75, mfcc_m1_kurt, mfcc_m1_skew, mfcc_dm1_mean, mfcc_dm1_std, mfcc_dm1_min, mfcc_dm1_max, mfcc_dm1_p25, mfcc_dm1_p75, mfcc_dm1_kurt, mfcc_dm1_skew, mfcc_ddm1_mean, mfcc_ddm1_std, mfcc_ddm1_min, mfcc_ddm1_max, mfcc_ddm1_p25, mfcc_ddm1_p75, mfcc_ddm1_kurt, mfcc_ddm1_skew, mfcc_m2_mean, mfcc_m2_std, mfcc_m2_min, mfcc_m2_max, mfcc_m2_p25, mfcc_m2_p75
+  ...
+  Contoh 10 nama fitur terakhir:
+  mfcc_zcr_p25, mfcc_zcr_p75, mfcc_zcr_kurt, mfcc_zcr_skew, mfcc_low_energy_ratio, mfcc_hnr_proxy, mfcc_spec_entropy, mfcc_jitter, mfcc_shimmer, mfcc_voiced_ratio
+
+S3 Wav2Vec768 - jumlah fitur: 768
+  Contoh 30 nama fitur pertama:
+  w2v_w2v_0, w2v_w2v_1, w2v_w2v_2, w2v_w2v_3, w2v_w2v_4, w2v_w2v_5, w2v_w2v_6, w2v_w2v_7, w2v_w2v_8, w2v_w2v_9, w2v_w2v_10, w2v_w2v_11, w2v_w2v_12, w2v_w2v_13, w2v_w2v_14, w2v_w2v_15, w2v_w2v_16, w2v_w2v_17, w2v_w2v_18, w2v_w2v_19, w2v_w2v_20, w2v_w2v_21, w2v_w2v_22, w2v_w2v_23, w2v_w2v_24, w2v_w2v_25, w2v_w2v_26, w2v_w2v_27, w2v_w2v_28, w2v_w2v_29
+  ...
+  Contoh 10 nama fitur terakhir:
+  w2v_w2v_758, w2v_w2v_759, w2v_w2v_760, w2v_w2v_761, w2v_w2v_762, w2v_w2v_763, w2v_w2v_764, w2v_w2v_765, w2v_w2v_766, w2v_w2v_767
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 2. Split 80:20 Balanced Test
+
+────────────────────────────────────────────────────────────────────────────────
+In [3] (Code Cell #3)
+────────────────────────────────────────────────────────────────────────────────
+
+Split v96:
+  Train=169 | Normal=123 | Depresi=46
+  Test =20  | Normal=10  | Depresi=10  | balanced
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 3. Model, Pipeline, Threshold OOF
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 4. Eksperimen Utama
+
+────────────────────────────────────────────────────────────────────────────────
+In [5] (Code Cell #5)
+────────────────────────────────────────────────────────────────────────────────
+
+================================================================================================
+  v96 MAIN LOOP: S1-S4 x RF/SVM/LR/XGBoost
+  Aggressive OOF threshold: 0.30-0.60 step 0.01
+================================================================================================
+
+------------------------------------------------------------------------------------------------
+  S1_Spectrogram: 681 fitur
+------------------------------------------------------------------------------------------------
+  RF   PCA=10   CV=0.5556 thr=0.44 F1=0.6267 Acc=0.6500 Prec=0.7000 Rec=0.6500 AUC=0.6300 (26.3s)
+  SVM  PCA=10   CV=0.5253 thr=0.32 F1=0.3333 Acc=0.5000 Prec=0.2500 Rec=0.5000 AUC=0.4400 (10.0s)
+  LR   PCA=10   CV=0.6005 thr=0.57 F1=0.4792 Acc=0.5000 Prec=0.5000 Rec=0.5000 AUC=0.4500 (5.1s)
+  XGB  PCA=30   CV=0.5590 thr=0.40 F1=0.5396 Acc=0.5500 Prec=0.5549 Rec=0.5500 AUC=0.6500 (9.2s)
+
+------------------------------------------------------------------------------------------------
+  S2_MFCC: 990 fitur
+------------------------------------------------------------------------------------------------
+  RF   PCA=30   CV=0.5719 thr=0.43 F1=0.4048 Acc=0.5000 Prec=0.5000 Rec=0.5000 AUC=0.4400 (22.3s)
+  SVM  PCA=10   CV=0.5928 thr=0.30 F1=0.4505 Acc=0.5000 Prec=0.5000 Rec=0.5000 AUC=0.4500 (7.9s)
+  LR   PCA=10   CV=0.5788 thr=0.60 F1=0.4048 Acc=0.5000 Prec=0.5000 Rec=0.5000 AUC=0.4700 (3.2s)
+  XGB  PCA=30   CV=0.5834 thr=0.35 F1=0.5489 Acc=0.5500 Prec=0.5505 Rec=0.5500 AUC=0.5800 (17.2s)
+
+------------------------------------------------------------------------------------------------
+  S3_Wav2Vec768: 768 fitur
+------------------------------------------------------------------------------------------------
+  RF   PCA=50   CV=0.5735 thr=0.37 F1=0.4505 Acc=0.5000 Prec=0.5000 Rec=0.5000 AUC=0.5500 (16.3s)
+  SVM  NO-PCA   CV=0.5633 thr=0.30 F1=0.4872 Acc=0.5500 Prec=0.5980 Rec=0.5500 AUC=0.7000 (1.4s)
+  LR   NO-PCA   CV=0.5764 thr=0.56 F1=0.4048 Acc=0.5000 Prec=0.5000 Rec=0.5000 AUC=0.6200 (1.2s)
+  XGB  PCA=80   CV=0.5639 thr=0.33 F1=0.4949 Acc=0.5000 Prec=0.5000 Rec=0.5000 AUC=0.5700 (17.3s)
+
+------------------------------------------------------------------------------------------------
+  S4_Fusion: 2439 fitur
+------------------------------------------------------------------------------------------------
+  RF   PCA=10   CV=0.6015 thr=0.42 F1=0.5396 Acc=0.5500 Prec=0.5549 Rec=0.5500 AUC=0.6100 (22.0s)
+  SVM  NO-PCA   CV=0.4952 thr=0.33 F1=0.3333 Acc=0.5000 Prec=0.2500 Rec=0.5000 AUC=0.6900 (2.2s)
+  LR   NO-PCA   CV=0.5501 thr=0.53 F1=0.4872 Acc=0.5500 Prec=0.5980 Rec=0.5500 AUC=0.5300 (1.6s)
+  XGB  PCA=10   CV=0.5911 thr=0.50 F1=0.5396 Acc=0.5500 Prec=0.5549 Rec=0.5500 AUC=0.4900 (12.0s)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 5. Visualisasi Fitur dan Performa
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 6. Learning Curve dan XAI
+
+────────────────────────────────────────────────────────────────────────────────
+In [7] (Code Cell #7)
+────────────────────────────────────────────────────────────────────────────────
+
+XAI plot saved: D:\repositories\menthealth-ai\results\v96\plots\xai_top20_v96.png
+Top XAI features/components:
+feature  importance  abs_importance
+    PC4    0.170887        0.170887
+    PC1    0.138957        0.138957
+    PC2    0.133702        0.133702
+   PC10    0.091367        0.091367
+    PC9    0.085433        0.085433
+    PC5    0.082815        0.082815
+    PC6    0.077842        0.077842
+    PC8    0.076843        0.076843
+    PC3    0.076489        0.076489
+    PC7    0.065665        0.065665
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## 7. Summary Report
+
+────────────────────────────────────────────────────────────────────────────────
+In [8] (Code Cell #8)
+────────────────────────────────────────────────────────────────────────────────
+
+==============================================================================================================================
+                                            TABEL RINGKASAN v96 - S1-S4 x 4 Model                                             
+==============================================================================================================================
+  Scenario           Model PCA         CV   Thr      F1     Acc    Prec  Recall    RecD     AUC  Oracle
+  S1_Spectrogram     RF   10      0.5556  0.44  0.6267  0.6500  0.7000  0.6500  0.4000  0.6300  0.6267
+  S2_MFCC            XGB  30      0.5834  0.35  0.5489  0.5500  0.5505  0.5500  0.5000  0.5800  0.6000
+  S1_Spectrogram     XGB  30      0.5590  0.40  0.5396  0.5500  0.5549  0.5500  0.4000  0.6500  0.7000
+  S4_Fusion          XGB  10      0.5911  0.50  0.5396  0.5500  0.5549  0.5500  0.4000  0.4900  0.5489
+  S4_Fusion          RF   10      0.6015  0.42  0.5396  0.5500  0.5549  0.5500  0.4000  0.6100  0.6491
+  S3_Wav2Vec768      XGB  80      0.5639  0.33  0.4949  0.5000  0.5000  0.5000  0.4000  0.5700  0.6000
+  S3_Wav2Vec768      SVM  none    0.5633  0.30  0.4872  0.5500  0.5980  0.5500  0.2000  0.7000  0.7494
+  S4_Fusion          LR   none    0.5501  0.53  0.4872  0.5500  0.5980  0.5500  0.2000  0.5300  0.6011
+  S1_Spectrogram     LR   10      0.6005  0.57  0.4792  0.5000  0.5000  0.5000  0.3000  0.4500  0.5489
+  S3_Wav2Vec768      RF   50      0.5735  0.37  0.4505  0.5000  0.5000  0.5000  0.2000  0.5500  0.6000
+  S2_MFCC            SVM  10      0.5928  0.30  0.4505  0.5000  0.5000  0.5000  0.2000  0.4500  0.5489
+  S2_MFCC            RF   30      0.5719  0.43  0.4048  0.5000  0.5000  0.5000  0.1000  0.4400  0.5604
+  S3_Wav2Vec768      LR   none    0.5764  0.56  0.4048  0.5000  0.5000  0.5000  0.1000  0.6200  0.6491
+  S2_MFCC            LR   10      0.5788  0.60  0.4048  0.5000  0.5000  0.5000  0.1000  0.4700  0.5489
+  S1_Spectrogram     SVM  10      0.5253  0.32  0.3333  0.5000  0.2500  0.5000  0.0000  0.4400  0.3333
+  S4_Fusion          SVM  none    0.4952  0.33  0.3333  0.5000  0.2500  0.5000  0.0000  0.6900  0.7494
+
+APPLE-TO-APPLE BEST PER SCENARIO:
+  S1_Spectrogram     RF   PCA=10 F1=0.6267 Acc=0.6500 Prec=0.7000 Recall=0.6500 AUC=0.6300
+  S2_MFCC            XGB  PCA=30 F1=0.5489 Acc=0.5500 Prec=0.5505 Recall=0.5500 AUC=0.5800
+  S3_Wav2Vec768      XGB  PCA=80 F1=0.4949 Acc=0.5000 Prec=0.5000 Recall=0.5000 AUC=0.5700
+  S4_Fusion          RF   PCA=10 F1=0.5396 Acc=0.5500 Prec=0.5549 Recall=0.5500 AUC=0.6100
+
+CLASSIFICATION REPORT - BEST v96
+  RF on S1_Spectrogram | F1=0.6267
+              precision    recall  f1-score   support
+
+      Normal       0.60      0.90      0.72        10
+     Depresi       0.80      0.40      0.53        10
+
+    accuracy                           0.65        20
+   macro avg       0.70      0.65      0.63        20
+weighted avg       0.70      0.65      0.63        20
+
+
+ERROR ANALYSIS - BEST v96
+ participant_id  label_depresi  y_pred  prob_depresi  correct
+            347              1       0      0.341932    False
+            355              1       0      0.272872    False
+            356              1       0      0.387879    False
+            426              1       0      0.369932    False
+            433              1       0      0.243467    False
+            459              1       0      0.354405    False
+            487              0       1      0.506618    False
+
+================================================================================================
+                                        FINAL REPORT v96                                        
+================================================================================================
+  Best        : 0.6267 (RF on S1_Spectrogram)
+  Accuracy    : 0.6500
+  Precision   : 0.7000
+  Recall      : 0.6500
+  AUC         : 0.6300
+  Oracle diag : 0.6267
+  Target 0.75 : BELUM
+  Total waktu : 183.7s
+  Results dir : D:\repositories\menthealth-ai\results\v96
+================================================================================================
+
+================================================================================
+  RINGKASAN
+  Code cells  : 8
+  Cells dengan output teks: 6
+================================================================================

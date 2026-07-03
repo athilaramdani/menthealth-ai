@@ -1,0 +1,292 @@
+================================================================================
+  NOTEBOOK OUTPUT EXTRACTOR
+  File   : traditional_mlv85.ipynb
+  Path   : notebooks\traditional_mlv85.ipynb
+  Diambil: 2026-06-30 12:51:41
+  Total  : 22 cell
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+# Pipeline v85 — PCA Whitening | Soft-Voting Ensemble | Target >= 0.75
+
+─────────────────────────────────────────────────────────────────────────────
+ROOT CAUSE ANALYSIS v84:
+- SelectKBest(mutual_info_classif) memilih fitur "informatif" di CV fold,
+  tapi fitur tersebut tidak generalize ke test (selection leakage)
+- CV F1 tinggi (0.78-0.84) tapi Test F1 rendah (0.45-0.65) = overfitting
+- High-dim features (687-1749) vs 82 training samples = curse of dimensionality
+
+STRATEGI v85 (FIX OVERFITTING):
+[1] PCA + whitening → ganti SelectKBest
+    - PCA captures global variance structure, bukan fitur individual
+    - whitening=True → normalisasi variance komponen → SVM/LR lebih stabil
+    - n_components sweep: [10, 15, 20, 25, 30]
+[2] RobustScaler sebelum PCA → lebih tahan outlier audio
+[3] Model lebih ringan/regularized (cegah overfit di 82 samples)
+[4] Soft-Voting Ensemble (top models dari S1-S4)
+[5] Learning Curve untuk visualisasi overfitting
+[6] APPLE-TO-APPLE S1-S4, No SMOTE, class_weight
+─────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────
+In [1] (Code Cell #1)
+────────────────────────────────────────────────────────────────────────────────
+================================================================================
+  Pipeline v85 — PCA Whitening | Soft-Voting Ensemble | Target >= 0.75
+================================================================================
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Load Labels & Features
+
+────────────────────────────────────────────────────────────────────────────────
+In [2] (Code Cell #2)
+────────────────────────────────────────────────────────────────────────────────
+
+  Dataset overview:
+  Total: 102 (N:63, D:39)
+  S1_Spectrogram      : 687 fitur
+  S2_MFCC             : 990 fitur
+  S3_Wav2Vec          : 72 fitur
+  S4_Fusion           : 1749 fitur
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Data Split (80:20, balanced test)
+
+────────────────────────────────────────────────────────────────────────────────
+In [3] (Code Cell #3)
+────────────────────────────────────────────────────────────────────────────────
+
+  Split: Train=82 (N:53, D:29, ratio=1.83:1) | Test=20 (10N+10D)
+  Strategy: PCA whitening + class_weight (NO SMOTE)
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Model Configurations
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Main CV Loop — All Scenarios × All Models
+
+────────────────────────────────────────────────────────────────────────────────
+In [5] (Code Cell #5)
+────────────────────────────────────────────────────────────────────────────────
+
+================================================================================
+  v85 — PCA Whitening | 10-Fold CV | class_weight | No SMOTE
+  Referensi v84: Best CV=0.8457 (overfit) | Best Test=0.6970 (fair)
+================================================================================
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S1_Spectrogram | 687 fitur | PCA_n=[10, 15, 20, 25, 30]
+  LogisticRegression     n=10  thr_cv=0.50/sw=0.47 CV=0.6017±0.1566 Test(fair)=0.5489 Test(sw)=0.6491 Gap=-0.0528 ✓OK
+  SVM                    n=10  thr_cv=0.36/sw=0.05 CV=0.6728±0.1238 Test(fair)=0.3333 Test(sw)=0.3333 Gap=-0.3395 ⚠OV
+  RandomForest           n=10  thr_cv=0.41/sw=0.26 CV=0.6877±0.1533 Test(fair)=0.3067 Test(sw)=0.4505 Gap=-0.3811 ⚠OV
+  XGBoost                n=10  thr_cv=0.45/sw=0.54 CV=0.6579±0.1657 Test(fair)=0.1479 Test(sw)=0.4048 Gap=-0.5100 ⚠OV
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S2_MFCC | 990 fitur | PCA_n=[10, 15, 20, 25, 30]
+  LogisticRegression     n=15  thr_cv=0.54/sw=0.51 CV=0.6207±0.1885 Test(fair)=0.5833 Test(sw)=0.6000 Gap=-0.0374 ✓OK
+  SVM                    n=10  thr_cv=0.35/sw=0.29 CV=0.7448±0.0881 Test(fair)=0.5960 Test(sw)=0.6491 Gap=-0.1489 ⚠OV ★CV★
+  RandomForest           n=10  thr_cv=0.43/sw=0.44 CV=0.6758±0.1274 Test(fair)=0.6970 Test(sw)=0.6875 Gap=+0.0212 ✓OK
+  XGBoost                n=10  thr_cv=0.50/sw=0.39 CV=0.6780±0.1415 Test(fair)=0.6703 Test(sw)=0.7494 Gap=-0.0077 ✓OK
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S3_Wav2Vec | 72 fitur | PCA_n=[8, 10, 15, 20, 30]
+  LogisticRegression     n=30  thr_cv=0.44/sw=0.39 CV=0.6835±0.1406 Test(fair)=0.7442 Test(sw)=0.7917 Gap=+0.0608 ✓OK ★TE★
+  SVM                    n=30  thr_cv=0.34/sw=0.35 CV=0.6087±0.1032 Test(fair)=0.6875 Test(sw)=0.7980 Gap=+0.0788 ✓OK
+  RandomForest           n=30  thr_cv=0.39/sw=0.36 CV=0.6203±0.0981 Test(fair)=0.6419 Test(sw)=0.7494 Gap=+0.0216 ✓OK
+  XGBoost                n=30  thr_cv=0.48/sw=0.34 CV=0.6661±0.0746 Test(fair)=0.7000 Test(sw)=0.7333 Gap=+0.0339 ✓OK
+
+──────────────────────────────────────────────────────────────────────
+  SKENARIO: S4_Fusion | 1749 fitur | PCA_n=[10, 15, 20, 25, 30]
+  LogisticRegression     n=10  thr_cv=0.53/sw=0.50 CV=0.6640±0.2005 Test(fair)=0.6419 Test(sw)=0.6970 Gap=-0.0220 ✓OK
+  SVM                    n=25  thr_cv=0.40/sw=0.37 CV=0.6657±0.1048 Test(fair)=0.4373 Test(sw)=0.5489 Gap=-0.2284 ⚠OV
+  RandomForest           n=10  thr_cv=0.40/sw=0.31 CV=0.6358±0.1205 Test(fair)=0.5604 Test(sw)=0.6491 Gap=-0.0754 ✓OK
+  XGBoost                n=10  thr_cv=0.47/sw=0.35 CV=0.6036±0.1346 Test(fair)=0.4872 Test(sw)=0.6419 Gap=-0.1164 ⚠OV
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Summary Table & Apple-to-Apple Comparison
+
+────────────────────────────────────────────────────────────────────────────────
+In [6] (Code Cell #6)
+────────────────────────────────────────────────────────────────────────────────
+
+==============================================================================================================
+                        TABEL RINGKASAN v85 — PCA Whitening | Fair Test (CV-threshold)                        
+==============================================================================================================
+  Skenario               Model                  n      CV F1    Std  Test(fair)  Test(sw)    Acc    AUC      Gap St
+  S3_Wav2Vec             LogisticRegression     30    0.6835 0.1406      0.7442    0.7917 0.7500 0.7500  +0.0608 ✓OK
+  S3_Wav2Vec             XGBoost                30    0.6661 0.0746      0.7000    0.7333 0.7000 0.7700  +0.0339 ✓OK
+  S2_MFCC                RandomForest           10    0.6758 0.1274      0.6970    0.6875 0.7000 0.6900  +0.0212 ✓OK
+  S3_Wav2Vec             SVM                    30    0.6087 0.1032      0.6875    0.7980 0.7000 0.7400  +0.0788 ✓OK
+  S2_MFCC                XGBoost                10    0.6780 0.1415      0.6703    0.7494 0.7000 0.7400  -0.0077 ✓OK
+  S3_Wav2Vec             RandomForest           30    0.6203 0.0981      0.6419    0.7494 0.6500 0.8100  +0.0216 ✓OK
+  S4_Fusion              LogisticRegression     10    0.6640 0.2005      0.6419    0.6970 0.6500 0.6000  -0.0220 ✓OK
+  S2_MFCC                SVM                    10    0.7448 0.0881      0.5960    0.6491 0.6000 0.7100  -0.1489 ⚠OV
+  S2_MFCC                LogisticRegression     15    0.6207 0.1885      0.5833    0.6000 0.6000 0.5100  -0.0374 ✓OK
+  S4_Fusion              RandomForest           10    0.6358 0.1205      0.5604    0.6491 0.6000 0.6200  -0.0754 ✓OK
+  S1_Spectrogram         LogisticRegression     10    0.6017 0.1566      0.5489    0.6491 0.5500 0.6100  -0.0528 ✓OK
+  S4_Fusion              XGBoost                10    0.6036 0.1346      0.4872    0.6419 0.5500 0.6000  -0.1164 ⚠OV
+  S4_Fusion              SVM                    25    0.6657 0.1048      0.4373    0.5489 0.4500 0.3600  -0.2284 ⚠OV
+  S1_Spectrogram         SVM                    10    0.6728 0.1238      0.3333    0.3333 0.5000 0.5200  -0.3395 ⚠OV
+  S1_Spectrogram         RandomForest           10    0.6877 0.1533      0.3067    0.4505 0.3500 0.3700  -0.3811 ⚠OV
+  S1_Spectrogram         XGBoost                10    0.6579 0.1657      0.1479    0.4048 0.1500 0.2100  -0.5100 ⚠OV
+
+  ★ BEST CV   : S2_MFCC × SVM n=10 → CV=0.7448 Test(fair)=0.5960
+  ★ BEST Test : S3_Wav2Vec × LogisticRegression n=30 → CV=0.6835 Test(fair)=0.7442
+
+  APPLE-TO-APPLE (S1-S4), Best by Test(fair):
+  Skenario               Best Model             n      CV F1  Test(fair)    Acc    AUC
+  S1_Spectrogram         LogisticRegression     10    0.6017      0.5489 0.5500 0.6100
+  S2_MFCC                RandomForest           10    0.6758      0.6970 0.7000 0.6900
+  S3_Wav2Vec             LogisticRegression     30    0.6835      0.7442 0.7500 0.7500
+  S4_Fusion              LogisticRegression     10    0.6640      0.6419 0.6500 0.6000
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Soft-Voting Ensemble (Top Models Across Scenarios)
+
+────────────────────────────────────────────────────────────────────────────────
+In [7] (Code Cell #7)
+────────────────────────────────────────────────────────────────────────────────
+
+================================================================================
+  SOFT-VOTING ENSEMBLE
+================================================================================
+  S1_Spectrogram         best=LogisticRegression     n=10 Test(fair)=0.5489
+  S2_MFCC                best=RandomForest           n=10 Test(fair)=0.6970
+  S3_Wav2Vec             best=LogisticRegression     n=30 Test(fair)=0.7442
+  S4_Fusion              best=LogisticRegression     n=10 Test(fair)=0.6419
+
+  Ensemble combinations:
+  Ensemble(All-4       ): fair_thr=0.47 F1(fair)=0.6970 F1(sw)=0.7494 Acc=0.7000 AUC=0.7500
+  Ensemble(S2+S3       ): fair_thr=0.44 F1(fair)=0.6970 F1(sw)=0.7917 Acc=0.7000 AUC=0.7600
+  Ensemble(S1+S2       ): fair_thr=0.46 F1(fair)=0.6419 F1(sw)=0.7980 Acc=0.6500 AUC=0.7800
+  Ensemble(S2+S4       ): fair_thr=0.48 F1(fair)=0.5833 F1(sw)=0.6970 Acc=0.6000 AUC=0.6300
+  Ensemble(S1+S2+S3    ): fair_thr=0.46 F1(fair)=0.6491 F1(sw)=0.7333 Acc=0.6500 AUC=0.7500
+  Ensemble(S2+S3+S4    ): fair_thr=0.47 F1(fair)=0.6000 F1(sw)=0.6875 Acc=0.6000 AUC=0.7300
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Learning Curves (Best Model + Best Ensemble)
+
+────────────────────────────────────────────────────────────────────────────────
+In [8] (Code Cell #8)
+────────────────────────────────────────────────────────────────────────────────
+
+================================================================================
+  LEARNING CURVES (Best Models per Scenario)
+================================================================================
+  Learning curves saved.
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Bar Chart: CV vs Test F1 Comparison
+
+────────────────────────────────────────────────────────────────────────────────
+In [9] (Code Cell #9)
+────────────────────────────────────────────────────────────────────────────────
+  Bar chart & confusion matrices saved.
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Classification Reports
+
+────────────────────────────────────────────────────────────────────────────────
+In [10] (Code Cell #10)
+────────────────────────────────────────────────────────────────────────────────
+
+================================================================================
+  CLASSIFICATION REPORTS — Best Test(fair) per Skenario
+================================================================================
+
+  ── S1_Spectrogram × LogisticRegression (n=10) ──
+  CV=0.6017±0.1566 | Test(fair)=0.5489 | Test(sw)=0.6491
+              precision    recall  f1-score   support
+
+      Normal       0.55      0.60      0.57        10
+     Depresi       0.56      0.50      0.53        10
+
+    accuracy                           0.55        20
+   macro avg       0.55      0.55      0.55        20
+weighted avg       0.55      0.55      0.55        20
+
+
+  ── S2_MFCC × RandomForest (n=10) ──
+  CV=0.6758±0.1274 | Test(fair)=0.6970 | Test(sw)=0.6875
+              precision    recall  f1-score   support
+
+      Normal       0.67      0.80      0.73        10
+     Depresi       0.75      0.60      0.67        10
+
+    accuracy                           0.70        20
+   macro avg       0.71      0.70      0.70        20
+weighted avg       0.71      0.70      0.70        20
+
+
+  ── S3_Wav2Vec × LogisticRegression (n=30) ──
+  CV=0.6835±0.1406 | Test(fair)=0.7442 | Test(sw)=0.7917
+              precision    recall  f1-score   support
+
+      Normal       0.86      0.60      0.71        10
+     Depresi       0.69      0.90      0.78        10
+
+    accuracy                           0.75        20
+   macro avg       0.77      0.75      0.74        20
+weighted avg       0.77      0.75      0.74        20
+
+
+  ── S4_Fusion × LogisticRegression (n=10) ──
+  CV=0.6640±0.2005 | Test(fair)=0.6419 | Test(sw)=0.6970
+              precision    recall  f1-score   support
+
+      Normal       0.62      0.80      0.70        10
+     Depresi       0.71      0.50      0.59        10
+
+    accuracy                           0.65        20
+   macro avg       0.66      0.65      0.64        20
+weighted avg       0.66      0.65      0.64        20
+
+
+  ── Ensemble(All-4) ──
+  F1(fair)=0.6970 | F1(sw)=0.7494 | Acc=0.7000 | AUC=0.7500
+              precision    recall  f1-score   support
+
+      Normal       0.67      0.80      0.73        10
+     Depresi       0.75      0.60      0.67        10
+
+    accuracy                           0.70        20
+   macro avg       0.71      0.70      0.70        20
+weighted avg       0.71      0.70      0.70        20
+
+────────────────────────────────────────────────────────────
+[MARKDOWN]
+## Final Report
+
+────────────────────────────────────────────────────────────────────────────────
+In [11] (Code Cell #11)
+────────────────────────────────────────────────────────────────────────────────
+
+================================================================================
+                                FINAL REPORT v85                                
+================================================================================
+  v84 Referensi: CV=0.8457(overfit) | Test(fair)=0.6970 | Test(sw)=0.6970
+  v85 Best CV  : S2_MFCC × SVM n=10 → 0.7448 ± 0.0881
+  v85 Best Test: S3_Wav2Vec × LogisticRegression n=30 → Test(fair)=0.7442
+  v85 Best Ens : Ensemble(All-4) → F1(fair)=0.6970
+  Overall Best : 0.7442
+
+  TARGET 0.75 (Test/fair): NO (0.7442)
+  Total waktu  : 770.8s
+================================================================================
+  Summary saved to: D:\repositories\menthealth-ai\results\v85/metrics/v85_summary.json
+
+================================================================================
+  RINGKASAN
+  Code cells  : 11
+  Cells dengan output teks: 10
+================================================================================

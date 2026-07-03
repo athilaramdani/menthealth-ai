@@ -1,0 +1,53 @@
+{
+  "version": "v95",
+  "strategy": "Wav2Vec v8 768 mean embedding; S3 LR/LinearSVM no PCA; anti-leakage StandardScaler-PCA-Classifier pipeline; native imbalance; OOF threshold sweep 0.35-0.45 with fallback",
+  "dataset_total": 189,
+  "w2v8_rows_available": 189,
+  "w2v8_missing_rows_zero_filled": 0,
+  "split": {
+    "train": 169,
+    "test": 20,
+    "test_normal": 10,
+    "test_depresi": 10
+  },
+  "feature_dimensions": [
+    {
+      "scenario": "S1_Spectrogram",
+      "dimension": 681
+    },
+    {
+      "scenario": "S2_MFCC",
+      "dimension": 990
+    },
+    {
+      "scenario": "S3_Wav2Vec768",
+      "dimension": 768
+    },
+    {
+      "scenario": "S4_Fusion",
+      "dimension": 2439
+    }
+  ],
+  "best": {
+    "scenario": "S2_MFCC",
+    "model": "XGB",
+    "pca_n": 10,
+    "no_pca": false,
+    "cv_f1": 0.5865,
+    "threshold": 0.495,
+    "threshold_source": "wide",
+    "test_f1": 0.6491,
+    "accuracy": 0.65,
+    "precision": 0.6515,
+    "recall": 0.65,
+    "recall_depresi": 0.6,
+    "test_top50_f1": 0.7,
+    "auc": 0.64,
+    "oracle_f1": 0.7
+  },
+  "xai_plot": "D:\\repositories\\menthealth-ai\\results\\v95\\plots\\xai_top20_v95.png",
+  "model_path": "D:\\repositories\\menthealth-ai\\models\\ml_v95\\best_XGB_S2_MFCC.pkl",
+  "model_metadata_path": "D:\\repositories\\menthealth-ai\\models\\ml_v95\\best_model_metadata.json",
+  "target_075": false,
+  "elapsed_s": 294.2
+}

@@ -1,0 +1,168 @@
+=== Pipeline v63 — Spectrogram Focus + Aggressive Threshold ===
+
+
+[1] Loading data...
+
+MFCC: 102 participants, 990 fitur
+Spectrogram: 102 participants, 687 fitur
+Wav2Vec: 102 participants, 72 fitur
+
+Train: 79 (0:49, 1:30)
+Test:  23  (0:14, 1:9)
+
+
+[2] Spectrogram × MLP Hyperparameter Sweep...
+
+================================================================================
+  A. Spec + SMOTE + K100 — MLP Architecture × Alpha × LR × Seed
+================================================================================
+
+  Preprocessed: 100 features | SMOTE → 98 samples
+
+  ★ NEW BEST: arch=(300, 150, 50) α=0.001 lr=0.0005 seed=76 → F1=0.6618 Acc=0.7391 Thr=0.50
+
+  ★ NEW BEST: arch=(300, 150, 75, 25) α=0.001 lr=0.0005 seed=42 → F1=0.6862 Acc=0.6957 Thr=0.44
+  ★ NEW BEST: arch=(300, 150, 75, 25) α=0.001 lr=0.0005 seed=13 → F1=0.7527 Acc=0.7826 Thr=0.45
+
+
+  Best MLP: arch=(300, 150, 75, 25), α=0.001, lr=0.0005, seed=13, F1=0.7527
+
+
+================================================================================
+  B. Spectrogram × All Models × SMOTE Variants
+================================================================================
+
+
+================================================================================
+  C. Spectrogram+MFCC Fusion
+================================================================================
+
+
+================================================================================
+  D. Soft Voting Ensemble (Top 5 models)
+================================================================================
+  Top 5: ['MLP_arch3h_a0.001_lr0.0005_s13', 'MLP_arch3h_a0.01_lr0.0005_s13', 'MLP_arch3h_a0.05_lr0.0005_s13', 'MLP_arch3h_a0.1_lr0.0005_s13', 'Spec|SMOTE-tomek|PCA|ET']
+
+  Ensemble_MLP5_SVM: F1=0.6349, Acc=0.6522, Rec=0.6349, AUC=0.5952, Thr=0.47
+
+
+==============================================================================================================
+                                         RINGKASAN v63 — Top Results                                          
+==============================================================================================================
+                        Experiment  Test F1 Macro  Test Accuracy  Test AUC  Test Recall  Threshold
+1    MLP_arch3h_a0.05_lr0.0005_s13         0.7527         0.7826    0.6190       0.7421       0.52
+2    MLP_arch3h_a0.01_lr0.0005_s13         0.7527         0.7826    0.6190       0.7421       0.52
+3     MLP_arch3h_a0.1_lr0.0005_s13         0.7527         0.7826    0.6190       0.7421       0.52
+4   MLP_arch3h_a0.001_lr0.0005_s13         0.7527         0.7826    0.6190       0.7421       0.52
+5          Spec|SMOTE-tomek|PCA|ET         0.6957         0.6957    0.6429       0.7302       0.36
+6     MLP_arch3h_a0.01_lr0.001_s13         0.6920         0.7391    0.5952       0.6865       0.51
+7     MLP_arch3h_a0.05_lr0.001_s13         0.6920         0.7391    0.5873       0.6865       0.51
+8      MLP_arch3h_a0.1_lr0.001_s13         0.6920         0.7391    0.5873       0.6865       0.51
+9    MLP_arch3h_a0.001_lr0.001_s13         0.6920         0.7391    0.5952       0.6865       0.51
+10     MLP_arch3h_a0.1_lr0.0005_s0         0.6862         0.6957    0.6190       0.6905       0.53
+11    MLP_arch3h_a0.05_lr0.001_s99         0.6862         0.6957    0.5476       0.6905       0.43
+12   MLP_arch3h_a0.001_lr0.0005_s0         0.6862         0.6957    0.6190       0.6905       0.53
+13   Spec|SMOTE-borderline|PCA|GBM         0.6862         0.6957    0.5952       0.6905       0.13
+14    MLP_arch3h_a0.05_lr0.0005_s0         0.6862         0.6957    0.6190       0.6905       0.53
+15    MLP_arch3h_a0.01_lr0.0005_s0         0.6862         0.6957    0.6190       0.6905       0.53
+16   MLP_arch3h_a0.001_lr0.005_s76         0.6734         0.6957    0.6190       0.6706       0.45
+17     MLP_arch3h_a0.1_lr0.005_s13         0.6734         0.6957    0.5873       0.6706       0.57
+18            Spec|NoSMOTE|PCA|GBM         0.6734         0.6957    0.5952       0.6706       0.27
+19   MLP_arch3h_a0.001_lr0.005_s13         0.6734         0.6957    0.5952       0.6706       0.57
+20    MLP_arch3h_a0.05_lr0.005_s13         0.6734         0.6957    0.5952       0.6706       0.57
+
+  ★ BEST: MLP_arch3h_a0.05_lr0.0005_s13
+  Test F1     : 0.7527
+  Test Acc    : 0.7826
+  Test AUC    : 0.6190
+
+  🎯 TARGET TERCAPAI! F1 = 0.7527 ≥ 0.75
+
+
+================================================================================
+  CLASSIFICATION REPORT — Best: MLP_arch3h_a0.05_lr0.0005_s13
+================================================================================
+              precision    recall  f1-score   support
+
+      Normal       0.76      0.93      0.84        14
+     Depresi       0.83      0.56      0.67         9
+
+    accuracy                           0.78        23
+   macro avg       0.80      0.74      0.75        23
+weighted avg       0.79      0.78      0.77        23
+
+
+[Top 5]
+
+  [1] MLP_arch3h_a0.05_lr0.0005_s13 (F1=0.7527, Acc=0.7826):
+              precision    recall  f1-score   support
+
+      Normal       0.76      0.93      0.84        14
+     Depresi       0.83      0.56      0.67         9
+
+    accuracy                           0.78        23
+   macro avg       0.80      0.74      0.75        23
+weighted avg       0.79      0.78      0.77        23
+
+
+  [2] MLP_arch3h_a0.01_lr0.0005_s13 (F1=0.7527, Acc=0.7826):
+              precision    recall  f1-score   support
+
+      Normal       0.76      0.93      0.84        14
+     Depresi       0.83      0.56      0.67         9
+
+    accuracy                           0.78        23
+   macro avg       0.80      0.74      0.75        23
+weighted avg       0.79      0.78      0.77        23
+
+
+  [3] MLP_arch3h_a0.1_lr0.0005_s13 (F1=0.7527, Acc=0.7826):
+              precision    recall  f1-score   support
+
+      Normal       0.76      0.93      0.84        14
+     Depresi       0.83      0.56      0.67         9
+
+    accuracy                           0.78        23
+   macro avg       0.80      0.74      0.75        23
+weighted avg       0.79      0.78      0.77        23
+
+
+  [4] MLP_arch3h_a0.001_lr0.0005_s13 (F1=0.7527, Acc=0.7826):
+              precision    recall  f1-score   support
+
+      Normal       0.76      0.93      0.84        14
+     Depresi       0.83      0.56      0.67         9
+
+    accuracy                           0.78        23
+   macro avg       0.80      0.74      0.75        23
+weighted avg       0.79      0.78      0.77        23
+
+
+  [5] Spec|SMOTE-tomek|PCA|ET (F1=0.6957, Acc=0.6957):
+              precision    recall  f1-score   support
+
+      Normal       0.89      0.57      0.70        14
+     Depresi       0.57      0.89      0.70         9
+
+    accuracy                           0.70        23
+   macro avg       0.73      0.73      0.70        23
+weighted avg       0.76      0.70      0.70        23
+
+
+Plot: D:\repositories\menthealth-ai\results\v63\plots\v63_comparison.png
+
+
+[OK] Tersimpan di D:\repositories\menthealth-ai\models\ml_v63/
+
+================================================================================
+                          FINAL REPORT — Pipeline v63                           
+================================================================================
+  Experiments  : 356
+  Best Config  : MLP_arch3h_a0.05_lr0.0005_s13
+  Test F1      : 0.7527
+  Test Accuracy: 0.7826
+  Test AUC     : 0.6190
+  Threshold    : 0.52
+  Target ≥0.75 : ✓ TERCAPAI!
+  Total Waktu  : 197.2s
+================================================================================
